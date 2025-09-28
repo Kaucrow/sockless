@@ -16,7 +16,7 @@ const initialValues = ref({
 
 const resolver = zodResolver(
     z.object({
-        email: z.string().email({ message: 'Invalid email' }),
+        email: z.email({ message: 'Invalid email' }),
         password: z.string().nonempty({ message: 'Password is required' })
     })  
 );
