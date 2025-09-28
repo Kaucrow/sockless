@@ -53,7 +53,7 @@ const onFormSubmit = (data) => {
             :initialValues="initialValues"
             :resolver="resolver"
             @submit="onFormSubmit"
-            class="flex flex-col gap-3 p-8 bg-surface-0 dark:bg-surface-900 w-full sm:w-[20rem] md:w-[25rem]"
+            class="flex flex-col gap-3 p-8 bg-surface-0 dark:bg-surface-900 w-full sm:w-[20rem] md:w-[30rem]"
             >
             <div class="flex flex-col gap-1">
                 <Password

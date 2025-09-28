@@ -75,7 +75,7 @@ const onFormSubmit = (data) => {
                     </Message>
                 </div>
                 <Button type="submit" label="Login" severity="secondary" :disabled="$form.isSubmitting" class="mt-6"/>
-                <div class="text-center mt-4">
+                <div class="text-center mt-1">
                     <router-link to="/forgot-password" class="p-button p-component p-button-link">Forgot Password?</router-link>
                 </div>
 
