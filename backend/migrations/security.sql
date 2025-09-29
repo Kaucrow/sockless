@@ -8,7 +8,27 @@ CREATE TABLE IF NOT EXISTS security.user (
 
 CREATE TABLE IF NOT EXISTS security.profile (
     profile_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    profile_name VARCHAR(50) UNIQUE NOT NULL
+    "name" VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS security.subsystem (
+    subsystem_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "name" VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS security.class (
+    class_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "name" VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS security.method (
+    method_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "name" VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS security.menu (
+    menu_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "name" VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS security.user_profile (
@@ -16,26 +36,12 @@ CREATE TABLE IF NOT EXISTS security.user_profile (
     profile_id UUID NOT NULL REFERENCES security.profile(profile_id)
 );
 
-CREATE TABLE IF NOT EXISTS security.module (
-
+CREATE TABLE IF NOT EXISTS security.method_profile (
+    method_id UUID NOT NULL REFERENCES security.method(method_id),
+    profile_id UUID NOT NULL REFERENCES security.profile(profile_id)
 );
 
-CREATE TABLE IF NOT EXISTS security.object (
-
-);
-
-CREATE TABLE IF NOT EXISTS security.method (
-
-);
-
-CREATE TABLE IF NOT EXISTS security.method_permission (
-
-);
-
-CREATE TABLE IF NOT EXISTS security.option (
-
-);
-
-CREATE TABLE IF NOT EXISTS security.permission_option (
-
+CREATE TABLE IF NOT EXISTS security.menu_profile (
+    menu_id UUID NOT NULL REFERENCES security.menu(menu_id),
+    profile_id UUID NOT NULL REFERENCES security.profile(profile_id)
 );

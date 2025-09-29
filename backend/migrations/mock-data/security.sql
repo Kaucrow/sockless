@@ -6,19 +6,19 @@ INSERT INTO security.user (email, passwd, "name", surname) VALUES
 ON CONFLICT (email) DO NOTHING;
 
 -- Profiles
-INSERT INTO security.profile (profile_name) VALUES
+INSERT INTO security.profile ("name") VALUES
     ('admin'),
     ('moderator'),
     ('user'),
     ('viewer'),
     ('guest')
-ON CONFLICT (profile_name) DO NOTHING;
+ON CONFLICT ("name") DO NOTHING;
 
 -- Assign profiles to users
 INSERT INTO security.user_profile (user_id, profile_id)
     SELECT u.user_id, p.profile_id 
     FROM security.user u, security.profile p 
-    WHERE (u.email, p.profile_name) IN (
+    WHERE (u.email, p.name) IN (
         ('user1@example.com', 'admin'),
         ('user1@example.com', 'user'),
         ('user2@example.com', 'moderator'),
