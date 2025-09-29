@@ -1,5 +1,25 @@
+tx:
+  getMethodCall: |
+    SELECT * FROM security.tx WHERE tx_id = $1
 user:
   getUserByEmail: |
     SELECT * FROM security.user WHERE email = $1
   getUserById: |
     SELECT * FROM security.user WHERE user_id = $1
+  getProfiles: |
+    SELECT up.profile_id
+    FROM security.user AS u
+    JOIN security.user_profile AS up ON u.user_id = up.user_id
+    WHERE u.user_id = $1
+method:
+  getAllowedProfiles: |
+    SELECT p.profile_id, p.name AS profile_name
+    FROM security.method AS m
+    JOIN security.class AS c ON m.class_id = c.class_id
+    JOIN security.subsystem AS s ON c.subsystem_id = s.subsystem_id
+    JOIN security.method_profile AS mp ON m.method_id = mp.method_id
+    JOIN security.profile AS p ON mp.profile_id = p.profile_id
+    WHERE
+      s.name = $1 AND
+      c.name = $2 AND
+      m.name = $3

@@ -7,9 +7,9 @@ import {
 } from 'paseto-ts/v4';
 import cookieParser from 'cookie-parser';
 
-import type { UUID } from 'crypto';
+import type { UUID } from '@/types/global.js';
+import type { Session } from '@/types/session.js';
 import { session as sessionFileConfig } from '@const/constants.js';
-import type { Session } from '@server-types/session.js';
 
 class SessionComponent {
   static #instance: SessionComponent;
@@ -21,7 +21,7 @@ class SessionComponent {
     public: string
   } | undefined = undefined;
 
-  private tokenSessions: Set<UUID> | undefined = undefined;
+  private tokenSessions: Set<string> | undefined = undefined;
 
   private constructor() {}
 
@@ -29,11 +29,10 @@ class SessionComponent {
     if (!SessionComponent.#instance) {
       SessionComponent.#instance = new SessionComponent();
     }
-
     return SessionComponent.#instance;
   }
 
-  private async getPasetoPayload(req: Request): Promise<Session> {
+  private async getPasetoPayload(req: Request): Promise<Session | null> {
     // Get the token from cookies
     const token = req.cookies?.session;
 
@@ -45,7 +44,7 @@ class SessionComponent {
       const { payload }: { payload: Session } = await pasetoVerify(this.pasetoKeys!.public, token);
 
       if (!this.tokenSessions!.has(payload.userId)) {
-        throw new Error("Session expired"); // Session set does not have the user ID (might have expired)
+        return null;  // Session set does not have the user ID (might have expired)
       }
 
       return payload as Session;  // Verification succeeded
@@ -93,7 +92,7 @@ class SessionComponent {
     }
   }
 
-  public create(req: Request, res: Response, userId: UUID) {
+  public create(req: Request, res: Response, userId: UUID, profiles: UUID[]) {
     if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first");
 
     switch (this.type) {
@@ -107,7 +106,7 @@ class SessionComponent {
 
         try {
           // Build the token
-          const payload: Session = { userId };
+          const payload: Session = { userId, profiles };
           const token = pasetoSign(this.pasetoKeys!.secret, payload);
 
           // Set the token as a cookie
@@ -153,12 +152,13 @@ class SessionComponent {
         if (!req.session.userId) return null;
 
         return {
-          userId: req.session.userId
+          userId: req.session.userId,
+          profiles: req.session.profiles || []
         }
       }
       case 'paseto': {
         try {
-          const payload: Session = await this.getPasetoPayload(req);
+          const payload: Session | null = await this.getPasetoPayload(req);
           return payload;
         } catch (err) {
           console.error(err);
@@ -180,7 +180,14 @@ class SessionComponent {
       }
       case 'paseto': {
         try {
-          const payload: Session = await this.getPasetoPayload(req);
+          const payload: Session | null = await this.getPasetoPayload(req);
+
+          if (!payload) {
+            console.error("Cannot delete session server-side since it doesn't exist");
+            res.clearCookie('session');
+            return;
+          }
+
           this.tokenSessions!.delete(payload.userId);
           res.clearCookie('session');
         } catch (err) {

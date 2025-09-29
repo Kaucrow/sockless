@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 
+import toProcessRoute from '@routes/to-process/to-process.js';
 import authRoutes from '@routes/auth/auth.js';
 import userRoutes from '@routes/user/user.js';
 
@@ -21,6 +22,9 @@ app.use(cors({
   origin: frontend.url,
   credentials: true
 }));
+
+// To-Process route
+app.use('/', toProcessRoute);
 
 // Auth routes
 app.use('/auth', authRoutes);

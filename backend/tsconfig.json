@@ -45,14 +45,13 @@
 
     // Other
     "paths": {
-        "@/*": ["./src/*"],
         "@routes/*": ["./src/routes/*"],
-        "@server-types/*": ["./src/types/*"],
         "@const/*": ["./src/constants/*"],
         "@config/*": ["./src/config/*"],
         "@global/*": ["./src/global/*"],
         "@schemas/*": ["./src/schemas/*"],
-        "@components/*": ["./src/components/*"]
+        "@components/*": ["./src/components/*"],
+        "@/*": ["./src/*"]
     },
   }
 }

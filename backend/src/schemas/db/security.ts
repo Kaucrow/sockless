@@ -7,3 +7,14 @@ export const userSchema = z.object({
   name: z.string(),
   surname: z.string()
 });
+
+export const methodCallSchema = z.object({
+  subsystem: z.string(),
+  class: z.string(),
+  method: z.string()
+});
+
+export const allowedProfilesSchema = z.object({
+  profile_id: z.uuid(),
+  profile_name: z.string()
+});

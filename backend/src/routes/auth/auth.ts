@@ -2,8 +2,8 @@ import { Router } from 'express';
 import { dbPool } from '@global/database.js';
 import { queries } from '@const/constants.js';
 import { userSchema } from '@schemas/db/security.js';
-import type { UUID } from 'crypto';
 import { session } from '@components/session.js';
+import type { UUID } from '@/types/global.js';
 
 const router = Router();
 
@@ -20,10 +20,15 @@ router.post('/login', (req, res) => {
 
       // If the password matches, create the session
       if (user.passwd === password) {
-        // Create a session with the DB user ID
-        session.create(req, res, user.user_id as UUID);
+        // Get the user profiles
+        dbPool.query(queries.user.getProfiles, [user.user_id], (err, results) => {
+          let profiles: UUID[] = [];
 
-        return res.status(200).json({ message: 'Login successful' });
+          // Create a session with the DB user ID
+          session.create(req, res, user.user_id, profiles);
+
+          return res.status(200).json({ message: 'Login successful' });
+        });
       }
     }
 
