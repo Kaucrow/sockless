@@ -14,7 +14,11 @@ export const methodCallSchema = z.object({
   method: z.string()
 });
 
-export const allowedProfilesSchema = z.object({
+export const profileSchema = z.object({
+  profile_id: z.uuid(),
+});
+
+export const allowedProfileSchema = z.object({
   profile_id: z.uuid(),
   profile_name: z.string()
 });

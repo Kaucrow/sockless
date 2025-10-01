@@ -37,13 +37,13 @@ CREATE TABLE IF NOT EXISTS security.menu (
     UNIQUE (subsystem_id, "name")
 );
 
-CREATE TABLE IF NOT EXISTS security.tx {
+CREATE TABLE IF NOT EXISTS security.tx (
     tx_id SERIAL PRIMARY KEY,
     subsystem VARCHAR(50) NOT NULL,
     class VARCHAR(50) NOT NULL,
     method VARCHAR(50) NOT NULL,
     UNIQUE (subsystem, class, method)
-};
+);
 
 CREATE TABLE IF NOT EXISTS security.user_profile (
     user_id UUID NOT NULL REFERENCES security.user(user_id),

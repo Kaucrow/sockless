@@ -6,6 +6,8 @@ import type { Request } from "express";
 import type { MethodCall } from "@/types/security.js";
 import { security } from "@components/security.js";
 
+type ExecutionResult = 'Executed' | 'MethodNotFound' | 'PermissionDenied';
+
 class DispatcherComponent {
   static #instance: DispatcherComponent;
 
@@ -18,24 +20,28 @@ class DispatcherComponent {
     return DispatcherComponent.#instance;
   }
 
-  public async executeMethod(req: Request) {
+  public async executeMethod(req: Request): Promise<ExecutionResult> {
     const { tx } = toProcessSchema.parse(req.body);
 
     let methodCall: MethodCall | null = null;
 
-    dbPool.query(queries.tx.getMethodCall, [tx], (err, results) => {
-      if (err) throw err;
+    // Get the method call object from the TX number
+    const methodCallResult = await dbPool.query(queries.tx.getMethodCall, [tx]);
 
-      if (!results.rowCount) throw new Error(`Method with tx '${tx}' not found in DB`);
+    // If there's no matching TX number in DB, throw an error
+    if (!methodCallResult.rowCount) return 'MethodNotFound';
 
-      methodCall = methodCallSchema.parse(results.rows[0]);
-    });
+    methodCall = methodCallSchema.parse(methodCallResult.rows[0]);
 
+    // Check if the user has permission to execute the method
     const hasMethodPermission = await security.hasMethodPermission(req, methodCall!);
 
-    if (!hasMethodPermission) throw new Error(`User is not allowed to execute method ${methodCall}`);
+    // If they don't, throw an error
+    if (!hasMethodPermission) return 'PermissionDenied';
 
-    console.log(`TODO: Execute ${methodCall}`);
+    console.log(`TODO: Execute ${methodCall.subsystem} ${methodCall.class} ${methodCall.method}`);
+
+    return 'Executed';
   }
 }
 

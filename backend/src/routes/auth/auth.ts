@@ -1,40 +1,52 @@
 import { Router } from 'express';
 import { dbPool } from '@global/database.js';
 import { queries } from '@const/constants.js';
-import { userSchema } from '@schemas/db/security.js';
+import { userSchema, profileSchema } from '@schemas/db/security.js';
+import { objectToCamel } from 'ts-case-convert';
 import { session } from '@components/session.js';
 import type { UUID } from '@/types/global.js';
 
 const router = Router();
 
 // Login endpoint
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  dbPool.query(queries.user.getUserByEmail, [email], (err, results) => {
-    if (err) throw err;
+  try {
+    // Get user
+    const userResult = await dbPool.query(queries.user.getUserByEmail, [email]);
 
-    // If a user was found, validate their password
-    if (results.rowCount) {
-      const user = userSchema.parse(results.rows[0]);
-
-      // If the password matches, create the session
-      if (user.passwd === password) {
-        // Get the user profiles
-        dbPool.query(queries.user.getProfiles, [user.user_id], (err, results) => {
-          let profiles: UUID[] = [];
-
-          // Create a session with the DB user ID
-          session.create(req, res, user.user_id, profiles);
-
-          return res.status(200).json({ message: 'Login successful' });
-        });
-      }
+    // If user doesn't exist, respond HTTP 401 Forbidden
+    if (!userResult.rowCount) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Login failed
-    res.status(401).json({ message: 'Invalid credentials' });
-  });
+    const user = objectToCamel(userSchema.parse(userResult.rows[0]));
+
+    // Validate password
+    const match = (user.passwd === password);   // TODO: Replace with hashing
+
+    // If password is invalid, respond HTTP 401 Forbidden
+    if (!match) {
+      return res.status(401).json({ message: 'Invalid credentials.' });
+    }
+
+    // Get profiles
+    const profilesResult = await dbPool.query(queries.user.getProfiles, [user.userId]);
+
+    let profiles: UUID[] = [];
+    profilesResult.rows.forEach(row => {
+      profiles.push(objectToCamel(profileSchema.parse(row)).profileId);
+    });
+
+    // Create session and respond HTTP 200 OK
+    session.create(req, res, user.userId, profiles);
+
+    return res.status(200).json({ message: 'Login successful.' });
+  } catch (err) {
+    console.error(`Login error: ${err}`);
+    return res.status(500).json({ message: 'A server error occurred.' });
+  }
 });
 
 // Logout endpoint
@@ -45,7 +57,7 @@ router.post('/logout', async (req, res) => {
     res.status(200).json({ message: 'Logout successful' });
   } catch (err) {
     // Logout failed
-    return res.status(500).json({ message: 'Could not log out' });
+    return res.status(500).json({ message: 'A server error occurred.' });
   }
 });
 

@@ -3,7 +3,7 @@ import { dbPool } from '@global/database.js';
 import { queries } from '@const/constants.js';
 import type { MethodCall } from '@/types/security.js';
 import type { UUID } from '@/types/global.js';
-import { allowedProfilesSchema } from '@schemas/db/security.js';
+import { allowedProfileSchema } from '@schemas/db/security.js';
 import { objectToCamel } from 'ts-case-convert';
 import type { Request } from 'express';
 
@@ -38,20 +38,21 @@ class SecurityComponent {
 
     const { subsystem, class: className, method } = methodCall;
 
-    dbPool.query(
-      queries.method.getAllowedProfiles,
-      [subsystem, className, method],
-      (err, results) => {
-        if (err) throw err;
+    try {
+      const profilesResult = await dbPool.query(
+        queries.method.getAllowedProfiles,
+        [subsystem, className, method]
+      );
 
-        if (results.rowCount) {
-          results.rows.forEach(row => {
-            let dbProfile = allowedProfilesSchema.parse(row);
-            profiles.add(objectToCamel(dbProfile).profileId);
-          });
-        }
+      if (profilesResult.rowCount) {
+        profilesResult.rows.forEach(row => {
+          const dbProfile = objectToCamel(allowedProfileSchema.parse(row));
+          profiles.add(dbProfile.profileId);
+        });
       }
-    );
+    } catch (err) {
+      console.error(`Error getting allowed user profiles: ${err}`);
+    }
 
     return profiles;
   }
