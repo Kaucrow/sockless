@@ -5,11 +5,14 @@ import { toProcessSchema } from "@schemas/dispatcher.js";
 import type { Request } from "express";
 import type { MethodCall } from "@/types/security.js";
 import { security } from "@components/security.js";
+import { toPascal } from "ts-case-convert";
 
-type ExecutionResult = 'Executed' | 'MethodNotFound' | 'PermissionDenied';
+type ExecutionError = 'TxNotFound' | 'PermissionDenied';
+type BusinessObjectInstance = any;
 
 class DispatcherComponent {
   static #instance: DispatcherComponent;
+  private readonly classRegistry: Map<string, BusinessObjectInstance> = new Map();
 
   private constructor() {}
 
@@ -20,8 +23,8 @@ class DispatcherComponent {
     return DispatcherComponent.#instance;
   }
 
-  public async executeMethod(req: Request): Promise<ExecutionResult> {
-    const { tx } = toProcessSchema.parse(req.body);
+  public async executeMethod(req: Request): Promise<any | ExecutionError> {
+    const { tx, args } = toProcessSchema.parse(req.body);
 
     let methodCall: MethodCall | null = null;
 
@@ -29,7 +32,7 @@ class DispatcherComponent {
     const methodCallResult = await dbPool.query(queries.tx.getMethodCall, [tx]);
 
     // If there's no matching TX number in DB, throw an error
-    if (!methodCallResult.rowCount) return 'MethodNotFound';
+    if (!methodCallResult.rowCount) return 'TxNotFound';
 
     methodCall = methodCallSchema.parse(methodCallResult.rows[0]);
 
@@ -38,10 +41,67 @@ class DispatcherComponent {
 
     // If they don't, throw an error
     if (!hasMethodPermission) return 'PermissionDenied';
+    
+    const { subsystem, class: className, method } = methodCall;
 
-    console.log(`TODO: Execute ${methodCall.subsystem} ${methodCall.class} ${methodCall.method}`);
+    // Get the class instance
+    let instance = await this.getOrCreateInstance(subsystem, className);
 
-    return 'Executed';
+    const methodRef = instance[`${method}`];
+
+    // If the method ref is of type function, execute it.
+    // Otherwise, throw an error
+    if (typeof methodRef === 'function') {
+      const result = await methodRef.apply(instance, args);
+      return result;
+    } else {
+      const targetClassName = toPascal(className);
+      throw new Error(`Method ${method} not found on class ${targetClassName}`);
+    }
+  }
+
+  private async getOrCreateInstance(subsystem: string, className: string): Promise<BusinessObjectInstance> {
+    const key = `${subsystem}_${className}`;
+
+    // If the class registry already has the required instance, return it
+    if (this.classRegistry.has(key)) {
+      return this.classRegistry.get(key);
+    }
+
+    try {
+      // Get the module.
+      // The module should have the same name as the target class, except the
+      // module should be written in snake case and the target class should
+      // be written in pascal case
+      const modulePath = `@/business-objects/${subsystem}/${className}.js`;
+      const module = await import(modulePath);
+
+      // Get the class
+      const targetClassName = toPascal(className);
+      const TargetClass: BusinessObjectInstance = module[targetClassName as keyof typeof module];
+
+      // Class not found in module
+      if (!TargetClass) {
+        throw new Error(`Class ${targetClassName} not found in module ${className}`);
+      };
+
+      // Instantiate the class
+      const instance = new TargetClass();
+
+      // Add the instance to the class registry and return it
+      this.classRegistry.set(key, instance);
+
+      return instance;
+    } catch (err) {
+      // Catch dynamic import errors
+      if (err instanceof Error && (err as any).code === 'MODULE_NOT_FOUND') {
+        console.error(`Module not found at ${subsystem}/${className}. Returning null.`);
+        return null
+      }
+
+      // Re-throw any other unexpected errors
+      throw err;
+    }
   }
 }
 

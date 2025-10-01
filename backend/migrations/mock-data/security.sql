@@ -30,9 +30,9 @@ ON CONFLICT DO NOTHING;
 
 -- Subsystems
 INSERT INTO security.subsystem ("name") VALUES
-    ('Users'),
-    ('Billing'),
-    ('Reports')
+    ('users'),
+    ('billing'),
+    ('reports')
 ON CONFLICT ("name") DO NOTHING;
 
 -- Classes: Links Subsystem ID + Class Name
@@ -40,11 +40,11 @@ INSERT INTO security.class (subsystem_id, "name")
     SELECT s.subsystem_id, c.class_name
     FROM security.subsystem s
     CROSS JOIN (VALUES
-        ('Users', 'Management'),        -- Subsystem: Users
-        ('Users', 'Permissions'),
-        ('Billing', 'Invoices'),        -- Subsystem: Billing
-        ('Billing', 'Payments'),
-        ('Reports', 'General')          -- Subsystem: Reports
+        ('users', 'management'),        -- Subsystem: Users
+        ('users', 'permissions'),
+        ('billing', 'invoices'),        -- Subsystem: Billing
+        ('billing', 'payments'),
+        ('reports', 'general')          -- Subsystem: Reports
     ) AS c (subsystem_name, class_name)
     WHERE s.name = c.subsystem_name
 ON CONFLICT (subsystem_id, "name") DO NOTHING;
@@ -56,17 +56,17 @@ INSERT INTO security.method (class_id, "name")
     INNER JOIN security.subsystem s ON c.subsystem_id = s.subsystem_id
     CROSS JOIN (VALUES
         -- Users.Management Methods
-        ('Users', 'Management', 'create'),
-        ('Users', 'Management', 'read'),
-        ('Users', 'Management', 'update'),
-        ('Users', 'Management', 'delete'),
+        ('users', 'management', 'create'),
+        ('users', 'management', 'read'),
+        ('users', 'management', 'update'),
+        ('users', 'management', 'delete'),
         -- Users.Permissions Methods
-        ('Users', 'Permissions', 'assign'),
+        ('users', 'permissions', 'assign'),
         -- Billing.Invoices Methods
-        ('Billing', 'Invoices', 'view'),
-        ('Billing', 'Invoices', 'download'),
+        ('billing', 'invoices', 'view'),
+        ('billing', 'invoices', 'download'),
         -- Reports.General Methods
-        ('Reports', 'General', 'generate')
+        ('reports', 'general', 'generate')
     ) AS m (subsystem_name, class_name, method_name)
     WHERE s.name = m.subsystem_name
       AND c.name = m.class_name
@@ -93,14 +93,14 @@ INSERT INTO security.menu (subsystem_id, "name")
     FROM security.subsystem s
     CROSS JOIN (VALUES
         -- Subsystem: Users
-        ('Users', 'User Management'),
-        ('Users', 'Permissions Console'),
-        ('Users', 'Guest Landing Page'),
+        ('users', 'User Management'),
+        ('users', 'Permissions Console'),
+        ('users', 'Guest Landing Page'),
         -- Subsystem: Billing
-        ('Billing', 'View Invoices'),
-        ('Billing', 'Payment History'),
+        ('billing', 'View Invoices'),
+        ('billing', 'Payment History'),
         -- Subsystem: Reports
-        ('Reports', 'System Reports')
+        ('reports', 'System Reports')
     ) AS m (subsystem_name, menu_name)
     WHERE s.name = m.subsystem_name
 ON CONFLICT (subsystem_id, "name") DO NOTHING;
@@ -114,25 +114,25 @@ INSERT INTO security.method_profile (method_id, profile_id)
     JOIN security.profile p ON TRUE
     WHERE (s.name, c.name, m.name, p.name) IN (
         -- Admin: Full CRUD on User Management
-        ('Users', 'Management', 'create', 'admin'),
-        ('Users', 'Management', 'read', 'admin'),
-        ('Users', 'Management', 'update', 'admin'),
-        ('Users', 'Management', 'delete', 'admin'),
+        ('users', 'management', 'create', 'admin'),
+        ('users', 'management', 'read', 'admin'),
+        ('users', 'management', 'update', 'admin'),
+        ('users', 'management', 'delete', 'admin'),
         -- Admin: Can Assign Permissions
-        ('Users', 'Permissions', 'assign', 'admin'),
+        ('users', 'permissions', 'assign', 'admin'),
         -- Moderator: Can Read/Update Users, View Invoices
-        ('Users', 'Management', 'read', 'moderator'),
-        ('Users', 'Management', 'update', 'moderator'),
-        ('Billing', 'Invoices', 'view', 'moderator'),
+        ('users', 'management', 'read', 'moderator'),
+        ('users', 'management', 'update', 'moderator'),
+        ('billing', 'invoices', 'view', 'moderator'),
         -- User: Can Read Users, View/Download Invoices, Generate Reports
-        ('Users', 'Management', 'read', 'user'),
-        ('Billing', 'Invoices', 'view', 'user'),
-        ('Billing', 'Invoices', 'download', 'user'),
-        ('Reports', 'General', 'generate', 'user'),
+        ('users', 'management', 'read', 'user'),
+        ('billing', 'invoices', 'view', 'user'),
+        ('billing', 'invoices', 'download', 'user'),
+        ('reports', 'general', 'generate', 'user'),
         -- Viewer: Can only View Invoices
-        ('Billing', 'Invoices', 'view', 'viewer'),
+        ('billing', 'invoices', 'view', 'viewer'),
         -- Guest: Can only Read Users
-        ('Users', 'Management', 'read', 'guest')
+        ('users', 'management', 'read', 'guest')
     )
 ON CONFLICT DO NOTHING;
 

@@ -8,9 +8,9 @@ router.post('/to-process', async (req, res) => {
     const result = await dispatcher.executeMethod(req);
 
     switch(result) {
-      case 'Executed': return res.status(200).send();
-      case 'MethodNotFound': return res.status(400).json({ message: 'Method not found.'});
+      case 'TxNotFound': return res.status(400).json({ message: 'Invalid TX.'});
       case 'PermissionDenied': return res.status(403).json({ message: 'User is not allowed to perform this action.'});
+      default: return res.status(200).json(result);
     }
   } catch(err) {
     console.error(err);
