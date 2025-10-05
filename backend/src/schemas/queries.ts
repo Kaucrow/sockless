@@ -10,6 +10,10 @@ export const queriesSchema = z.object({
     getProfiles: z.string(),
   }),
   method: z.object({
-    getAllowedProfiles: z.string()
+    getAllowedProfiles: z.string(),
+    getProfileData: z.string()
+  }),
+  profile: z.object({
+    getAll: z.string()
   })
 });

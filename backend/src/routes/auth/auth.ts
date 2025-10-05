@@ -34,9 +34,9 @@ router.post('/login', async (req, res) => {
     // Get profiles
     const profilesResult = await dbPool.query(queries.user.getProfiles, [user.userId]);
 
-    let profiles: UUID[] = [];
+    let profiles: string[] = [];
     profilesResult.rows.forEach(row => {
-      profiles.push(objectToCamel(profileSchema.parse(row)).profileId);
+      profiles.push(objectToCamel(profileSchema.parse(row)).profileName);
     });
 
     // Create session and respond HTTP 200 OK

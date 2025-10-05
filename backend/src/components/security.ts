@@ -3,9 +3,14 @@ import { dbPool } from '@global/database.js';
 import { queries } from '@const/constants.js';
 import type { MethodCall } from '@/types/security.js';
 import type { UUID } from '@/types/global.js';
-import { allowedProfileSchema } from '@schemas/db/security.js';
+import {
+  methodAllowedProfileSchema,
+  profileDataSchema
+} from '@schemas/db/security.js';
 import { objectToCamel } from 'ts-case-convert';
 import type { Request } from 'express';
+
+type MethodProfileData = { [subsystem: string]: { [className: string]: { [methodName: string]: string[] } } };
 
 class SecurityComponent {
   static #instance: SecurityComponent;
@@ -46,7 +51,7 @@ class SecurityComponent {
 
       if (profilesResult.rowCount) {
         profilesResult.rows.forEach(row => {
-          const dbProfile = objectToCamel(allowedProfileSchema.parse(row));
+          const dbProfile = objectToCamel(methodAllowedProfileSchema.parse(row));
           profiles.add(dbProfile.profileId);
         });
       }
@@ -55,6 +60,48 @@ class SecurityComponent {
     }
 
     return profiles;
+  }
+
+  public async getMethodProfileData(): Promise<MethodProfileData> {
+    // Stores subsystems, classes, methods, and the methods' allowed profiles
+    let profileData: MethodProfileData = {};
+
+    try {
+      const profileDataResult = await dbPool.query(queries.method.getProfileData);
+
+      if (profileDataResult.rowCount) {
+        profileDataResult.rows.forEach(row => {
+          const {
+            subsystemName: subsystem,
+            className,
+            methodName: method,
+            profileName: profile
+          }= objectToCamel(profileDataSchema.parse(row));
+
+          // Ensure the subsystem object exists, or create it
+          if (!profileData[subsystem]) {
+            profileData[subsystem] = {};
+          }
+          
+          // Ensure the class object exists, or create it
+          if (!profileData[subsystem][className]) {
+            profileData[subsystem][className] = {};
+          }
+          
+          // Ensure the method's Array exists, or create it
+          if (!profileData[subsystem][className][method]) {
+            profileData[subsystem][className][method] = [];
+          }
+
+          // Add the profile to the Set
+          profileData[subsystem][className][method].push(profile);
+        });
+      }
+    } catch (err) {
+      console.error(`Error getting methods' allowed profiles: ${err}`);
+    }
+
+    return profileData;
   }
 }
 

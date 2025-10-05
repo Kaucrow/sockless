@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS security.profile (
 
 CREATE TABLE IF NOT EXISTS security.subsystem (
     subsystem_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "name" VARCHAR(50) NOT NULL UNIQUE
+    "name" VARCHAR(50) UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS security.class (

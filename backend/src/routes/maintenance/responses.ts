@@ -1,0 +1,1 @@
+export type MethodProfileData = { [subsystem: string]: { [className: string]: { [methodName: string]: string[] } } };

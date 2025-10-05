@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 
 import toProcessRoute from '@routes/to-process/to-process.js';
+import profileMaintenanceRoutes from '@routes/maintenance/profiles.js';
 import authRoutes from '@routes/auth/auth.js';
 import userRoutes from '@routes/user/user.js';
 
@@ -25,6 +26,9 @@ app.use(cors({
 
 // To-Process route
 app.use('/', toProcessRoute);
+
+// Maintenance routes
+app.use('/maintenance', profileMaintenanceRoutes);
 
 // Auth routes
 app.use('/auth', authRoutes);

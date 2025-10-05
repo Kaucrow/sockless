@@ -92,7 +92,7 @@ class SessionComponent {
     }
   }
 
-  public create(req: Request, res: Response, userId: UUID, profiles: UUID[]) {
+  public create(req: Request, res: Response, userId: UUID, profiles: string[]) {
     if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first");
 
     switch (this.type) {
