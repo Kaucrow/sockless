@@ -168,6 +168,14 @@ class SessionComponent {
     }
   }
 
+  public async hasProfile(profile: string, req: Request): Promise<boolean | null> {
+    const sessionData = await this.get(req);
+
+    if (!sessionData) return null;
+
+    return sessionData.profiles.includes(profile);
+  }
+
   public async destroy(req: Request, res: Response) {
     if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first");
 

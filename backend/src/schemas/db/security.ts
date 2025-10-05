@@ -8,7 +8,7 @@ export const userSchema = z.object({
   surname: z.string()
 });
 
-export const methodCallSchema = z.object({
+export const methodDataSchema = z.object({
   subsystem: z.string(),
   class: z.string(),
   method: z.string()

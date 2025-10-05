@@ -11,7 +11,8 @@ export const queriesSchema = z.object({
   }),
   method: z.object({
     getAllowedProfiles: z.string(),
-    getProfileData: z.string()
+    getProfileData: z.string(),
+    addProfile: z.string()
   }),
   profile: z.object({
     getAll: z.string()

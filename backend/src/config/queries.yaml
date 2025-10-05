@@ -35,6 +35,24 @@ method:
     JOIN security.subsystem AS s ON c.subsystem_id = s.subsystem_id
     JOIN security.method_profile AS mp ON m.method_id = mp.method_id
     JOIN security.profile AS p ON mp.profile_id = p.profile_id
+  addProfile: |
+    INSERT INTO security.method_profile (method_id, profile_id)
+    VALUES (
+      (
+        SELECT m.method_id
+        FORM security.method AS m
+        JOIN security.class AS c ON m.class_id = c.class_id
+        JOIN security.subsystem s ON c.subsystem_id = s.subsystem_id
+        WHERE s.name = $1
+        AND c.name = $2
+        AND m.name = $3
+      ),
+      (
+        SELECT profile_id
+        FROM security.profile
+        WHERE name = $4
+      )
+    )
 profile:
   getAll: |
     SELECT p.name FROM security.profile AS p

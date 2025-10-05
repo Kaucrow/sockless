@@ -1,12 +1,15 @@
 import { session } from '@components/session.js';
 import { dbPool } from '@global/database.js';
 import { queries } from '@const/constants.js';
-import type { MethodCall } from '@/types/security.js';
+import type { MethodData } from '@/types/security.js';
 import type { UUID } from '@/types/global.js';
 import {
   methodAllowedProfileSchema,
-  profileDataSchema
+  methodDataSchema,
+  profileDataSchema,
+  profileSchema
 } from '@schemas/db/security.js';
+import { addMethodProfileSchema } from '@schemas/requests.js';
 import { objectToCamel } from 'ts-case-convert';
 import type { Request } from 'express';
 
@@ -24,7 +27,7 @@ class SecurityComponent {
     return SecurityComponent.#instance;
   }
 
-  public async hasMethodPermission(req: Request, methodCall: MethodCall): Promise<boolean> {
+  public async hasMethodPermission(req: Request, methodCall: MethodData): Promise<boolean> {
     const userData = await session.get(req);
 
     if (!userData) return false;
@@ -38,7 +41,7 @@ class SecurityComponent {
     return hasPermission;
   }
 
-  public async getMethodAllowedProfiles(methodCall: MethodCall): Promise<Set<UUID>> {
+  public async getMethodAllowedProfiles(methodCall: MethodData): Promise<Set<UUID>> {
     let profiles: Set<UUID> = new Set();
 
     const { subsystem, class: className, method } = methodCall;
@@ -62,6 +65,25 @@ class SecurityComponent {
     return profiles;
   }
 
+  public async getProfiles(): Promise<string[]> {
+    let profiles: string[] = [];
+
+    try {
+      const profilesResult = await dbPool.query(queries.profile.getAll);
+
+      if (profilesResult.rowCount) {
+        profilesResult.rows.forEach(row => {
+          const profile = objectToCamel(profileSchema.parse(row));
+          profiles.push(profile.profileName);
+        });
+      }
+    } catch (err) {
+      console.error(`Error getting profiles: ${err}`);
+    }
+      
+    return profiles;
+  }
+
   public async getMethodProfileData(): Promise<MethodProfileData> {
     // Stores subsystems, classes, methods, and the methods' allowed profiles
     let profileData: MethodProfileData = {};
@@ -76,7 +98,7 @@ class SecurityComponent {
             className,
             methodName: method,
             profileName: profile
-          }= objectToCamel(profileDataSchema.parse(row));
+          } = objectToCamel(profileDataSchema.parse(row));
 
           // Ensure the subsystem object exists, or create it
           if (!profileData[subsystem]) {
@@ -102,6 +124,12 @@ class SecurityComponent {
     }
 
     return profileData;
+  }
+
+  public async addMethodProfile(req: Request) {
+    const { subsystem, class: className, method, profile } = addMethodProfileSchema.parse(req.body);
+
+    await dbPool.query(queries.method.addProfile, [subsystem, className, method, profile]);
   }
 }
 
