@@ -8,6 +8,7 @@ import Password from 'primevue/password';
 import { z } from 'zod';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { ref } from 'vue';
+import router from '@/router';
 
 const initialValues = ref({
     email: '',
@@ -25,6 +26,12 @@ const onFormSubmit = (data) => {
     if (data.valid) {
         console.log('Form Data:', data.values);
         // we send to the server
+
+        // Simulate a server request
+        setTimeout(() => {
+            console.log('User logged in successfully');
+            router.push('/home');
+        }, 1000);
     } else {
         console.log('errors:', data.errors);
     }

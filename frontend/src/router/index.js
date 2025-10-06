@@ -14,7 +14,8 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: Login
+      component: Login,
+      meta: { layout: 'auth'}
     },
     {
       path: '/home',
@@ -24,12 +25,14 @@ const router = createRouter({
     {
       path: '/forgot-password',
       name: 'forgot-password',
-      component: forgotPass
+      component: forgotPass,
+      meta: { layout: 'auth'}
     },
     {
       path: '/reset-password',
       name: 'reset-password',
-      component: ResetPass
+      component: ResetPass,
+      meta: { layout: 'auth'}
     }
   ],
 })
