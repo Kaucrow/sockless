@@ -36,6 +36,20 @@ const router = Router();
  *    responses:
  *      200:
  *        description: Success.
+ *        headers:
+ *          Set-Cookie:
+ *            description: The PASETO session token.
+ *            schema:
+ *              type: string
+ *              example: v4.public.eyJkYXRhIjogInRoaXMgaXMgYSBzaWduZWQg...
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                token:
+ *                  type: string
+ *                  example: v4.public.eyJkYXRhIjogInRoaXMgaXMgYSBzaWduZWQg...
  *      401:
  *        description: Invalid username and/or password.
  */
@@ -69,10 +83,14 @@ router.post('/login', async (req, res) => {
       profiles.push(objectToCamel(profileSchema.parse(row)).profileName);
     });
 
-    // Create session and respond HTTP 200 OK
-    session.create(req, res, user.userId, profiles);
+    // Create session
+    let token = await session.create(req, res, user.userId, profiles);
 
-    return res.status(200).json({ message: 'Login successful.' });
+    if (token) {
+      return res.status(200).json({ token: token });
+    } else {
+      return res.status(200).json({ message: 'Logged in successfully.'});
+    }
   } catch (err) {
     console.error(`Login error: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });

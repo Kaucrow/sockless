@@ -33,11 +33,22 @@ class SessionComponent {
   }
 
   private async getPasetoPayload(req: Request): Promise<Session | null> {
-    // Get the token from cookies
-    const token = req.cookies?.session;
+    // Get the token
+    let token: string | undefined;
 
+    // Check for token in the Authorization Header
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+      // Extract the token part: 'Bearer <token>'
+      token = authHeader.split(' ')[1];
+    }
+
+    // If no token in the header, check for token in the cookies
+    if (!token) token = req.cookies?.session;
+
+    // If still no token, throw an error
     if (!token) {
-      throw new Error("No session token found in cookies"); // Token is missing
+      throw new Error("No session token found in Authorization header or cookies"); // Token is missing
     }
 
     try {
@@ -92,7 +103,7 @@ class SessionComponent {
     }
   }
 
-  public create(req: Request, res: Response, userId: UUID, profiles: string[]) {
+  public async create(req: Request, res: Response, userId: UUID, profiles: string[]): Promise<string | null> {
     if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first");
 
     switch (this.type) {
@@ -107,7 +118,7 @@ class SessionComponent {
         try {
           // Build the token
           const payload: Session = { userId, profiles };
-          const token = pasetoSign(this.pasetoKeys!.secret, payload);
+          const token = await pasetoSign(this.pasetoKeys!.secret, payload);
 
           // Set the token as a cookie
           res.cookie('session', token, {
@@ -117,11 +128,15 @@ class SessionComponent {
             sameSite: 'strict',
             path: '/',
           });
+
+          return token;
         } catch (err) {
           throw err;
         }
       }
     }
+
+    return null;
   }
 
   public async exists(req: Request): Promise<boolean> {
