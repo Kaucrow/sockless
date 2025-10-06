@@ -4,11 +4,41 @@ import { queries } from '@const/constants.js';
 import { userSchema, profileSchema } from '@schemas/db/security.js';
 import { objectToCamel } from 'ts-case-convert';
 import { session } from '@components/session.js';
-import type { UUID } from '@/types/global.js';
 
 const router = Router();
 
-// Login endpoint
+/**
+ * @swagger
+ * /auth/login:
+ *  post:
+ *    tags:
+ *      - auth
+ *    description: Login endpoint. Creates a user session on success.
+ *    requestBody:
+ *      description: User's login data.
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              email:
+ *                type: string
+ *                description: The user's email.
+ *                example: user1@example.com
+ *              password:
+ *                type: string
+ *                description: The user's password.
+ *                example: secret123
+ *          required:
+ *            - email
+ *            - password 
+ *    responses:
+ *      200:
+ *        description: Success.
+ *      401:
+ *        description: Invalid username and/or password.
+ */
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -49,7 +79,19 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Logout endpoint
+/**
+ * @swagger
+ * /auth/logout:
+ *  post:
+ *    tags:
+ *      - auth
+ *    description: Logout endpoint. Destroys the user session if it exists.
+ *    responses:
+ *      200:
+ *        description: Success.
+ *      500:
+ *        description: Server error or session doesn't exist.
+ */
 router.post('/logout', async (req, res) => {
   try {
     await session.destroy(req, res);

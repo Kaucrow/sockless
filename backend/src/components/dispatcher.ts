@@ -1,9 +1,9 @@
 import { dbPool } from "@global/database.js";
 import { queries } from "@const/constants.js";
-import { methodCallSchema } from "@schemas/db/security.js";
+import { methodDataSchema } from "@schemas/db/security.js";
 import { toProcessSchema } from "@schemas/dispatcher.js";
 import type { Request } from "express";
-import type { MethodCall } from "@/types/security.js";
+import type { MethodData } from "@/types/security.js";
 import { security } from "@components/security.js";
 import { toPascal } from "ts-case-convert";
 
@@ -26,7 +26,7 @@ class DispatcherComponent {
   public async executeMethod(req: Request): Promise<any | ExecutionError> {
     const { tx, args } = toProcessSchema.parse(req.body);
 
-    let methodCall: MethodCall | null = null;
+    let methodCall: MethodData | null = null;
 
     // Get the method call object from the TX number
     const methodCallResult = await dbPool.query(queries.tx.getMethodCall, [tx]);
@@ -34,7 +34,7 @@ class DispatcherComponent {
     // If there's no matching TX number in DB, throw an error
     if (!methodCallResult.rowCount) return 'TxNotFound';
 
-    methodCall = methodCallSchema.parse(methodCallResult.rows[0]);
+    methodCall = methodDataSchema.parse(methodCallResult.rows[0]);
 
     // Check if the user has permission to execute the method
     const hasMethodPermission = await security.hasMethodPermission(req, methodCall!);

@@ -6,7 +6,40 @@ import { security } from '@components/security.js';
 
 const router = Router();
 
-// Get method profile data endpoint
+/**
+ * @swagger
+ * /maintenance/get-method-profile-data:
+ *  get:
+ *    tags:
+ *      - maintenance
+ *    description: Returns the allowed profiles for every method.
+ *    responses:
+ *      200:
+ *        description: Method profile data object. Contains the profiles that have permission to execute each method from each class from each subsystem.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              example:
+ *                users:
+ *                  permissions:
+ *                    assign:
+ *                      - admin
+ *                  management:
+ *                    delete:
+ *                      - admin
+ *                    update:
+ *                      - admin
+ *                      - moderator
+ *                reports:
+ *                  general:
+ *                    generate:
+ *                      - user
+ *      401:
+ *        description: User is not logged in.
+ *      403:
+ *        description: User is not a maintenance admin.
+ */
 router.get('/get-method-profile-data', async (req, res) => {
   try {
     const hasPerms = await session.hasProfile(config.maintenance.adminProfile, req);
@@ -27,7 +60,29 @@ router.get('/get-method-profile-data', async (req, res) => {
   }
 });
 
-// Get profiles endpoint
+/**
+ * @swagger
+ * /maintenance/get-profiles:
+ *  get:
+ *    tags:
+ *      - maintenance
+ *    description: Returns the available profiles.
+ *    responses:
+ *      200:
+ *        description: Available profiles.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              example:
+ *                - admin
+ *                - moderator
+ *                - user
+ *      401:
+ *        description: User is not logged in.
+ *      403:
+ *        description: User is not a maintenance admin.
+ */
 router.get('/get-profiles', async(req, res) => {
   try {
     const hasPerms = await session.hasProfile(config.maintenance.adminProfile, req);
@@ -47,6 +102,50 @@ router.get('/get-profiles', async(req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /maintenance/add-method-profile:
+ *  post:
+ *    tags:
+ *      - maintenance
+ *    description: Allows a profile to execute a given method.
+ *    requestBody:
+ *      description: Method data.
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              subsystem:
+ *                type: string
+ *                description: Subsystem name.
+ *                example: users 
+ *              class:
+ *                type: string
+ *                description: Class name.
+ *                example: permissions
+ *              method:
+ *                type: string
+ *                description: Method name.
+ *                example: assign
+ *              profile:
+ *                type: string
+ *                description: Profile name.
+ *                example: moderator
+ *          required:
+ *            - subsystem
+ *            - class
+ *            - method
+ *            - profile
+ *    responses:
+ *      200:
+ *        description: Success.
+ *      401:
+ *        description: User is not logged in.
+ *      403:
+ *        description: User is not a maintenance admin.
+ */
 router.post('/add-method-profile', async(req, res) => {
   try {
     const hasPerms = await session.hasProfile(config.maintenance.adminProfile, req);

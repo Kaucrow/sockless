@@ -55,4 +55,4 @@ method:
     )
 profile:
   getAll: |
-    SELECT p.name FROM security.profile AS p
+    SELECT p.name AS profile_name FROM security.profile AS p

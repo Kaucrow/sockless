@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import swaggerUI from 'swagger-ui-express';
+import { swaggerDocs, swaggerUIOptions } from './swagger.js';
 
 import toProcessRoute from '@routes/to-process/to-process.js';
 import profileMaintenanceRoutes from '@routes/maintenance/profiles.js';
@@ -23,6 +25,9 @@ app.use(cors({
   origin: frontend.url,
   credentials: true
 }));
+
+// Swagger UI
+app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs, swaggerUIOptions));
 
 // To-Process route
 app.use('/', toProcessRoute);
