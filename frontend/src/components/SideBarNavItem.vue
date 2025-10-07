@@ -109,6 +109,8 @@ const paddingLeft = computed(() => `${1.5 + props.level * 1.5}rem`)
   overflow: hidden;
   transition: max-height 0.3s ease;
   background: var(--p-surface-50);
+  background: transparent !important;
+  color: var(--p-text-color);
 }
 
 .submenu.expanded {
