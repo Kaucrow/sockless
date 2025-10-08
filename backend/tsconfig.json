@@ -44,14 +44,15 @@
     "skipLibCheck": true,
 
     // Other
+    "baseUrl": "./src",
     "paths": {
-        "@routes/*": ["./src/routes/*"],
-        "@const/*": ["./src/constants/*"],
-        "@config/*": ["./src/config/*"],
-        "@global/*": ["./src/global/*"],
-        "@schemas/*": ["./src/schemas/*"],
-        "@components/*": ["./src/components/*"],
-        "@/*": ["./src/*"]
+        "@routes/*": ["./routes/*"],
+        "@const/*": ["./constants/*"],
+        "@config/*": ["./config/*"],
+        "@global/*": ["./global/*"],
+        "@schemas/*": ["./schemas/*"],
+        "@components/*": ["./components/*"],
+        "@/*": ["./*"]
     },
   }
 }

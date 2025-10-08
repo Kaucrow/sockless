@@ -8,6 +8,7 @@ export const queriesSchema = z.object({
     getUserByEmail: z.string(),
     getUserById: z.string(),
     getProfiles: z.string(),
+    add: z.string()
   }),
   method: z.object({
     getAllowedProfiles: z.string(),

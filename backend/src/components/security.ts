@@ -5,11 +5,13 @@ import type { MethodData } from '@/types/security.js';
 import type { UUID } from '@/types/global.js';
 import {
   methodAllowedProfileSchema,
-  methodDataSchema,
   profileDataSchema,
   profileSchema
 } from '@schemas/db/security.js';
-import { addMethodProfileSchema } from '@schemas/requests.js';
+import {
+  addMethodProfileSchema,
+  addUserSchema
+} from '@routes/maintenance/requests.js';
 import { objectToCamel } from 'ts-case-convert';
 import type { Request } from 'express';
 
@@ -130,6 +132,12 @@ class SecurityComponent {
     const { subsystem, class: className, method, profile } = addMethodProfileSchema.parse(req.body);
 
     await dbPool.query(queries.method.addProfile, [subsystem, className, method, profile]);
+  }
+
+  public async addUser(req: Request) {
+    const { email, passwd, name, surname } = addUserSchema.parse(req.body);
+
+    await dbPool.query(queries.user.add, [email, passwd, name, surname]);
   }
 }
 

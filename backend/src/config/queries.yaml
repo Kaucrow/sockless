@@ -12,6 +12,19 @@ user:
     JOIN security.user_profile AS up ON u.user_id = up.user_id
     JOIN security.profile AS p ON up.profile_id = p.profile_id
     WHERE u.user_id = $1
+  add: |
+    INSERT INTO security.user (
+      email, passwd, "name", surname
+    )
+    VALUES (
+      $1, $2, $3, $4
+    )
+  addProfile: |
+    INSERT INTO security.user_profile (user_id, profile_id)
+    VALUES (
+      (SELECT user_id FROM security.user WHERE email = $1),
+      (SELECT profile_id FROM security.profile WHERE "name" = $2)
+    );
 method:
   getAllowedProfiles: |
     SELECT p.profile_id, p.name AS profile_name
