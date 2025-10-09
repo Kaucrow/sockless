@@ -8,10 +8,6 @@ import {
   profileDataSchema,
   profileSchema
 } from '@schemas/db/security.js';
-import {
-  addMethodProfileSchema,
-  addUserSchema
-} from '@routes/maintenance/requests.js';
 import { objectToCamel } from 'ts-case-convert';
 import type { Request } from 'express';
 
@@ -128,16 +124,48 @@ class SecurityComponent {
     return profileData;
   }
 
-  public async addMethodProfile(req: Request) {
-    const { subsystem, class: className, method, profile } = addMethodProfileSchema.parse(req.body);
-
+  public async addMethodProfile(subsystem: string, className: string, method: string, profile: string) {
     await dbPool.query(queries.method.addProfile, [subsystem, className, method, profile]);
   }
 
-  public async addUser(req: Request) {
-    const { email, passwd, name, surname } = addUserSchema.parse(req.body);
+  public async addMenuProfile(subsystem: string, className: string, method: string, profile: string) {
+    await dbPool.query(queries.method.addProfile, [subsystem, className, method, profile]);
+  }
 
+  public async addUser(email: string, passwd: string, name: string, surname: string) {
     await dbPool.query(queries.user.add, [email, passwd, name, surname]);
+  }
+
+  // TODO
+  /*
+  public async getUserProfiles(email: string): Promise<string[]> {
+    return await dbPool.query(queries.user.getProfiles, [email]);
+  }*/
+  
+  public async addUserProfile(email: string, profile: string) {
+    await dbPool.query(queries.user.addProfile, [email, profile]);
+  }
+
+  public async removeUserProfile(email: string, profile: string) {
+    await dbPool.query(queries.user.removeProfile, [email, profile]);
+  }
+
+  public async deleteProfile(profile: string) {
+    try {
+      await dbPool.query('BEGIN');
+
+      await dbPool.query(queries.profile.removeFromAllUsers, [profile]);
+      await dbPool.query(queries.profile.removeFromAllMethods, [profile]);
+      await dbPool.query(queries.profile.removeFromAllMenus, [profile]);
+      await dbPool.query(queries.profile.delete, [profile]);
+
+      await dbPool.query('COMMIT');
+    } catch (err) {
+      await dbPool.query('ROLLBACK');
+      throw err;
+    } finally {
+      dbPool.release();
+    }
   }
 }
 

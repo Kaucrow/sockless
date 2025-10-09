@@ -13,3 +13,12 @@ export const addUserSchema = z.object({
   name: z.string(),
   surname: z.string()
 });
+
+export const deleteProfileSchema = z.object({
+  profile: z.string()
+});
+
+export const removeUserProfileSchema = z.object({
+  email: z.string(),
+  profile: z.string()
+});

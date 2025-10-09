@@ -25,6 +25,11 @@ user:
       (SELECT user_id FROM security.user WHERE email = $1),
       (SELECT profile_id FROM security.profile WHERE "name" = $2)
     );
+  removeProfile: |
+    DELETE FROM security.user_profile
+    WHERE
+      user_id = (SELECT user_id FROM security.user WHERE email = $1) AND
+      profile_id = (SELECT profile_id FROM security.profile WHERE "name" = $2)
 method:
   getAllowedProfiles: |
     SELECT p.profile_id, p.name AS profile_name
@@ -66,6 +71,21 @@ method:
         WHERE name = $4
       )
     )
+menu:
+  addProfile: |
+  removeProfile: |
 profile:
   getAll: |
     SELECT p.name AS profile_name FROM security.profile AS p
+  removeFromAllUsers: |
+    DELETE FROM security.user_profile
+    WHERE profile_id = (SELECT profile_id FROM security.profile WHERE "name" = $1)
+  removeFromAllMethods: |
+    DELETE FROM security.method_profile
+    WHERE profile_id = (SELECT profile_id FROM security.profile WHERE "name" = $1)
+  removeFromAllMenus: |
+    DELETE FROM security.menu_profile
+    WHERE profile_id = (SELECT profile_id FROM security.profile WHERE "name" = $1)
+  delete: |
+    DELETE FROM security.profile
+    WHERE "name" = $1
