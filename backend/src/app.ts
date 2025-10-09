@@ -6,7 +6,6 @@ import { swaggerDocs, swaggerUIOptions } from './swagger.js';
 import toProcessRoute from '@routes/to-process/to-process.js';
 import { profileMaintenanceRoutes } from './routes/maintenance/index.js';
 import authRoutes from '@routes/auth/auth.js';
-import userRoutes from '@routes/user/user.js';
 
 import { frontend } from '@const/constants.js';
 
@@ -37,9 +36,6 @@ app.use('/maintenance', profileMaintenanceRoutes);
 
 // Auth routes
 app.use('/auth', authRoutes);
-
-// User routes
-app.use('/', userRoutes);
 
 /**
  * @swagger

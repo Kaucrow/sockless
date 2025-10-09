@@ -3,7 +3,7 @@ import { config } from '@const/constants.js';
 import { session } from '@components/session.js';
 import { security } from '@components/security.js';
 import { UNIQUE_VIOLATION_CODE } from '@global/database.js';
-import { addUserSchema, removeUserProfileSchema } from './requests.js';
+import { addUserProfileSchema, addUserSchema, getUserProfilesSchema, removeUserProfileSchema } from './requests.js';
 
 const router = Router();
 
@@ -89,6 +89,62 @@ router.post('/add-user', async(req, res) => {
 
 /**
  * @swagger
+ * /maintenance/get-user-profiles:
+ *  get:
+ *    tags:
+ *      - maintenance
+ *    description: Gets a given user's profiles.
+ *    requestBody:
+ *      description: User email.
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              email:
+ *                type: string
+ *                description: User email.
+ *                example: user1@example.com 
+ *          required:
+ *            - email
+ *    responses:
+ *      200:
+ *        description: Success.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              example:
+ *                - admin
+ *                - moderator
+ *      401:
+ *        description: User is not logged in.
+ *      403:
+ *        description: User is not a maintenance admin.
+ */
+router.post('/get-user-profiles', async(req, res) => {
+  try {
+    const hasPerms = await session.hasProfile(config.maintenance.adminProfile, req);
+
+    // Return HTTP 401 Unauthorized if the user isn't logged in
+    if (hasPerms === null) return res.status(401).json({ message: 'User is not logged in.' });
+
+    // Return HTTP 403 Forbidden if the user is not a maintenance admin
+    if (!hasPerms)
+      return res.status(403).json({ message: 'User is not allowed to perform this action.' });
+
+    let { email } = getUserProfilesSchema.parse(req.body);
+    let profiles = await security.getUserProfiles(email);
+    return res.status(200).json([...profiles]);
+  } catch (err) {
+    console.error(`Error getting user profiles: ${err}`);
+    return res.status(500).json({ message: 'A server error occurred.' });
+  }
+});
+
+/**
+ * @swagger
  * /maintenance/add-user-profile:
  *  post:
  *    tags:
@@ -142,8 +198,8 @@ router.post('/add-user-profile', async(req, res) => {
     if (!hasPerms)
       return res.status(403).json({ message: 'User is not allowed to perform this action.' });
 
-    let { email, passwd, name, surname } = addUserSchema.parse(req.body);
-    await security.addUser(email, passwd, name, surname);
+    let { email, profile } = addUserProfileSchema.parse(req.body);
+    await security.addUserProfile(email, profile);
     return res.status(200).send();
   } catch (err) {
     console.error(`Error adding new user: ${err}`);

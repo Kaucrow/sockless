@@ -4,6 +4,7 @@ import { queries } from '@const/constants.js';
 import { userSchema, profileSchema } from '@schemas/db/security.js';
 import { objectToCamel } from 'ts-case-convert';
 import { session } from '@components/session.js';
+import { security } from '@components/security.js';
 
 const router = Router();
 
@@ -76,12 +77,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Get profiles
-    const profilesResult = await dbPool.query(queries.user.getProfiles, [user.userId]);
-
-    let profiles: string[] = [];
-    profilesResult.rows.forEach(row => {
-      profiles.push(objectToCamel(profileSchema.parse(row)).profileName);
-    });
+    const profiles = await security.getUserProfiles(user.email);
 
     // Create session
     let token = await session.create(req, res, user.userId, profiles);
