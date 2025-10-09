@@ -1,7 +1,6 @@
 <script setup>
 import { ref } from "vue";
 import Button from 'primevue/button';
-import Avatar from 'primevue/avatar';
 import SideBarNavItem from "./SideBarNavItem.vue";
 
 const props = defineProps({
@@ -144,7 +143,7 @@ const isSection = (item) => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 1.5rem;
+    padding: 1.25rem 1.5rem;
     border-bottom: 1px solid var(--p-surface-border);
     flex-shrink: 0;
 }

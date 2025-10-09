@@ -1,9 +1,24 @@
 <script setup>
-import { useRoute } from 'vue-router';
-import { Moon, Sun } from 'lucide-vue-next'; 
-import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { computed, ref } from 'vue';
+import Avatar from 'primevue/avatar';
+import Menu from 'primevue/menu';
+import {useLayout} from '../composables/useLayout';
+
+const {isDarkMode, toggleDarkMode} = useLayout();
 
 const route = useRoute();
+const router = useRouter();
+
+// User state we will get this from the backend
+const user = ref({
+  name: 'John Doe',
+  email: 'john.doe@example.com'
+});
+
+
+// Menu ref for dropdown
+const menu = ref();
 
 const currentPageName = computed(() => {
   const routeName = route.name;
@@ -20,6 +35,61 @@ const currentPageName = computed(() => {
   
   return nameMap[routeName] || routeName.charAt(0).toUpperCase() + routeName.slice(1);
 });
+
+
+const handleLogout = () => {
+  // here we would use the logout endpoint from the backend
+  console.log('Logging out...');
+  router.push('/login');
+};
+
+// Get user initials for avatar
+const userInitials = computed(() => {
+  return user.value.name
+    .split(' ')
+    .map(name => name.charAt(0))
+    .join('')
+    .toUpperCase();
+});
+
+// Toggle menu
+const toggleMenu = (event) => {
+  menu.value.toggle(event);
+};
+
+const menuItems = computed(() => [
+  {
+    label: user.value.name,
+    icon: 'pi pi-user',
+    disabled: true,
+    class: 'user-name-item'
+  },
+  {
+    separator: true
+  },
+  {
+    label: isDarkMode.value ? 'Light Mode' : 'Dark Mode',
+    icon: isDarkMode.value ? 'pi pi-sun' : 'pi pi-moon',
+    command: toggleDarkMode,
+  },
+  {
+    separator: true
+  },
+  {
+    label: 'Settings',
+    icon: 'pi pi-cog',
+    command: () => router.push('/settings')
+  },
+  { 
+    separator: true
+  },
+  {
+    label: 'Logout',
+    icon: 'pi pi-sign-out',
+    command: handleLogout,
+    class: 'logout-item'
+  }
+]);
 </script>
 
 <template>
@@ -36,14 +106,22 @@ const currentPageName = computed(() => {
       </div>
 
       <div class="nav-right">
-        <!-- <button @click="toggleDarkMode" class="theme-toggle" :class="{ 'dark': isDarkMode }">
-          <span v-if="isDarkMode">
-            <Moon />
-          </span>
-          <span v-else>
-            <Sun />
-          </span>
-        </button> -->
+        <!-- User Avatar Dropdown -->
+        <Avatar 
+          :label="userInitials" 
+          class="user-avatar-dropdown"
+          size="large"
+          shape="circle"
+          @click="toggleMenu"
+          style="cursor: pointer;"
+        />
+        
+        <Menu 
+          ref="menu" 
+          :model="menuItems" 
+          :popup="true"
+          class="user-menu"
+        />
       </div>
     </div>
   </nav>
@@ -114,28 +192,43 @@ const currentPageName = computed(() => {
   align-items: center;
 }
 
-/* .theme-toggle {
-  background: transparent;
-  border: 1px solid var(--p-surface-border);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  color: var(--p-text-color);
+.user-avatar-dropdown {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.theme-toggle:hover {
-  background: var(--p-surface-hover);
-  transform: scale(1.1);
+.user-avatar-dropdown:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.theme-toggle.dark {
+/* Custom menu styling */
+:deep(.user-menu) {
+  min-width: 200px;
+}
+
+:deep(.user-menu .p-menu-list) {
+  padding: 0.5rem 0;
+}
+
+:deep(.user-menu .p-menuitem-link) {
+  padding: 0.75rem 1rem;
+  border-radius: 0;
+}
+
+:deep(.user-menu .user-name-item) {
+  font-weight: 600;
   color: var(--p-text-color);
-} */
+  background: var(--p-surface-50);
+}
+
+:deep(.user-menu .logout-item) {
+  color: var(--p-red-500);
+}
+
+:deep(.user-menu .logout-item:hover) {
+  background: var(--p-red-50);
+  color: var(--p-red-600);
+}
 
 @media (max-width: 768px) {
   .nav-container {
@@ -145,9 +238,14 @@ const currentPageName = computed(() => {
   .page-title {
     font-size: 1.2rem;
   }
+  
+  .user-avatar-dropdown {
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
+  }
 }
 
-/* Shift navbar on desktop when sidebar is open */
 @media (min-width: 769px) {
   .navbar {
     transition: margin-left 0.3s ease;

@@ -45,9 +45,6 @@ const myNavItems = ref([
       { label: "Projects", icon: "pi pi-folder", to: "/projects" },
       { label: "Performance", icon: "pi pi-chart-bar", to: "/performance" },
     ],
-  },
-  {
-    label: "SYSTEM", icon: "pi pi-cog", to: "/system"
   }
 ]);
 </script>
