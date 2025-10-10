@@ -70,6 +70,9 @@ class SessionComponent {
     switch (type) {
       case 'express': {
         // Set up session middleware on the app
+
+        if (!sessionFileConfig.secret) throw new Error("Tried to enable an express session, but the session secret key was not found in the config file.");
+
         const sessionConfig = {
           secret: sessionFileConfig.secret,
           resave: false,

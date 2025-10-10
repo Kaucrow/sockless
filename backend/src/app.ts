@@ -7,14 +7,14 @@ import toProcessRoute from '@routes/to-process/to-process.js';
 import { profileMaintenanceRoutes } from './routes/maintenance/index.js';
 import authRoutes from '@routes/auth/auth.js';
 
-import { frontend } from '@const/constants.js';
+import { config, frontend } from '@const/constants.js';
 
 import { session } from '@components/session.js';
 
 const app = express();
 
 // Session middleware
-session.enable(app, 'paseto');
+session.enable(app, config.session.type);
 
 // Middleware to parse JSON from request body
 app.use(express.json());
