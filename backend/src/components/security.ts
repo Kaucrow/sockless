@@ -135,8 +135,16 @@ class SecurityComponent {
     await dbPool.query(queries.method.addProfile, [subsystem, className, method, profile]);
   }
 
-  public async addMenuProfile(subsystem: string, className: string, method: string, profile: string) {
-    await dbPool.query(queries.method.addProfile, [subsystem, className, method, profile]);
+  public async removeMethodProfile(subsystem: string, className: string, method: string, profile: string) {
+    await dbPool.query(queries.method.removeProfile, [subsystem, className, method, profile]);
+  }
+
+  public async addMenuProfile(subsystem: string, menu: string, profile: string) {
+    await dbPool.query(queries.menu.addProfile, [subsystem, menu, profile]);
+  }
+
+  public async removeMenuProfile(subsystem: string, menu: string, profile: string) {
+    await dbPool.query(queries.menu.removeProfile, [subsystem, menu, profile]);
   }
 
   public async addUser(email: string, passwd: string, name: string, surname: string) {

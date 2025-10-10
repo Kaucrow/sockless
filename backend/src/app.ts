@@ -4,7 +4,12 @@ import swaggerUI from 'swagger-ui-express';
 import { swaggerDocs, swaggerUIOptions } from './swagger.js';
 
 import toProcessRoute from '@routes/to-process/to-process.js';
-import { profileMaintenanceRoutes } from './routes/maintenance/index.js';
+import {
+  profileMaintenanceRoutes,
+  userMaintenanceRoutes,
+  methodMaintenanceRoutes,
+  menuMaintenanceRoutes
+} from './routes/maintenance/index.js';
 import authRoutes from '@routes/auth/auth.js';
 
 import { config, frontend } from '@const/constants.js';
@@ -33,6 +38,9 @@ app.use('/', toProcessRoute);
 
 // Maintenance routes
 app.use('/maintenance', profileMaintenanceRoutes);
+app.use('/maintenance', userMaintenanceRoutes);
+app.use('/maintenance', methodMaintenanceRoutes);
+app.use('/maintenance', menuMaintenanceRoutes);
 
 // Auth routes
 app.use('/auth', authRoutes);

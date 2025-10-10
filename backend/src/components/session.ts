@@ -112,6 +112,7 @@ class SessionComponent {
     switch (this.type) {
       case 'express': {
         req.session.userId = userId;
+        req.session.profiles = profiles;
         break;
       }
       case 'paseto': {
