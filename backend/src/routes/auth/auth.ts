@@ -1,7 +1,8 @@
 import { Router } from 'express';
+import argon2 from 'argon2';
 import { dbPool } from '@global/database.js';
 import { queries } from '@const/constants.js';
-import { userSchema, profileSchema } from '@schemas/db/security.js';
+import { userSchema } from '@schemas/db/security.js';
 import { objectToCamel } from 'ts-case-convert';
 import { session } from '@components/session.js';
 import { security } from '@components/security.js';
@@ -69,7 +70,7 @@ router.post('/login', async (req, res) => {
     const user = objectToCamel(userSchema.parse(userResult.rows[0]));
 
     // Validate password
-    const match = (user.passwd === password);   // TODO: Replace with hashing
+    const match = await argon2.verify(user.passwd, password);
 
     // If password is invalid, respond HTTP 401 Forbidden
     if (!match) {
