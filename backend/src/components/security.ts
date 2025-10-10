@@ -1,3 +1,6 @@
+import { objectToCamel } from 'ts-case-convert';
+import argon2 from 'argon2';
+import type { Request } from 'express';
 import { session } from '@components/session.js';
 import { dbPool } from '@global/database.js';
 import { queries } from '@const/constants.js';
@@ -8,8 +11,6 @@ import {
   profileDataSchema,
   profileSchema
 } from '@schemas/db/security.js';
-import { objectToCamel } from 'ts-case-convert';
-import type { Request } from 'express';
 
 type MethodProfileData = { [subsystem: string]: { [className: string]: { [methodName: string]: string[] } } };
 
@@ -139,7 +140,8 @@ class SecurityComponent {
   }
 
   public async addUser(email: string, passwd: string, name: string, surname: string) {
-    await dbPool.query(queries.user.add, [email, passwd, name, surname]);
+    const hashed_passwd = await argon2.hash(passwd);
+    await dbPool.query(queries.user.add, [email, hashed_passwd, name, surname]);
   }
 
   public async getUserProfiles(email: string): Promise<Set<string>> {
