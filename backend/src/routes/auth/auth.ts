@@ -31,7 +31,7 @@ const router = Router();
  *              password:
  *                type: string
  *                description: The user's password.
- *                example: secret123
+ *                example: hashed_password_1
  *          required:
  *            - email
  *            - password 
