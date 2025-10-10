@@ -3,13 +3,18 @@ import { config } from '@const/constants.js';
 import { session } from '@components/session.js';
 import { security } from '@components/security.js';
 import { UNIQUE_VIOLATION_CODE } from '@global/database.js';
-import { addUserProfileSchema, addUserSchema, getUserProfilesSchema, removeUserProfileSchema } from './requests.js';
+import {
+  addUserProfileSchema,
+  addUserSchema,
+  getUserProfilesSchema,
+  removeUserProfileSchema
+} from './requests.js';
 
 const router = Router();
 
 /**
  * @swagger
- * /maintenance/add-user:
+ * /maintenance/user:
  *  post:
  *    tags:
  *      - maintenance
@@ -61,7 +66,7 @@ const router = Router();
  *      403:
  *        description: User is not a maintenance admin.
  */
-router.post('/add-user', async(req, res) => {
+router.post('/user', async(req, res) => {
   try {
     const hasPerms = await session.hasProfile(config.maintenance.adminProfile, req);
 
@@ -89,7 +94,7 @@ router.post('/add-user', async(req, res) => {
 
 /**
  * @swagger
- * /maintenance/get-user-profiles:
+ * /maintenance/user/profiles:
  *  get:
  *    tags:
  *      - maintenance
@@ -105,7 +110,7 @@ router.post('/add-user', async(req, res) => {
  *              email:
  *                type: string
  *                description: User email.
- *                example: user1@example.com 
+ *                example: user1@example.com
  *          required:
  *            - email
  *    responses:
@@ -123,7 +128,7 @@ router.post('/add-user', async(req, res) => {
  *      403:
  *        description: User is not a maintenance admin.
  */
-router.post('/get-user-profiles', async(req, res) => {
+router.get('/user/profiles', async(req, res) => {
   try {
     const hasPerms = await session.hasProfile(config.maintenance.adminProfile, req);
 
@@ -145,13 +150,21 @@ router.post('/get-user-profiles', async(req, res) => {
 
 /**
  * @swagger
- * /maintenance/add-user-profile:
+ * /maintenance/user/profiles/{profileName}:
  *  post:
  *    tags:
  *      - maintenance
  *    description: Adds a profile to a user.
+ *    parameters:
+ *      - in: path
+ *        name: profileName
+ *        schema:
+ *          type: string
+ *          required: true
+ *          description: The name of the profile to add.
+ *          example: admin
  *    requestBody:
- *      description: User email & profile to add.
+ *      description: User email.
  *      required: true
  *      content:
  *        application/json:
@@ -162,13 +175,8 @@ router.post('/get-user-profiles', async(req, res) => {
  *                type: string
  *                description: User email.
  *                example: user1@example.com 
- *              profile:
- *                type: string
- *                description: Profile name.
- *                example: admin
  *          required:
  *            - email
- *            - profile
  *    responses:
  *      200:
  *        description: Success.
@@ -187,7 +195,7 @@ router.post('/get-user-profiles', async(req, res) => {
  *      403:
  *        description: User is not a maintenance admin.
  */
-router.post('/add-user-profile', async(req, res) => {
+router.post('/user/profiles/:profileName', async(req, res) => {
   try {
     const hasPerms = await session.hasProfile(config.maintenance.adminProfile, req);
 
@@ -198,7 +206,8 @@ router.post('/add-user-profile', async(req, res) => {
     if (!hasPerms)
       return res.status(403).json({ message: 'User is not allowed to perform this action.' });
 
-    let { email, profile } = addUserProfileSchema.parse(req.body);
+    let profile = req.params.profileName;
+    let { email } = addUserProfileSchema.parse(req.body);
     await security.addUserProfile(email, profile);
     return res.status(200).send();
   } catch (err) {
@@ -215,11 +224,19 @@ router.post('/add-user-profile', async(req, res) => {
 
 /**
  * @swagger
- * /maintenance/remove-user-profile:
- *  post:
+ * /maintenance/user/profiles/{profileName}:
+ *  delete:
  *    tags:
  *      - maintenance
  *    description: Removes a given profile from a user.
+ *    parameters:
+ *      - in: path
+ *        name: profileName
+ *        schema:
+ *          type: string
+ *          required: true
+ *          description: The name of the profile to add.
+ *          example: admin
  *    requestBody:
  *      description: User email & profile to remove.
  *      required: true
@@ -232,13 +249,8 @@ router.post('/add-user-profile', async(req, res) => {
  *                type: string
  *                description: User email.
  *                example: user1@example.com 
- *              profile:
- *                type: string
- *                description: Profile name.
- *                example: admin
  *          required:
  *            - email
- *            - profile
  *    responses:
  *      200:
  *        description: Success.
@@ -247,7 +259,7 @@ router.post('/add-user-profile', async(req, res) => {
  *      403:
  *        description: User is not a maintenance admin.
  */
-router.post('/remove-user-profile', async(req, res) => {
+router.delete('/user/profiles/:profileName', async(req, res) => {
   try {
     const hasPerms = await session.hasProfile(config.maintenance.adminProfile, req);
 
@@ -258,7 +270,8 @@ router.post('/remove-user-profile', async(req, res) => {
     if (!hasPerms)
       return res.status(403).json({ message: 'User is not allowed to perform this action.' });
 
-    let { email, profile } = removeUserProfileSchema.parse(req.body);
+    let profile = req.params.profileName;
+    let { email } = removeUserProfileSchema.parse(req.body);
     await security.removeUserProfile(email, profile); 
     return res.status(200).send();
   } catch (err) {

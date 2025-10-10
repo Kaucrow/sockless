@@ -24,6 +24,7 @@ export const queriesSchema = z.object({
   }),
   profile: z.object({
     getAll: z.string(),
+    changeName: z.string(),
     removeFromAllUsers: z.string(),
     removeFromAllMethods: z.string(),
     removeFromAllMenus: z.string(),

@@ -84,6 +84,10 @@ class SecurityComponent {
     return profiles;
   }
 
+  public async changeProfileName(profile: string, newName: string) {
+    await dbPool.query(queries.profile.changeName, [profile, newName]); 
+  }
+
   public async getMethodProfileData(): Promise<MethodProfileData> {
     // Stores subsystems, classes, methods, and the methods' allowed profiles
     let profileData: MethodProfileData = {};

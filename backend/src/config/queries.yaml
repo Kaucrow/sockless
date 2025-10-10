@@ -83,6 +83,10 @@ menu:
 profile:
   getAll: |
     SELECT p.name AS profile_name FROM security.profile AS p
+  changeName: |
+    UPDATE security.profile
+    SET "name" = $2
+    WHERE "name" = $1
   removeFromAllUsers: |
     DELETE FROM security.user_profile
     WHERE profile_id = (SELECT profile_id FROM security.profile WHERE "name" = $1)
