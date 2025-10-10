@@ -3,6 +3,8 @@ import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import forgotPass from '../views/ForgotPass.vue'
 import ResetPass from '../views/ResetPass.vue'
+import { authService } from '@/services/auth'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -35,6 +37,24 @@ const router = createRouter({
       meta: { layout: 'auth'}
     }
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = authService.isAuthenticated();
+
+  if (to.name !== 'login' && to.name !== 'forgot-password' && to.name !== 'reset-password') {
+    if (!isAuthenticated) {
+      next('/login');
+    } else {
+      next();
+    }
+  } else {
+    if (isAuthenticated && to.name === 'login') {
+      next('/home');
+    } else {
+      next();
+    }
+  }
 })
 
 export default router

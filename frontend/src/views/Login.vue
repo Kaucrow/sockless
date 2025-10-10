@@ -9,6 +9,10 @@ import { z } from 'zod';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { ref } from 'vue';
 import router from '@/router';
+import { authService } from '@/services/auth';
+
+const isLoading = ref(false);
+const errorMessage = ref('');
 
 const initialValues = ref({
     email: '',
@@ -22,16 +26,30 @@ const resolver = zodResolver(
     })  
 );
 
-const onFormSubmit = (data) => {
+const onFormSubmit = async (data) => {
     if (data.valid) {
-        console.log('Form Data:', data.values);
+        isLoading.value = true;
+        errorMessage.value = '';
+
+        try {
+            await authService.login(data.values.email, data.values.password);
+            console.log('User logged in successfully');
+            router.push('/home');
+        } catch (error) {
+            errorMessage.value = 'Login failed. Please try again.';
+        } finally {
+            isLoading.value = false;
+        }
+        
+
+        //  
         // we send to the server
 
         // Simulate a server request
-        setTimeout(() => {
-            console.log('User logged in successfully');
-            router.push('/home');
-        }, 1000);
+        // setTimeout(() => {
+        //     console.log('User logged in successfully');
+        //     //router.push('/home');
+        // }, 1000);
     } else {
         console.log('errors:', data.errors);
     }
@@ -81,6 +99,14 @@ const onFormSubmit = (data) => {
                         {{ $form.password.error.message }}
                     </Message>
                 </div>
+                <Message 
+                v-if="errorMessage" 
+                severity="error" 
+                :closable="false"
+                class="mb-4"
+                >
+                    {{ errorMessage }}
+                </Message>
                 <Button type="submit" label="Login" severity="secondary" :disabled="$form.isSubmitting" class="mt-6"/>
                 <div class="text-center mt-1">
                     <router-link to="/forgot-password" class="p-button p-component p-button-link">Forgot Password?</router-link>

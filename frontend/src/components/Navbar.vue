@@ -3,27 +3,29 @@ import { useRoute, useRouter } from 'vue-router';
 import { computed, ref } from 'vue';
 import Avatar from 'primevue/avatar';
 import Menu from 'primevue/menu';
-import {useLayout} from '../composables/useLayout';
+import { useLayout } from '../composables/useLayout';
+import { authService } from '@/services/auth';
 
 const {isDarkMode, toggleDarkMode} = useLayout();
 
 const route = useRoute();
 const router = useRouter();
 
-// User state we will get this from the backend
+// User state we will get this from the backend - maybe not?
 const user = ref({
   name: 'John Doe',
   email: 'john.doe@example.com'
 });
 
 
-// Menu ref for dropdown
 const menu = ref();
 
 const currentPageName = computed(() => {
   const routeName = route.name;
   if (!routeName) return 'Home';
   
+  // todo: improve this mapping
+  // maybe use a more dynamic approach or a config file
   const nameMap = {
     'home': 'Home',
     'login': 'Login',
@@ -37,10 +39,15 @@ const currentPageName = computed(() => {
 });
 
 
-const handleLogout = () => {
-  // here we would use the logout endpoint from the backend
-  console.log('Logging out...');
-  router.push('/login');
+const handleLogout = async () => {
+  try {
+    await authService.logout();
+    console.log('User logged out successfully');
+    router.push('/login');
+  } catch (error) {
+    console.error('Logout failed:', error);
+    router.push('/login');
+  }
 };
 
 // Get user initials for avatar
