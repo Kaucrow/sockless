@@ -7,7 +7,8 @@ export const queriesSchema = z.object({
   user: z.object({
     getUserByEmail: z.string(),
     getUserById: z.string(),
-    getProfiles: z.string(),
+    getProfilesByUserId: z.string(),
+    getProfilesByEmail: z.string(),
     add: z.string(),
     addProfile: z.string(),
     removeProfile: z.string(),
@@ -23,6 +24,7 @@ export const queriesSchema = z.object({
   }),
   profile: z.object({
     getAll: z.string(),
+    changeName: z.string(),
     removeFromAllUsers: z.string(),
     removeFromAllMethods: z.string(),
     removeFromAllMenus: z.string(),

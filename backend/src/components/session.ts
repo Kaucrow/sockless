@@ -103,7 +103,7 @@ class SessionComponent {
     }
   }
 
-  public async create(req: Request, res: Response, userId: UUID, profiles: string[]): Promise<string | null> {
+  public async create(req: Request, res: Response, userId: UUID, profiles: Set<string>): Promise<string | null> {
     if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first");
 
     switch (this.type) {
@@ -168,7 +168,7 @@ class SessionComponent {
 
         return {
           userId: req.session.userId,
-          profiles: req.session.profiles || []
+          profiles: req.session.profiles || new Set()
         }
       }
       case 'paseto': {
@@ -188,7 +188,7 @@ class SessionComponent {
 
     if (!sessionData) return null;
 
-    return sessionData.profiles.includes(profile);
+    return sessionData.profiles.has(profile);
   }
 
   public async destroy(req: Request, res: Response) {

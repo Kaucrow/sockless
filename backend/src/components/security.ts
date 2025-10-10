@@ -32,11 +32,13 @@ class SecurityComponent {
 
     const allowedProfiles = await this.getMethodAllowedProfiles(methodCall);
 
-    const hasPermission = userData.profiles.some(profile =>
-      allowedProfiles.has(profile)
-    );
+    for (const profile of userData.profiles) {
+      if (allowedProfiles.has(profile)) {
+        return true;  // Found a matching profile, permission granted
+      }
+    }
 
-    return hasPermission;
+    return false;
   }
 
   public async getMethodAllowedProfiles(methodCall: MethodData): Promise<Set<UUID>> {
@@ -80,6 +82,10 @@ class SecurityComponent {
     }
       
     return profiles;
+  }
+
+  public async changeProfileName(profile: string, newName: string) {
+    await dbPool.query(queries.profile.changeName, [profile, newName]); 
   }
 
   public async getMethodProfileData(): Promise<MethodProfileData> {
@@ -136,12 +142,20 @@ class SecurityComponent {
     await dbPool.query(queries.user.add, [email, passwd, name, surname]);
   }
 
-  // TODO
-  /*
-  public async getUserProfiles(email: string): Promise<string[]> {
-    return await dbPool.query(queries.user.getProfiles, [email]);
-  }*/
-  
+  public async getUserProfiles(email: string): Promise<Set<string>> {
+    let profiles: Set<string> = new Set();
+
+    let profilesResult = await dbPool.query(queries.user.getProfilesByEmail, [email]);
+
+    if (profilesResult.rowCount) {
+      profilesResult.rows.forEach(row => {
+        profiles.add(objectToCamel(profileSchema.parse(row)).profileName);
+      })
+    }
+
+    return profiles;
+  }
+
   public async addUserProfile(email: string, profile: string) {
     await dbPool.query(queries.user.addProfile, [email, profile]);
   }

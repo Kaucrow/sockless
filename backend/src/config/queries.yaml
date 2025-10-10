@@ -6,12 +6,18 @@ user:
     SELECT * FROM security.user WHERE email = $1
   getUserById: |
     SELECT * FROM security.user WHERE user_id = $1
-  getProfiles: |
+  getProfilesByUserId: |
     SELECT p.name AS profile_name
     FROM security.user AS u
     JOIN security.user_profile AS up ON u.user_id = up.user_id
     JOIN security.profile AS p ON up.profile_id = p.profile_id
     WHERE u.user_id = $1
+  getProfilesByEmail: |
+    SELECT p.name AS profile_name
+    FROM security.user AS u
+    JOIN security.user_profile AS up ON u.user_id = up.user_id
+    JOIN security.profile AS p ON up.profile_id = p.profile_id
+    WHERE u.email = $1;
   add: |
     INSERT INTO security.user (
       email, passwd, "name", surname
@@ -77,6 +83,10 @@ menu:
 profile:
   getAll: |
     SELECT p.name AS profile_name FROM security.profile AS p
+  changeName: |
+    UPDATE security.profile
+    SET "name" = $2
+    WHERE "name" = $1
   removeFromAllUsers: |
     DELETE FROM security.user_profile
     WHERE profile_id = (SELECT profile_id FROM security.profile WHERE "name" = $1)

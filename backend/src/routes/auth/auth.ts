@@ -1,9 +1,11 @@
 import { Router } from 'express';
+import argon2 from 'argon2';
 import { dbPool } from '@global/database.js';
 import { queries } from '@const/constants.js';
-import { userSchema, profileSchema } from '@schemas/db/security.js';
+import { userSchema } from '@schemas/db/security.js';
 import { objectToCamel } from 'ts-case-convert';
 import { session } from '@components/session.js';
+import { security } from '@components/security.js';
 
 const router = Router();
 
@@ -29,7 +31,7 @@ const router = Router();
  *              password:
  *                type: string
  *                description: The user's password.
- *                example: secret123
+ *                example: hashed_password_1
  *          required:
  *            - email
  *            - password 
@@ -68,7 +70,7 @@ router.post('/login', async (req, res) => {
     const user = objectToCamel(userSchema.parse(userResult.rows[0]));
 
     // Validate password
-    const match = (user.passwd === password);   // TODO: Replace with hashing
+    const match = await argon2.verify(user.passwd, password);
 
     // If password is invalid, respond HTTP 401 Forbidden
     if (!match) {
@@ -76,12 +78,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Get profiles
-    const profilesResult = await dbPool.query(queries.user.getProfiles, [user.userId]);
-
-    let profiles: string[] = [];
-    profilesResult.rows.forEach(row => {
-      profiles.push(objectToCamel(profileSchema.parse(row)).profileName);
-    });
+    const profiles = await security.getUserProfiles(user.email);
 
     // Create session
     let token = await session.create(req, res, user.userId, profiles);
