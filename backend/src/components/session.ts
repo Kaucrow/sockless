@@ -107,7 +107,7 @@ class SessionComponent {
   }
 
   public async create(req: Request, res: Response, userId: UUID, profiles: Set<string>): Promise<string | null> {
-    if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first");
+    if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first.");
 
     switch (this.type) {
       case 'express': {
@@ -144,7 +144,7 @@ class SessionComponent {
   }
 
   public async exists(req: Request): Promise<boolean> {
-    if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first");
+    if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first.");
 
     switch (this.type) {
       case 'express': {
@@ -164,7 +164,7 @@ class SessionComponent {
   }
 
   public async get(req: Request): Promise<Session | null> {
-    if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first");
+    if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first.");
  
     switch (this.type) {
       case 'express': {
@@ -196,7 +196,7 @@ class SessionComponent {
   }
 
   public async destroy(req: Request, res: Response) {
-    if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first");
+    if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first.");
 
     switch (this.type) {
       case 'express': {

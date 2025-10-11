@@ -14,12 +14,15 @@ import authRoutes from '@routes/auth/auth.js';
 
 import { config, frontend } from '@const/constants.js';
 
-import { session } from '@components/session.js';
+import { session, db } from '@components/index.js';
 
 const app = express();
 
 // Session middleware
 session.enable(app, config.session.type);
+
+// Database connection
+db.connect(config.database.type);
 
 // Middleware to parse JSON from request body
 app.use(express.json());

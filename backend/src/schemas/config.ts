@@ -13,6 +13,7 @@ export const configSchema = z.object({
     secret: z.string().optional()
   }),
   database: z.object({
+    type: z.enum(["postgresql", "mysql"]),
     host: z.string(),
     port: z.number(),
     name: z.string(),
