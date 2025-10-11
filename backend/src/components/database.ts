@@ -6,39 +6,28 @@ import mysql, {
   type RowDataPacket,
   type Pool as MySQLPool
 } from 'mysql2/promise';
+import {
+  DbError,
+  DbConflictError,
+  DbSchemaValidationError,
+  DbNotNullViolationError
+} from '@errors/index.js';
 import { z } from 'zod';
+import { objectToCamel, type ObjectToCamel } from 'ts-case-convert';
 import { database as dbConfig } from '@const/constants.js';
 import type { ZodType } from "zod";
 
 const PG_UNIQUE_VIOLATION = '23505';
+const PG_NOT_NULL_VIOLATION = '23502';
 const MYSQL_DUPLICATE_ENTRY = 1062;
-
-export class DatabaseError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'DatabaseError';
-  }
-}
-
-export class ConflictError extends DatabaseError {
-  constructor(message: string, public detail?: string) {
-    super(message);
-    this.name = 'ConflictError';
-  }
-}
-
-export class SchemaValidationError extends DatabaseError {
-  constructor(message: string, public rawData?: any) {
-    super(message);
-    this.name = 'SchemaValidationError';
-  }
-}
+const MYSQL_BAD_NULL_ERROR = 1048;
 
 class DatabaseComponent {
   static #instance: DatabaseComponent;
   
   private type: 'postgresql' | 'mysql' | undefined = undefined;
   private dbPool: PgPoolClient | MySQLPool | undefined = undefined;
+  private transactionClient: PgPoolClient | MySQLPool | null = null;
 
   private constructor() {}
 
@@ -75,66 +64,84 @@ class DatabaseComponent {
     }
   }
 
-  public async fetchOne<T>(sql: string, schema: ZodType<T>, args?: any[]): Promise<T | null> {
+  public async fetchOne<T extends object>(sql: string, schema: ZodType<T>, args?: any[]): Promise<ObjectToCamel<T> | null> {
     if (!this.dbPool || !this.type) throw new Error("Database connection has not been initialized. Call db.connect() first.");
 
     const dbPool = this.dbPool;
     let row: unknown;
+    
+    try {
+      switch (this.type) {
+        case 'postgresql': {
+          const result = await (dbPool as PgPoolClient).query(sql, args);
 
-    switch (this.type) {
-      case 'postgresql': {
-        const result = await (dbPool as PgPoolClient).query(sql, args);
+          // Get the first row
+          row = result.rows[0];
+          break;
+        }
+        case 'mysql': {
+          const [rows] = await (dbPool as MySQLPool).query<RowDataPacket[]>(sql, args);
 
-        // Get the first row
-        row = result.rows[0];
-        break;
+          // Get the first row
+          row = rows[0];
+          break;
+        }
       }
-      case 'mysql': {
-        const [rows] = await (dbPool as MySQLPool).query<RowDataPacket[]>(sql, args);
-
-        // Get the first row
-        row = rows[0];
-        break;
+    } catch (err: any) {
+      // Handle NOT NULL database errors
+      if (err.code === PG_NOT_NULL_VIOLATION || err.errno === MYSQL_BAD_NULL_ERROR) {
+        throw new DbNotNullViolationError("Violation of NOT NULL constraint", err.detail);
       }
+      // Handle other database errors
+      throw new DbError(`Failed to fetch single row: ${err}`);
     }
 
     if (!row) return null;
 
     try {
-      return schema.parse(row);
+      return objectToCamel(schema.parse(row));
     } catch (err) {
-      throw new SchemaValidationError("Database record failed app schema validation.", row);
+      throw new DbSchemaValidationError("Database record failed app schema validation.", row);
     }
   }
 
-  public async fetch<T>(sql: string, schema: ZodType<T>, args?: any[]): Promise<T[]> {
+  public async fetch<T extends object>(sql: string, schema: ZodType<T>, args?: any[]): Promise<ObjectToCamel<T>[]> {
     if (!this.dbPool || !this.type) throw new Error("Database connection has not been initialized. Call db.connect() first.");
 
     const dbPool = this.dbPool;
     let rows: unknown[];
 
-    switch (this.type) {
-      case 'postgresql': {
-        const result = await (dbPool as PgPoolClient).query(sql, args);
+    try {
+      switch (this.type) {
+        case 'postgresql': {
+          const result = await (dbPool as PgPoolClient).query(sql, args);
 
-        // Get all rows
-        rows = result.rows;
-        break;
-      }
-      case 'mysql': {
-        const [rawRows] = await (dbPool as MySQLPool).query<RowDataPacket[]>(sql, args);
+          // Get all rows
+          rows = result.rows;
+          break;
+        }
+        case 'mysql': {
+          const [rawRows] = await (dbPool as MySQLPool).query<RowDataPacket[]>(sql, args);
 
-        // Get all rows
-        rows = rawRows;
-        break;
+          // Get all rows
+          rows = rawRows;
+          break;
+        }
       }
+    } catch (err: any) {
+      // Handle NOT NULL database errors
+      if (err.code === PG_NOT_NULL_VIOLATION || err.errno === MYSQL_BAD_NULL_ERROR) {
+        throw new DbNotNullViolationError("Violation of NOT NULL constraint", err.detail);
+      }
+      // Handle other database errors
+      throw new DbError(`Failed to fetch rows: ${err}`);
     }
 
     try {
       // Validate the entire array of rows
-      return z.array(schema).parse(rows);
+      return objectToCamel(z.array(schema).parse(rows)) as ObjectToCamel<T>[];
     } catch (err) {
-      throw new SchemaValidationError("Database records failed app schema validation.", rows);
+      throw new DbSchemaValidationError("Database records failed app schema validation.", rows);
     }
   }
 
@@ -160,15 +167,99 @@ class DatabaseComponent {
         }
       }
     } catch (err: any) {
-      // Handle conflict database errors
+      // Handle conflict & NOT NULL database errors
       if (err.code === PG_UNIQUE_VIOLATION || err.errno === MYSQL_DUPLICATE_ENTRY) {
-        throw new ConflictError("A record with this unique value already exists.", err.detail);
+        throw new DbConflictError("A record with this unique value already exists.", err.detail);
+      } else if (err.code === PG_NOT_NULL_VIOLATION || err.errno === MYSQL_BAD_NULL_ERROR) {
+        throw new DbNotNullViolationError("Violation of NOT NULL constraint", err.detail);
       }
-      // Re-throw other database errors
-      throw err;
+      // Handle other database errors
+      throw new DbError(`Failed to execute query: ${err}`);
     }
 
     return rowCount;
+  }
+
+  public async beginTransaction(): Promise<void> {
+    if (!this.dbPool || !this.type) throw new Error("Database connection has not been initialized. Call db.connect() first.");
+
+    if (this.transactionClient) throw new Error("Transaction already in progress.");
+
+    try {
+      switch (this.type) {
+        case 'postgresql': {
+          this.transactionClient = this.dbPool as PgPoolClient;
+          this.transactionClient.query('BEGIN');
+          break;
+        }
+        case 'mysql': {
+          this.transactionClient = this.dbPool as MySQLPool;
+          this.transactionClient.query('START TRANSACTION');
+          break;
+        }
+      }
+    } catch (err) {
+      throw new DbError(`Failed to begin transaction: ${err}`);
+    }
+  }
+
+  public async commit() {
+    if (!this.dbPool || !this.type) throw new Error("Database connection has not been initialized. Call db.connect() first.");
+
+    if (!this.transactionClient) throw new Error("No transaction in progress.");
+
+    try {
+      switch (this.type) {
+        case 'postgresql': {
+          await (this.transactionClient as PgPoolClient).query('COMMIT');
+          break;
+        }
+        case 'mysql': {
+          await (this.transactionClient as MySQLPool).query('COMMIT');
+          break;
+        }
+      }
+    } catch (err) {
+      throw new DbError(`Failed to commit transaction: ${err}`);
+    } finally {
+      switch (this.type) {
+        case 'postgresql': {
+          (this.transactionClient as PgPoolClient).release();
+          break;
+        }
+      }
+
+      this.transactionClient = null;
+    }
+  }
+
+  public async rollback() {
+    if (!this.dbPool || !this.type) throw new Error("Database connection has not been initialized. Call db.connect() first.");
+
+    if (!this.transactionClient) throw new Error("No transaction in progress.");
+
+    try {
+      switch (this.type) {
+        case 'postgresql': {
+          await (this.transactionClient as PgPoolClient).query('ROLLBACK');
+          break;
+        }
+        case 'mysql': {
+          await (this.transactionClient as MySQLPool).query('ROLLBACK');
+        }
+      }
+    } catch (err) {
+      throw new DbError(`Failed to rollback transaction: ${err}`);
+    } finally {
+      switch (this.type) {
+        case 'postgresql': {
+          (this.transactionClient as PgPoolClient).release();
+          break;
+        }
+      }
+
+      this.transactionClient = null;
+    }
   }
 }
 

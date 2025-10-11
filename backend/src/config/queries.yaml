@@ -7,13 +7,13 @@ user:
   getUserById: |
     SELECT * FROM security.user WHERE user_id = $1
   getProfilesByUserId: |
-    SELECT p.name AS profile_name
+    SELECT p.profile_id, p.name AS profile_name
     FROM security.user AS u
     JOIN security.user_profile AS up ON u.user_id = up.user_id
     JOIN security.profile AS p ON up.profile_id = p.profile_id
     WHERE u.user_id = $1
   getProfilesByEmail: |
-    SELECT p.name AS profile_name
+    SELECT p.profile_id, p.name AS profile_name
     FROM security.user AS u
     JOIN security.user_profile AS up ON u.user_id = up.user_id
     JOIN security.profile AS p ON up.profile_id = p.profile_id
@@ -127,7 +127,7 @@ menu:
     );
 profile:
   getAll: |
-    SELECT p.name AS profile_name FROM security.profile AS p
+    SELECT p.profile_id, p.name AS profile_name FROM security.profile AS p
   changeName: |
     UPDATE security.profile
     SET "name" = $2

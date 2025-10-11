@@ -51,6 +51,7 @@
         "@config/*": ["./config/*"],
         "@global/*": ["./global/*"],
         "@schemas/*": ["./schemas/*"],
+        "@errors/*": ["./errors/*"],
         "@components/*": ["./components/*"],
         "@/*": ["./*"]
     },

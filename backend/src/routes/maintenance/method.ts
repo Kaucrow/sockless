@@ -64,11 +64,11 @@ router.post('/method/profiles/:profileName', async(req, res) => {
     if (!hasPerms)
       return res.status(403).json({ message: 'User is not allowed to perform this action.' });
 
-    let profile = req.params.profileName;
+    const profile = req.params.profileName;
 
     if (!profile) return res.status(400).json({ message: 'Missing profile name in URL.' });
 
-    let { subsystem, class: className, method } = addMethodProfileSchema.parse(req.body);
+    const { subsystem, class: className, method } = addMethodProfileSchema.parse(req.body);
     await security.addMethodProfile(subsystem, className, method, profile);
     return res.status(200).send();
   } catch (err) {
@@ -135,12 +135,17 @@ router.delete('/method/profiles/:profileName', async(req, res) => {
     if (!hasPerms)
       return res.status(403).json({ message: 'User is not allowed to perform this action.' });
 
-    let profile = req.params.profileName;
+    const profile = req.params.profileName;
 
     if (!profile) return res.status(400).json({ message: 'Missing profile name in URL.' });
 
-    let { subsystem, class: className, method } = removeMethodProfileSchema.parse(req.body);
-    await security.removeMethodProfile(subsystem, className, method, profile);
+    const { subsystem, class: className, method } = removeMethodProfileSchema.parse(req.body);
+    const removed = await security.removeMethodProfile(subsystem, className, method, profile);
+
+    if (!removed) {
+      return res.status(400).json({ message: 'No record was found with this data.' });
+    }
+
     return res.status(200).send();
   } catch (err) {
     console.error(`Error adding profile to method: ${err}`);

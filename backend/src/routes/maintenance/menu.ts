@@ -59,11 +59,11 @@ router.post('/menu/profiles/:profileName', async(req, res) => {
     if (!hasPerms)
       return res.status(403).json({ message: 'User is not allowed to perform this action.' });
 
-    let profile = req.params.profileName;
+    const profile = req.params.profileName;
 
     if (!profile) return res.status(400).json({ message: 'Missing profile name in URL.' });
 
-    let { subsystem, menu } = addMenuProfileSchema.parse(req.body);
+    const { subsystem, menu } = addMenuProfileSchema.parse(req.body);
     await security.addMenuProfile(subsystem, menu, profile);
     return res.status(200).send();
   } catch (err) {
@@ -125,12 +125,17 @@ router.delete('/menu/profiles/:profileName', async(req, res) => {
     if (!hasPerms)
       return res.status(403).json({ message: 'User is not allowed to perform this action.' });
 
-    let profile = req.params.profileName;
+    const profile = req.params.profileName;
 
     if (!profile) return res.status(400).json({ message: 'Missing profile name in URL.' });
 
-    let { subsystem, menu } = addMenuProfileSchema.parse(req.body);
-    await security.addMenuProfile(subsystem, menu, profile);
+    const { subsystem, menu } = addMenuProfileSchema.parse(req.body);
+    const removed = await security.removeMenuProfile(subsystem, menu, profile);
+
+    if (!removed) {
+      return res.status(400).json({ message: 'No record was found with this data.' });
+    }
+
     return res.status(200).send();
   } catch (err) {
     console.error(`Error adding profile to method: ${err}`);

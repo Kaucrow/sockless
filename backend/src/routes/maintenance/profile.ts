@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import type { MethodProfileData, Profiles } from './responses.js';
+import type { MethodProfileData } from './responses.js';
 import { config } from '@const/constants.js';
 import { session } from '@components/session.js';
 import { security } from '@components/security.js';
@@ -95,8 +95,8 @@ router.get('/profiles', async(req, res) => {
     if (!hasPerms)
       return res.status(403).json({ message: 'User is not allowed to perform this action.' });
 
-    const profiles: Profiles = await security.getProfiles();
-    return res.status(200).json(profiles);
+    const profiles = await security.getProfiles();
+    return res.status(200).json([...profiles]);
   } catch(err) {
     console.error(`Error getting profiles: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
@@ -195,8 +195,13 @@ router.delete('/profiles/:profileName', async(req, res) => {
     if (!hasPerms)
       return res.status(403).json({ message: 'User is not allowed to perform this action.' });
 
-    let profile = req.params.profileName;
-    await security.deleteProfile(profile);
+    const profile = req.params.profileName;
+    const deleted = await security.deleteProfile(profile);
+
+    if (!deleted) {
+      return res.status(400).json({ message: 'No profile was found with this data.' });
+    }
+
     return res.status(200).send();
   } catch (err) {
     console.error(`Error adding profile to method: ${err}`);

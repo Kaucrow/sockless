@@ -52,7 +52,7 @@ class SessionComponent {
     }
 
     try {
-      const { payload }: { payload: Session } = await pasetoVerify(this.pasetoKeys!.public, token);
+      const { payload }: { payload: Session } = pasetoVerify(this.pasetoKeys!.public, token);
 
       if (!this.tokenSessions!.has(payload.userId)) {
         return null;  // Session set does not have the user ID (might have expired)
@@ -112,7 +112,7 @@ class SessionComponent {
     switch (this.type) {
       case 'express': {
         req.session.userId = userId;
-        req.session.profiles = profiles;
+        req.session.profiles = [...profiles];
         break;
       }
       case 'paseto': {
@@ -121,8 +121,8 @@ class SessionComponent {
 
         try {
           // Build the token
-          const payload: Session = { userId, profiles };
-          const token = await pasetoSign(this.pasetoKeys!.secret, payload);
+          const payload: Session = { userId, profiles: [...profiles] };
+          const token = pasetoSign(this.pasetoKeys!.secret, payload);
 
           // Set the token as a cookie
           res.cookie('session', token, {
@@ -172,7 +172,7 @@ class SessionComponent {
 
         return {
           userId: req.session.userId,
-          profiles: req.session.profiles || new Set()
+          profiles: req.session.profiles || []
         }
       }
       case 'paseto': {
@@ -192,7 +192,7 @@ class SessionComponent {
 
     if (!sessionData) return null;
 
-    return sessionData.profiles.has(profile);
+    return sessionData.profiles.includes(profile);
   }
 
   public async destroy(req: Request, res: Response) {

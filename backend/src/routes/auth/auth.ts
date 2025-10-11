@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import argon2 from 'argon2';
 import { queries } from '@const/constants.js';
-import { userSchema } from '@schemas/db/security.js';
+import { userSchema } from '@schemas/db/index.js';
 import { objectToCamel } from 'ts-case-convert';
 import { session, security, db } from '@components/index.js';
 
