@@ -7,13 +7,13 @@ user:
   getUserById: |
     SELECT * FROM security.user WHERE user_id = $1
   getProfilesByUserId: |
-    SELECT p.name AS profile_name
+    SELECT p.profile_id, p.name AS profile_name
     FROM security.user AS u
     JOIN security.user_profile AS up ON u.user_id = up.user_id
     JOIN security.profile AS p ON up.profile_id = p.profile_id
     WHERE u.user_id = $1
   getProfilesByEmail: |
-    SELECT p.name AS profile_name
+    SELECT p.profile_id, p.name AS profile_name
     FROM security.user AS u
     JOIN security.user_profile AS up ON u.user_id = up.user_id
     JOIN security.profile AS p ON up.profile_id = p.profile_id
@@ -64,7 +64,7 @@ method:
     VALUES (
       (
         SELECT m.method_id
-        FORM security.method AS m
+        FROM security.method AS m
         JOIN security.class AS c ON m.class_id = c.class_id
         JOIN security.subsystem s ON c.subsystem_id = s.subsystem_id
         WHERE s.name = $1
@@ -77,12 +77,57 @@ method:
         WHERE name = $4
       )
     )
+  removeProfile: |
+    DELETE FROM security.method_profile
+    WHERE profile_id = (
+      SELECT profile_id FROM security.profile WHERE "name" = $4
+    )
+    AND method_id = (
+      SELECT m.method_id
+      FROM security.subsystem AS s
+      JOIN security.class AS c ON s.subsystem_id = c.subsystem_id
+      JOIN security.method AS m ON c.class_id = m.class_id
+      WHERE
+        s."name" = $1 AND
+        c."name" = $2 AND
+        m."name" = $3
+    )
 menu:
   addProfile: |
+    INSERT INTO security.menu_profile (menu_id, profile_id)
+    VALUES (
+      (
+        SELECT menu_id
+        FROM security.menu AS m
+        JOIN security.subsystem AS s ON m.subsystem_id = s.subsystem_id
+        WHERE
+          s."name" = $1 AND
+          m."name" = $2
+      ),
+      (
+        SELECT profile_id
+        FROM security.profile
+        WHERE "name" = $3
+      )
+    )
   removeProfile: |
+    DELETE FROM security.menu_profile
+    WHERE profile_id = (
+        SELECT profile_id
+        FROM security.profile
+        WHERE "name" = $3
+    )
+    AND menu_id = (
+        SELECT m.menu_id
+        FROM security.menu AS m
+        JOIN security.subsystem AS s ON m.subsystem_id = s.subsystem_id
+        WHERE
+          s."name" = $1 AND
+          m."name" = $2
+    );
 profile:
   getAll: |
-    SELECT p.name AS profile_name FROM security.profile AS p
+    SELECT p.profile_id, p.name AS profile_name FROM security.profile AS p
   changeName: |
     UPDATE security.profile
     SET "name" = $2

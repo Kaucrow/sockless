@@ -9,9 +9,11 @@ export const configSchema = z.object({
     port: z.number()
   }),
   session: z.object({
-    secret: z.string()
+    type: z.enum(["express", "paseto"]),
+    secret: z.string().optional()
   }),
   database: z.object({
+    type: z.enum(["postgresql", "mysql"]),
     host: z.string(),
     port: z.number(),
     name: z.string(),

@@ -1,11 +1,9 @@
 import { Router } from 'express';
 import argon2 from 'argon2';
-import { dbPool } from '@global/database.js';
 import { queries } from '@const/constants.js';
-import { userSchema } from '@schemas/db/security.js';
+import { userSchema } from '@schemas/db/index.js';
 import { objectToCamel } from 'ts-case-convert';
-import { session } from '@components/session.js';
-import { security } from '@components/security.js';
+import { session, security, db } from '@components/index.js';
 
 const router = Router();
 
@@ -60,14 +58,14 @@ router.post('/login', async (req, res) => {
 
   try {
     // Get user
-    const userResult = await dbPool.query(queries.user.getUserByEmail, [email]);
+    const userResult = await db.fetchOne(queries.user.getUserByEmail, userSchema, [email]);
 
     // If user doesn't exist, respond HTTP 401 Forbidden
-    if (!userResult.rowCount) {
+    if (!userResult) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const user = objectToCamel(userSchema.parse(userResult.rows[0]));
+    const user = objectToCamel(userResult);
 
     // Validate password
     const match = await argon2.verify(user.passwd, password);

@@ -1,15 +1,14 @@
-import { session } from '@components/session.js';
-import { dbPool } from '@global/database.js';
+import { objectToCamel } from 'ts-case-convert';
+import argon2 from 'argon2';
+import type { Request } from 'express';
+import { session, db } from '@components/index.js';
 import { queries } from '@const/constants.js';
 import type { MethodData } from '@/types/security.js';
-import type { UUID } from '@/types/global.js';
 import {
-  methodAllowedProfileSchema,
   profileDataSchema,
   profileSchema
-} from '@schemas/db/security.js';
-import { objectToCamel } from 'ts-case-convert';
-import type { Request } from 'express';
+} from '@schemas/db/index.js';
+import { allowedProfileSchema } from '@schemas/db/index.js';
 
 type MethodProfileData = { [subsystem: string]: { [className: string]: { [methodName: string]: string[] } } };
 
@@ -41,51 +40,41 @@ class SecurityComponent {
     return false;
   }
 
-  public async getMethodAllowedProfiles(methodCall: MethodData): Promise<Set<UUID>> {
-    let profiles: Set<UUID> = new Set();
-
+  public async getMethodAllowedProfiles(methodCall: MethodData): Promise<Set<string>> {
     const { subsystem, class: className, method } = methodCall;
 
     try {
-      const profilesResult = await dbPool.query(
+      const profiles = await db.fetch(
         queries.method.getAllowedProfiles,
+        allowedProfileSchema,
         [subsystem, className, method]
       );
 
-      if (profilesResult.rowCount) {
-        profilesResult.rows.forEach(row => {
-          const dbProfile = objectToCamel(methodAllowedProfileSchema.parse(row));
-          profiles.add(dbProfile.profileId);
-        });
-      }
+      return new Set(profiles.map(p => p.profileName));
     } catch (err) {
       console.error(`Error getting allowed user profiles: ${err}`);
+      throw err;
     }
-
-    return profiles;
   }
 
-  public async getProfiles(): Promise<string[]> {
-    let profiles: string[] = [];
-
+  public async getProfiles(): Promise<Set<string>> {
     try {
-      const profilesResult = await dbPool.query(queries.profile.getAll);
+      const profiles = await db.fetch(
+        queries.profile.getAll,
+        profileSchema
+      );
 
-      if (profilesResult.rowCount) {
-        profilesResult.rows.forEach(row => {
-          const profile = objectToCamel(profileSchema.parse(row));
-          profiles.push(profile.profileName);
-        });
-      }
+      return new Set(profiles.map(p => p.profileName));
     } catch (err) {
       console.error(`Error getting profiles: ${err}`);
+      throw err;
     }
-      
-    return profiles;
   }
 
   public async changeProfileName(profile: string, newName: string) {
-    await dbPool.query(queries.profile.changeName, [profile, newName]); 
+    await db.execute(
+      queries.profile.changeName, [profile, newName]
+    ); 
   }
 
   public async getMethodProfileData(): Promise<MethodProfileData> {
@@ -93,92 +82,101 @@ class SecurityComponent {
     let profileData: MethodProfileData = {};
 
     try {
-      const profileDataResult = await dbPool.query(queries.method.getProfileData);
+      const dbProfileData = await db.fetch(
+        queries.method.getProfileData,
+        profileDataSchema
+      );
 
-      if (profileDataResult.rowCount) {
-        profileDataResult.rows.forEach(row => {
-          const {
-            subsystemName: subsystem,
-            className,
-            methodName: method,
-            profileName: profile
-          } = objectToCamel(profileDataSchema.parse(row));
+      dbProfileData.forEach(methodProfile => {
+        const {
+          subsystemName: subsystem,
+          className,
+          methodName: method,
+          profileName: profile
+        } = objectToCamel(profileDataSchema.parse(methodProfile));
 
-          // Ensure the subsystem object exists, or create it
-          if (!profileData[subsystem]) {
-            profileData[subsystem] = {};
-          }
-          
-          // Ensure the class object exists, or create it
-          if (!profileData[subsystem][className]) {
-            profileData[subsystem][className] = {};
-          }
-          
-          // Ensure the method's Array exists, or create it
-          if (!profileData[subsystem][className][method]) {
-            profileData[subsystem][className][method] = [];
-          }
+        // Ensure the subsystem object exists, or create it
+        if (!profileData[subsystem]) {
+          profileData[subsystem] = {};
+        }
 
-          // Add the profile to the Set
-          profileData[subsystem][className][method].push(profile);
-        });
-      }
+        // Ensure the class object exists, or create it
+        if (!profileData[subsystem][className]) {
+          profileData[subsystem][className] = {};
+        }
+        
+        // Ensure the method's Array exists, or create it
+        if (!profileData[subsystem][className][method]) {
+          profileData[subsystem][className][method] = [];
+        }
+
+        // Add the profile to the Set
+        profileData[subsystem][className][method].push(profile);
+      });
     } catch (err) {
       console.error(`Error getting methods' allowed profiles: ${err}`);
+      throw err;
     }
 
     return profileData;
   }
 
   public async addMethodProfile(subsystem: string, className: string, method: string, profile: string) {
-    await dbPool.query(queries.method.addProfile, [subsystem, className, method, profile]);
+    await db.execute(queries.method.addProfile, [subsystem, className, method, profile]);
   }
 
-  public async addMenuProfile(subsystem: string, className: string, method: string, profile: string) {
-    await dbPool.query(queries.method.addProfile, [subsystem, className, method, profile]);
+  public async removeMethodProfile(subsystem: string, className: string, method: string, profile: string): Promise<boolean> {
+    return !!(await db.execute(queries.method.removeProfile, [subsystem, className, method, profile]));
+  }
+
+  public async addMenuProfile(subsystem: string, menu: string, profile: string) {
+    await db.execute(queries.menu.addProfile, [subsystem, menu, profile]);
+  }
+
+  public async removeMenuProfile(subsystem: string, menu: string, profile: string): Promise<boolean> {
+    return !!(await db.execute(queries.menu.removeProfile, [subsystem, menu, profile]));
   }
 
   public async addUser(email: string, passwd: string, name: string, surname: string) {
-    await dbPool.query(queries.user.add, [email, passwd, name, surname]);
+    const hashed_passwd = await argon2.hash(passwd);
+    await db.execute(queries.user.add, [email, hashed_passwd, name, surname]);
   }
 
   public async getUserProfiles(email: string): Promise<Set<string>> {
-    let profiles: Set<string> = new Set();
+    let profiles = await db.fetch(
+      queries.user.getProfilesByEmail,
+      profileSchema,
+      [email]
+    );
 
-    let profilesResult = await dbPool.query(queries.user.getProfilesByEmail, [email]);
-
-    if (profilesResult.rowCount) {
-      profilesResult.rows.forEach(row => {
-        profiles.add(objectToCamel(profileSchema.parse(row)).profileName);
-      })
-    }
-
-    return profiles;
+    return new Set(profiles.map(p => p.profileName));
   }
 
   public async addUserProfile(email: string, profile: string) {
-    await dbPool.query(queries.user.addProfile, [email, profile]);
+    await db.execute(queries.user.addProfile, [email, profile]);
   }
 
-  public async removeUserProfile(email: string, profile: string) {
-    await dbPool.query(queries.user.removeProfile, [email, profile]);
+  public async removeUserProfile(email: string, profile: string): Promise<boolean> {
+    return !!(await db.execute(queries.user.removeProfile, [email, profile]));
   }
 
-  public async deleteProfile(profile: string) {
+  public async deleteProfile(profile: string): Promise<boolean> {
     try {
-      await dbPool.query('BEGIN');
+      let result: boolean;
 
-      await dbPool.query(queries.profile.removeFromAllUsers, [profile]);
-      await dbPool.query(queries.profile.removeFromAllMethods, [profile]);
-      await dbPool.query(queries.profile.removeFromAllMenus, [profile]);
-      await dbPool.query(queries.profile.delete, [profile]);
+      await db.beginTransaction();
 
-      await dbPool.query('COMMIT');
+      await db.execute(queries.profile.removeFromAllUsers, [profile]);
+      await db.execute(queries.profile.removeFromAllMethods, [profile]);
+      await db.execute(queries.profile.removeFromAllMenus, [profile]);
+      result = !!(await db.execute(queries.profile.delete, [profile]));
+
+      await db.commit();
+
+      return result;
     } catch (err) {
-      await dbPool.query('ROLLBACK');
+      await db.rollback();
       throw err;
-    } finally {
-      dbPool.release();
     }
   }
 }

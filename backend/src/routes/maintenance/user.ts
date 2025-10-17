@@ -1,8 +1,7 @@
 import { Router } from 'express';
 import { config } from '@const/constants.js';
-import { session } from '@components/session.js';
-import { security } from '@components/security.js';
-import { UNIQUE_VIOLATION_CODE } from '@global/database.js';
+import { session, security } from '@components/index.js';
+import { DbConflictError, DbNotNullViolationError } from '@errors/index.js';
 import {
   addUserProfileSchema,
   addUserSchema,
@@ -60,7 +59,7 @@ const router = Router();
  *              properties:
  *                message:
  *                  type: string
- *                  example: The email is already in use by an existing user
+ *                  example: The email is already in use by an existing user.
  *      401:
  *        description: User is not logged in.
  *      403:
@@ -84,8 +83,10 @@ router.post('/user', async(req, res) => {
     console.error(`Error adding new user: ${err}`);
 
     // Email already in use
-    if (err && typeof err === 'object' && 'code' in err && err.code === UNIQUE_VIOLATION_CODE) {
+    if (err instanceof DbConflictError) {
       return res.status(400).json({ message: 'The email is already in use by an existing user.' });
+    } else if (err instanceof DbNotNullViolationError) {
+      return res.status(400).json({ message: 'No record was found with this data.' });
     }
 
     return res.status(500).json({ message: 'A server error occurred.' });
@@ -139,8 +140,8 @@ router.get('/user/profiles', async(req, res) => {
     if (!hasPerms)
       return res.status(403).json({ message: 'User is not allowed to perform this action.' });
 
-    let { email } = getUserProfilesSchema.parse(req.body);
-    let profiles = await security.getUserProfiles(email);
+    const { email } = getUserProfilesSchema.parse(req.body);
+    const profiles = await security.getUserProfiles(email);
     return res.status(200).json([...profiles]);
   } catch (err) {
     console.error(`Error getting user profiles: ${err}`);
@@ -189,7 +190,7 @@ router.get('/user/profiles', async(req, res) => {
  *              properties:
  *                message:
  *                  type: string
- *                  example: The email is already in use by an existing user
+ *                  example: The email is already in use by an existing user.
  *      401:
  *        description: User is not logged in.
  *      403:
@@ -206,16 +207,16 @@ router.post('/user/profiles/:profileName', async(req, res) => {
     if (!hasPerms)
       return res.status(403).json({ message: 'User is not allowed to perform this action.' });
 
-    let profile = req.params.profileName;
-    let { email } = addUserProfileSchema.parse(req.body);
+    const profile = req.params.profileName;
+    const { email } = addUserProfileSchema.parse(req.body);
     await security.addUserProfile(email, profile);
+    
     return res.status(200).send();
   } catch (err) {
-    console.error(`Error adding new user: ${err}`);
+    console.error(`Error adding profile to user: ${err}`);
 
-    // Email already in use
-    if (err && typeof err === 'object' && 'code' in err && err.code === UNIQUE_VIOLATION_CODE) {
-      return res.status(400).json({ message: 'The email is already in use by an existing user.' });
+    if (err instanceof DbNotNullViolationError) {
+      return res.status(400).json({ message: 'No record was found with this data.' });
     }
 
     return res.status(500).json({ message: 'A server error occurred.' });
@@ -270,18 +271,17 @@ router.delete('/user/profiles/:profileName', async(req, res) => {
     if (!hasPerms)
       return res.status(403).json({ message: 'User is not allowed to perform this action.' });
 
-    let profile = req.params.profileName;
-    let { email } = removeUserProfileSchema.parse(req.body);
-    await security.removeUserProfile(email, profile); 
-    return res.status(200).send();
-  } catch (err) {
-    console.error(`Error adding new user: ${err}`);
+    const profile = req.params.profileName;
+    const { email } = removeUserProfileSchema.parse(req.body);
+    const removed = await security.removeUserProfile(email, profile);
 
-    // Email already in use
-    if (err && typeof err === 'object' && 'code' in err && err.code === UNIQUE_VIOLATION_CODE) {
-      return res.status(400).json({ message: 'The email is already in use by an existing user.' });
+    if (!removed) {
+      return res.status(400).json({ message: 'No record was found with this data.' });
     }
 
+    return res.status(200).send();
+  } catch (err) {
+    console.error(`Error removing profile from user: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
 });

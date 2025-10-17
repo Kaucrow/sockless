@@ -6,7 +6,8 @@ host = 'localhost'
 port = 5173
 
 [session]
-secret = '' # Session cookie signing key
+type = ''   # 'paseto' or 'express'
+secret = '' # Session cookie signing key (only required for express session)
 
 [database]
 host = 'localhost'
