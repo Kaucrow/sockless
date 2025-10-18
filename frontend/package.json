@@ -16,6 +16,7 @@
     "@primevue/forms": "^4.3.9",
     "@tailwindcss/cli": "^4.1.13",
     "@tailwindcss/vite": "^4.1.13",
+    "axios": "^1.12.2",
     "lucide-vue-next": "^0.544.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.3.9",

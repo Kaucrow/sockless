@@ -1,58 +1,49 @@
-import router from "@/router";
+import axios from 'axios';
+//import router from '@/router';
 
 const API_URL = 'http://localhost:8000';
 
-async function handleRequest(response) {
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `API request failed. status: ${response.status}`);
+const api = axios.create({
+    baseURL: API_URL,
+    withCredentials: true,
+    headers: {
+        'Content-Type': 'application/json',
     }
-    return response.json();
-}
+})
 
-async function apiRequest(endpoint, options = {}) {
-    const url = `${API_URL}${endpoint}`;
 
-    const defaultOptions = {
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    }
-
-    const token = localStorage.getItem('token');
-    if (token) {
-        defaultOptions.headers.Authorization = `Bearer ${token}`;
-    }
-
-    const config = {
-    ...defaultOptions,
-    ...options,
-        headers: {
-        ...defaultOptions.headers,
-        ...options.headers,
-        },
-    };
-
-    try {
-        const response = await fetch(url, config);
-
-        if (response.status === 401) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            router.push('/login');
-            return;
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
         }
-        return await handleRequest(response);
-    } catch (error) {
-        console.error('API request error:', error);
-        throw error;
-    }
-}
+        return config;
+    }, 
+    (error) => {
+        return Promise.reject(error);
+    },
+)
 
+api.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        const originalRequest = error.config;
+
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            localStorage.removeItem('token');
+            router.push('/login');
+            return Promise.reject(error);
+        }
+        return Promise.reject(error);
+    }
+)
 export default {
-    get: (endpoint) => apiRequest(endpoint, { method: 'GET' }),
-    post: (endpoint, data) => apiRequest(endpoint, { method: 'POST', body: JSON.stringify(data) }),
-    put: (endpoint, data) => apiRequest(endpoint, { method: 'PUT', body: JSON.stringify(data) }),
-    delete: (endpoint) => apiRequest(endpoint, { method: 'DELETE' }),
+    get: (endpoint, config = {}) => api.get(endpoint, config),
+    post: (endpoint, data, config = {}) => api.post(endpoint, data, config),
+    put: (endpoint, data, config = {}) => api.put(endpoint, data, config),
+    delete: (endpoint, config = {}) => api.delete(endpoint, config),
 }

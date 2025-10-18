@@ -4,10 +4,10 @@ export const authService = {
     async login(email, password) {
         try {
             const response = await api.post('/auth/login', { email, password });
-            if (response.token) {
-                localStorage.setItem('token', response.token);
+            if (response.data.token) {
+                localStorage.setItem('token', response.data.token);
             }
-            return response;
+            return response.data;
 
         } catch (error) {
             throw new Error(error.message || 'Login failed');   
