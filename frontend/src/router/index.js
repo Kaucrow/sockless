@@ -1,8 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
-import Login from '../views/Login.vue'
+import Home from '../views/auth/Home.vue'
+import Login from '../views/auth/Login.vue'
 import forgotPass from '../views/ForgotPass.vue'
 import ResetPass from '../views/ResetPass.vue'
+import MethodPermissions from '../views/maintenance/methodPermission.vue'
+import menuPermission from '../views/maintenance/menuPermission.vue'
+import MethodManagement from '../views/maintenance/methodMaintenance.vue'
 import { authService } from '@/services/auth'
 
 
@@ -35,6 +38,21 @@ const router = createRouter({
       name: 'reset-password',
       component: ResetPass,
       meta: { layout: 'auth'}
+    },
+    {
+      path: '/method-permissions',
+      name: 'method-permissions',
+      component: MethodPermissions,
+    },
+    {
+      path: '/menu-permissions',
+      name: 'menu-permissions',
+      component: menuPermission,
+    },
+    {
+      path: '/method-management',
+      name: 'method-management',
+      component: MethodManagement,
     }
   ],
 })

@@ -26,7 +26,8 @@ export const authService = {
     },
 
     isAuthenticated() {
-        return !!localStorage.getItem('token');
+        const token = localStorage.getItem('token');
+        return !!token && token !== 'null' && token !== 'undefined';
     },
 
     getToken() {
