@@ -41,7 +41,7 @@ const router = Router();
  *      403:
  *        description: User is not a maintenance admin.
  */
-router.get('profiles/method-data', async (req, res) => {
+router.get('/profiles/method-data', async (req, res) => {
   try {
     const hasPerms = await session.hasProfile(config.maintenance.adminProfile, req);
 
