@@ -93,7 +93,7 @@ class SecurityComponent {
           className,
           methodName: method,
           profileName: profile
-        } = objectToCamel(profileDataSchema.parse(methodProfile));
+        } = methodProfile;
 
         // Ensure the subsystem object exists, or create it
         if (!profileData[subsystem]) {
