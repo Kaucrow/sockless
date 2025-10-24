@@ -3,10 +3,10 @@ import Home from '../views/auth/Home.vue'
 import Login from '../views/auth/Login.vue'
 import forgotPass from '../views/ForgotPass.vue'
 import ResetPass from '../views/ResetPass.vue'
-import MethodPermissions from '../views/maintenance/methodPermission.vue'
-import menuPermission from '../views/maintenance/menuPermission.vue'
 import MethodManagement from '../views/maintenance/methodMaintenance.vue'
+import menuMaintenance from '../views/maintenance/menuMaintenance.vue'
 import { authService } from '@/services/auth'
+import MenuMaintenance from '../views/maintenance/menuMaintenance.vue'
 
 
 const router = createRouter({
@@ -40,19 +40,14 @@ const router = createRouter({
       meta: { layout: 'auth'}
     },
     {
-      path: '/method-permissions',
-      name: 'method-permissions',
-      component: MethodPermissions,
-    },
-    {
-      path: '/menu-permissions',
-      name: 'menu-permissions',
-      component: menuPermission,
-    },
-    {
       path: '/method-management',
       name: 'method-management',
       component: MethodManagement,
+    },
+    {
+      path: '/menu-management',
+      name: 'menu-management',
+      component: MenuMaintenance,
     }
   ],
 })

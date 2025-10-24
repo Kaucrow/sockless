@@ -32,7 +32,9 @@ const currentPageName = computed(() => {
     'forgot-password': 'Forgot Password',
     'reset-password': 'Reset Password',
     'admin': 'Admin Panel',
-    'settings': 'Settings'
+    'settings': 'Settings',
+    'menu-management' : 'Admin Panel',
+    'method-management' : 'Admin Panel'
   };
   
   return nameMap[routeName] || routeName.charAt(0).toUpperCase() + routeName.slice(1);

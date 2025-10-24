@@ -14,7 +14,7 @@ export const maintenanceService = {
 
     async getMethodProfileData() {
         try {
-            const response = await api.get('maintenance/profiles/method-data');
+            const response = await api.get('/maintenance/profiles/method-data');
             return response.data;
         } catch (error) {
             console.error('Error fetching method profile data:', error);
