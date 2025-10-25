@@ -20,6 +20,7 @@ export const queriesSchema = z.object({
     removeProfile: z.string()
   }),
   menu: z.object({
+    getProfileData: z.string(),
     addProfile: z.string(),
     removeProfile: z.string()
   }),

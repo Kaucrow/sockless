@@ -66,7 +66,8 @@ INSERT INTO security.method (class_id, "name")
         ('billing', 'invoices', 'view'),
         ('billing', 'invoices', 'download'),
         -- Reports.General Methods
-        ('reports', 'general', 'generate')
+        ('reports', 'general', 'generate'),
+        ('reports', 'general', 'unused')
     ) AS m (subsystem_name, class_name, method_name)
     WHERE s.name = m.subsystem_name
       AND c.name = m.class_name
@@ -100,7 +101,8 @@ INSERT INTO security.menu (subsystem_id, "name")
         ('billing', 'View Invoices'),
         ('billing', 'Payment History'),
         -- Subsystem: Reports
-        ('reports', 'System Reports')
+        ('reports', 'System Reports'),
+        ('reports', 'Unused')
     ) AS m (subsystem_name, menu_name)
     WHERE s.name = m.subsystem_name
 ON CONFLICT (subsystem_id, "name") DO NOTHING;

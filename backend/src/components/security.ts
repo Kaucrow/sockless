@@ -5,12 +5,14 @@ import { session, db } from '@components/index.js';
 import { queries } from '@const/constants.js';
 import type { MethodData } from '@/types/security.js';
 import {
-  profileDataSchema,
+  methodProfileDataSchema,
+  menuProfileDataSchema,
   profileSchema
 } from '@schemas/db/index.js';
 import { allowedProfileSchema } from '@schemas/db/index.js';
 
-type MethodProfileData = { [subsystem: string]: { [className: string]: { [methodName: string]: string[] } } };
+type MethodProfileData = { [subsystem: string]: { [className: string]: { [method: string]: string[] } } };
+type MenuProfileData = { [subsystem: string]: { [menu: string]: string[] } };
 
 class SecurityComponent {
   static #instance: SecurityComponent;
@@ -84,7 +86,7 @@ class SecurityComponent {
     try {
       const dbProfileData = await db.fetch(
         queries.method.getProfileData,
-        profileDataSchema
+        methodProfileDataSchema
       );
 
       dbProfileData.forEach(methodProfile => {
@@ -105,13 +107,13 @@ class SecurityComponent {
           profileData[subsystem][className] = {};
         }
         
-        // Ensure the method's Array exists, or create it
+        // Ensure the method's array exists, or create it
         if (!profileData[subsystem][className][method]) {
           profileData[subsystem][className][method] = [];
         }
 
-        // Add the profile to the Set
-        profileData[subsystem][className][method].push(profile);
+        // If the profile is not null, add it to the Set
+        if (profile) profileData[subsystem][className][method].push(profile);
       });
     } catch (err) {
       console.error(`Error getting methods' allowed profiles: ${err}`);
@@ -127,6 +129,44 @@ class SecurityComponent {
 
   public async removeMethodProfile(subsystem: string, className: string, method: string, profile: string): Promise<boolean> {
     return !!(await db.execute(queries.method.removeProfile, [subsystem, className, method, profile]));
+  }
+
+  public async getMenuProfileData(): Promise<MenuProfileData> {
+    // Stores subsystems, menus, and the menus' allowed profiles
+    let profileData: MenuProfileData = {};
+
+    try {
+      const dbProfileData = await db.fetch(
+        queries.menu.getProfileData,
+        menuProfileDataSchema
+      );
+
+      dbProfileData.forEach(methodProfile => {
+        const {
+          subsystemName: subsystem,
+          menuName: menu,
+          profileName: profile
+        } = methodProfile;
+
+        // Ensure the subsystem object exists, or create it
+        if (!profileData[subsystem]) {
+          profileData[subsystem] = {};
+        }
+
+        // Ensure the menu's array exists, or create it
+        if (!profileData[subsystem][menu]) {
+          profileData[subsystem][menu] = [];
+        }
+
+        // If the profile is not null, add it to the Set
+        if (profile) profileData[subsystem][menu].push(profile);
+      });
+    } catch (err) {
+      console.error(`Error getting menus' allowed profiles: ${err}`);
+      throw err;
+    }
+
+    return profileData;
   }
 
   public async addMenuProfile(subsystem: string, menu: string, profile: string) {
