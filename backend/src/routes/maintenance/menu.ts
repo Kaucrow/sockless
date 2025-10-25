@@ -109,6 +109,8 @@ router.post('/menu/profiles/:profileName', async(req, res) => {
  *    responses:
  *      200:
  *        description: Success.
+ *      400:
+ *        description: The menu-profile relation was not found.
  *      401:
  *        description: User is not logged in.
  *      403:
@@ -133,7 +135,7 @@ router.delete('/menu/profiles/:profileName', async(req, res) => {
     const removed = await security.removeMenuProfile(subsystem, menu, profile);
 
     if (!removed) {
-      return res.status(400).json({ message: 'No record was found with this data.' });
+      return res.status(400).json({ message: 'No menu-profile relation was found with this data.' });
     }
 
     return res.status(200).send();

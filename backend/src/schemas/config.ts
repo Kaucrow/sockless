@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const configSchema = z.object({
   server: z.object({
+    host: z.string(),
     port: z.number()
   }),
   frontend: z.object({

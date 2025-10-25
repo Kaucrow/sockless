@@ -85,8 +85,6 @@ router.post('/user', async(req, res) => {
     // Email already in use
     if (err instanceof DbConflictError) {
       return res.status(400).json({ message: 'The email is already in use by an existing user.' });
-    } else if (err instanceof DbNotNullViolationError) {
-      return res.status(400).json({ message: 'No record was found with this data.' });
     }
 
     return res.status(500).json({ message: 'A server error occurred.' });

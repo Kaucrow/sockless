@@ -118,7 +118,9 @@ router.post('/method/profiles/:profileName', async(req, res) => {
  *            - method
  *    responses:
  *      200:
- *        description: Success.
+ *        description: Success
+ *      400:
+ *        description: The method-profile relation was not found.
  *      401:
  *        description: User is not logged in.
  *      403:
@@ -143,7 +145,7 @@ router.delete('/method/profiles/:profileName', async(req, res) => {
     const removed = await security.removeMethodProfile(subsystem, className, method, profile);
 
     if (!removed) {
-      return res.status(400).json({ message: 'No record was found with this data.' });
+      return res.status(400).json({ message: 'No method-profile relation was found with this data.' });
     }
 
     return res.status(200).send();

@@ -73,8 +73,8 @@ class SecurityComponent {
     }
   }
 
-  public async changeProfileName(profile: string, newName: string) {
-    await db.execute(
+  public async changeProfileName(profile: string, newName: string): Promise<boolean> {
+    return !!await db.execute(
       queries.profile.changeName, [profile, newName]
     ); 
   }
