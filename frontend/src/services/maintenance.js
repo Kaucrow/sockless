@@ -93,8 +93,11 @@ export const maintenanceService = {
     async getUserProfiles(email) {
         try {
             const response = await api.get(`/maintenance/user/profiles`, {
-                email: { email }
+                params: {
+                    email: email
+                }
             });
+            console.log('Fetched user profiles:', response.data);
             return response.data;
         } catch (error) {
             console.error('Error fetching user profiles:', error.response ? error.response.data : error.message);
