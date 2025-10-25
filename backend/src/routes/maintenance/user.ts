@@ -98,20 +98,13 @@ router.post('/user', async(req, res) => {
  *    tags:
  *      - maintenance
  *    description: Gets a given user's profiles.
- *    requestBody:
- *      description: User email.
- *      required: true
- *      content:
- *        application/json:
- *          schema:
- *            type: object
- *            properties:
- *              email:
- *                type: string
- *                description: User email.
- *                example: user1@example.com
- *          required:
- *            - email
+ *    parameters:
+ *      - in: query
+ *        name: email
+ *        required: true
+ *        schema:
+ *          type: string
+ *          example: user1@example.com
  *    responses:
  *      200:
  *        description: Success.
@@ -138,7 +131,7 @@ router.get('/user/profiles', async(req, res) => {
     if (!hasPerms)
       return res.status(403).json({ message: 'User is not allowed to perform this action.' });
 
-    const { email } = getUserProfilesSchema.parse(req.body);
+    const { email } = getUserProfilesSchema.parse(req.query);
     const profiles = await security.getUserProfiles(email);
     return res.status(200).json([...profiles]);
   } catch (err) {

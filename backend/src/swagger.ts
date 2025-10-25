@@ -8,7 +8,7 @@ const swaggerSpecOptions = {
     openapi: '3.0.0',
     info: {
       title: 'Sockless API',
-      version: '1.0.0',
+      version: '0.1',
     },
     components: {
       securitySchemes: {
