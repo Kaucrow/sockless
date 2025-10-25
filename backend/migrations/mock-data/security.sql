@@ -66,7 +66,8 @@ INSERT INTO security.method (class_id, "name")
         ('billing', 'invoices', 'view'),
         ('billing', 'invoices', 'download'),
         -- Reports.General Methods
-        ('reports', 'general', 'generate')
+        ('reports', 'general', 'generate'),
+        ('reports', 'general', 'unused')
     ) AS m (subsystem_name, class_name, method_name)
     WHERE s.name = m.subsystem_name
       AND c.name = m.class_name

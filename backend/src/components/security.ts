@@ -110,8 +110,8 @@ class SecurityComponent {
           profileData[subsystem][className][method] = [];
         }
 
-        // Add the profile to the Set
-        profileData[subsystem][className][method].push(profile);
+        // If the profile is not null, add it to the Set
+        if (profile) profileData[subsystem][className][method].push(profile);
       });
     } catch (err) {
       console.error(`Error getting methods' allowed profiles: ${err}`);

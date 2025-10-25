@@ -14,5 +14,5 @@ export const profileDataSchema = z.object({
   subsystem_name: z.string(),
   class_name: z.string(),
   method_name: z.string(),
-  profile_name: z.string()
+  profile_name: z.string().nullable()
 });
