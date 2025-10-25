@@ -101,7 +101,8 @@ INSERT INTO security.menu (subsystem_id, "name")
         ('billing', 'View Invoices'),
         ('billing', 'Payment History'),
         -- Subsystem: Reports
-        ('reports', 'System Reports')
+        ('reports', 'System Reports'),
+        ('reports', 'Unused')
     ) AS m (subsystem_name, menu_name)
     WHERE s.name = m.subsystem_name
 ON CONFLICT (subsystem_id, "name") DO NOTHING;

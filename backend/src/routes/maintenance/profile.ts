@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import type { MethodProfileData } from './responses.js';
+import type { MenuProfileData, MethodProfileData } from './responses.js';
 import { config } from '@const/constants.js';
 import { session } from '@components/session.js';
 import { security } from '@components/security.js';
@@ -56,7 +56,58 @@ router.get('/profiles/method-data', async (req, res) => {
     const profileData: MethodProfileData = await security.getMethodProfileData();
     return res.status(200).json(profileData);
   } catch (err) {
-    console.error(`Error getting profile data: ${err}`);
+    console.error(`Error getting methods' profile data: ${err}`);
+    return res.status(500).json({ message: 'A server error occurred.' });
+  }
+});
+
+/**
+ * @swagger
+ * /maintenance/profiles/menu-data:
+ *  get:
+ *    tags:
+ *      - maintenance
+ *    description: Returns the allowed profiles for every menu.
+ *    responses:
+ *      200:
+ *        description: Menu profile data object. Contains the profiles that have permission to access each menu from each subsystem.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              example:
+ *                users:
+ *                  Landing Page:
+ *                    - user 
+ *                  User Management:
+ *                    - admin
+ *                    - moderator
+ *                reports:
+ *                  System Reports:
+ *                    - admin
+ *                    - moderator
+ *                    - user
+ *      401:
+ *        description: User is not logged in.
+ *      403:
+ *        description: User is not a maintenance admin.
+ */
+router.get('/profiles/menu-data', async (req, res) => {
+  try {
+    const hasPerms = await session.hasProfile(config.maintenance.adminProfile, req);
+
+    // Return HTTP 401 Unauthorized if the user isn't logged in
+    if (hasPerms === null) return res.status(401).json({ message: 'User is not logged in.' });
+
+    // Return HTTP 403 Forbidden if the user is not a maintenance admin
+    if (!hasPerms)
+      return res.status(403).json({ message: 'User is not allowed to perform this action.' });
+
+    // If the user is a maintenance admin, return the method profile data
+    const profileData: MenuProfileData = await security.getMenuProfileData();
+    return res.status(200).json(profileData);
+  } catch (err) {
+    console.error(`Error getting menus' profile data: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
 });
