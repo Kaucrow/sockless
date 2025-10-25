@@ -50,5 +50,43 @@ export const maintenanceService = {
             console.error('Error removing method profile:', error.response ? error.response.data : error.message);
             throw error;
         }
+    },
+
+    async getMenuData() {
+        try {
+            const response = await api.get('/maintenance/profiles/menu-data');
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching menu data:', error);
+            throw error;
+        }
+    },
+
+    async addMenuProfile(profileName, subsystem, menuItem) {
+        try {
+            await api.post(`/maintenance/menu/profiles/${profileName}`, {
+                subsystem,
+                menuItem,
+            });
+            console.log(`Permission added to profile ${profileName}: ${menuItem}`);
+        } catch (error) {
+            console.error('Error adding menu profile:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    },
+
+    async removeMenuProfile(profileName, subsystem, menuItem) {
+        try {
+            await api.delete(`/maintenance/menu/profiles/${profileName}`, {
+                data: { 
+                    subsystem,
+                    menuItem,
+                },
+            });
+            console.log(`Permission removed from profile ${profileName}: ${menuItem}`);
+        } catch (error) {
+            console.error('Error removing menu profile:', error.response ? error.response.data : error.message);
+            throw error;
+        }
     }
 }
