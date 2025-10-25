@@ -186,6 +186,8 @@ router.get('/profiles', async(req, res) => {
  *    responses:
  *      200:
  *        description: Success.
+ *      400:
+ *        description: No profile was found with the submitted name.
  *      401:
  *        description: User is not logged in.
  *      403:
@@ -204,7 +206,12 @@ router.put('/profiles/:profileName', async(req, res) => {
 
     const ogName = req.params.profileName;
     const { newName } = changeProfileNameSchema.parse(req.body);
-    await security.changeProfileName(ogName, newName);
+    const changed = await security.changeProfileName(ogName, newName);
+
+    if (!changed) {
+      return res.status(400).json({ message: 'No profile was found with the submitted name.' });
+    }
+
     return res.status(200).send();
   } catch(err) {
     console.error(`Error changing profile name: ${err}`);
@@ -230,6 +237,8 @@ router.put('/profiles/:profileName', async(req, res) => {
  *    responses:
  *      200:
  *        description: Success.
+ *      400:
+ *        description: The profile was not found.
  *      401:
  *        description: User is not logged in.
  *      403:
