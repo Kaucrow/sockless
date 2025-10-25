@@ -32,7 +32,10 @@ const onFormSubmit = async (data) => {
         errorMessage.value = '';
 
         try {
+            const email = data.values.email;
             await authService.login(data.values.email, data.values.password);
+
+            localStorage.setItem('userEmail', email);
             console.log('User logged in successfully');
             router.push('/home');
         } catch (error) {
@@ -40,16 +43,6 @@ const onFormSubmit = async (data) => {
         } finally {
             isLoading.value = false;
         }
-        
-
-        //  
-        // we send to the server
-
-        // Simulate a server request
-        // setTimeout(() => {
-        //     console.log('User logged in successfully');
-        //     //router.push('/home');
-        // }, 1000);
     } else {
         console.log('errors:', data.errors);
     }

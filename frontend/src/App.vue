@@ -1,11 +1,15 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import Navbar from './components/Navbar.vue';
 import Sidebar from './components/sidebar.vue';
+import { maintenanceService } from './services/maintenance';
+import { authService } from './services/auth';
 
 const route = useRoute();
 const sidebarVisible = ref(false);
+const userProfiles = ref([]);
+const menuPermissions = ref({});
 
 const toggleSidebar = () => {
   sidebarVisible.value = !sidebarVisible.value;
@@ -13,9 +17,10 @@ const toggleSidebar = () => {
 const isAuthLayout = computed(() => route.meta?.layout === 'auth');
 
 // example json for the sidebar
-const myNavItems = ref([
+const initialNavItems = ref([
   {
     label: "FAVORITES",
+    subsystem: "core",
     items: [
       { label: "Dashboard", icon: "pi pi-home", to: "/dashboard" },
       { label: "Bookmarks", icon: "pi pi-bookmark", to: "/bookmarks" },
@@ -26,6 +31,7 @@ const myNavItems = ref([
           {
             label: "Revenue",
             icon: "pi pi-chart-line",
+            subsystem: "reports",
             items: [
               { label: "View", icon: "pi pi-table", to: "/reports/revenue/view" },
               { label: "Search", icon: "pi pi-search", to: "/reports/revenue/search" },
@@ -41,12 +47,77 @@ const myNavItems = ref([
   },
   {
     label: "APPLICATION",
+    subsystem: "app",
     items: [
       { label: "Projects", icon: "pi pi-folder", to: "/projects" },
       { label: "Performance", icon: "pi pi-chart-bar", to: "/performance" },
     ],
   }
 ]);
+
+const myNavItems = ref(initialNavItems);
+
+const hasPermission = (subsystem, menuItemKey) => {
+  if (!subsystem || !menuItemKey) return true;
+
+  const allowedProfiles = menuPermissions.value[subsystem]?.[menuItemKey] || [];
+  return userProfiles.value.some(profile => allowedProfiles.includes(profile));
+}
+
+const filterMenuItems = (items, parentSubsystem) => {
+  if (!items) return [];
+
+  return items.map(item => {
+    const currentSubsystem = item.subsystem || parentSubsystem;
+
+    let filteredChildren = [];
+    if (item.items) {
+      filteredChildren = filterMenuItems(item.items, currentSubsystem);
+    }
+
+    if (item.to || item.menuItemKey) {
+      const isAllowed = hasPermission(currentSubsystem, item.menuItemKey || item.label);
+
+      if (isAllowed || filteredChildren.length > 0) {
+        return {
+          ...item,
+          items: filteredChildren
+        };
+      }
+      return null;
+    }
+    if (filteredChildren.length > 0) {
+      return {
+        ...item,
+        items: filteredChildren
+      };
+    }
+    return null;
+  }).filter(item => item !== null);
+}
+
+const filteredNavItems = computed(() => {
+  if (userProfiles.value.length > 0 && Object.keys(menuPermissions.value).length > 0) {
+    return filterMenuItems(myNavItems.value, null);
+  }
+  return [];
+});
+
+onMounted(async () => {
+  if (authService.isAuthenticated() && !isAuthLayout.value) {
+    const email = localStorage.getItem('userEmail');
+
+    if (email) {
+      try {
+        userProfiles.value = await maintenanceService.getUserProfiles(email);
+
+        menuPermissions.value = await maintenanceService.getMenuData();
+      } catch (error) {
+        console.error('Error fetching user profiles or menu permissions:', error);
+      }
+    }
+  }
+})
 </script>
 
 <template>

@@ -88,5 +88,17 @@ export const maintenanceService = {
             console.error('Error removing menu profile:', error.response ? error.response.data : error.message);
             throw error;
         }
+    },
+
+    async getUserProfiles(email) {
+        try {
+            const response = await api.get(`/maintenance/user/profiles`, {
+                email: { email }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching user profiles:', error.response ? error.response.data : error.message);
+            throw error;
+        }
     }
 }
