@@ -36,7 +36,38 @@ class MailerComponent {
 
   /* --- Template generators --- */
 
-  private generateVerificationTemplate(verificationUrl: string): string {
+  private generateRegistrationVerificationTemplate(verificationUrl: string): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .button { display: inline-block; padding: 12px 24px; background-color: #007bff; 
+                     color: white; text-decoration: none; border-radius: 4px; }
+            .footer { margin-top: 20px; font-size: 12px; color: #666; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Verify Your Email Address</h1>
+            <p>Please click the button below to verify your email address:</p>
+            <p><a href="${verificationUrl}" class="button">Verify Email Address</a></p>
+            <p>Actually ignore that, it doesn't work rn lololol, just grab this token:</p>
+            <p><code>${verificationUrl}</code></p>
+            <p>This verification link will expire in 24 hours.</p>
+            <div class="footer">
+              <p>If you didn't create an account, please ignore this email.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  }
+
+  private generateForgotPasswordVerificationTemplate(verificationUrl: string): string {
     return `
       <!DOCTYPE html>
       <html>
@@ -104,10 +135,22 @@ class MailerComponent {
     }
   }
 
-  public async sendVerificationEmail(to: string, verificationToken: string): Promise<SendEmailResult> {
+  public async sendRegistrationVerificationEmail(to: string, verificationToken: string): Promise<SendEmailResult> {
     const subject = 'Verify Your Email Address';
 
-    const html = this.generateVerificationTemplate(verificationToken);
+    const html = this.generateRegistrationVerificationTemplate(verificationToken);
+
+    return await this.sendEmail({
+      to,
+      subject,
+      html
+    });
+  }
+
+  public async sendForgotPasswordVerificationEmail(to: string, verificationToken: string): Promise<SendEmailResult> {
+    const subject = 'Verify Your Email Address';
+
+    const html = this.generateForgotPasswordVerificationTemplate(verificationToken);
 
     return await this.sendEmail({
       to,

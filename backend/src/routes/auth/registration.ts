@@ -70,9 +70,9 @@ router.post('/register', async (req, res) => {
 
     await security.beginUserRegistration(email, passwd, name, surname);
 
-    return res.status(200).send(); 
+    return res.status(200).send();
   } catch (err) {
-    console.error(`Login error: ${err}`);
+    console.error(`User registration error: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
 });

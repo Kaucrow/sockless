@@ -9,6 +9,10 @@ import {
 import { session, db, mailer } from '@components/index.js';
 import { queries } from '@const/constants.js';
 import type {
+  MethodProfileData,
+  MenuProfileData,
+  ActiveRegistrations,
+  ActivePasswordRecoveries,
   MethodData,
   EmailVerificationTokenPayload,
 } from '@/types/security.js';
@@ -20,22 +24,13 @@ import {
 } from '@schemas/db/index.js';
 import { allowedProfileSchema } from '@schemas/db/index.js';
 import { UserNotFoundError } from '@errors/generic.js';
-import type { UUID } from '@/types/global.js';
-
-type MethodProfileData = { [subsystem: string]: { [className: string]: { [method: string]: string[] } } };
-type MenuProfileData = { [subsystem: string]: { [menu: string]: string[] } };
-
-type ActiveRegistrations = Map<UUID, {
-  email: string,
-  passwd: string,
-  name: string,
-  surname: string
-}>;
 
 class SecurityComponent {
   static #instance: SecurityComponent;
 
   private activeRegistrations: ActiveRegistrations = new Map();
+
+  private activePasswordRecoveries: ActivePasswordRecoveries = new Map();
 
   private pasetoKeys: {
     secret: string,
@@ -211,8 +206,8 @@ class SecurityComponent {
   }
 
   public async addUser(email: string, passwd: string, name: string, surname: string) {
-    const hashed_passwd = await argon2.hash(passwd);
-    await db.execute(queries.user.add, [email, hashed_passwd, name, surname]);
+    const hashedPasswd = await argon2.hash(passwd);
+    await db.execute(queries.user.add, [email, hashedPasswd, name, surname]);
   }
 
   public async getUserProfiles(email: string): Promise<Set<string>> {
@@ -279,7 +274,7 @@ class SecurityComponent {
       // Generate the token containing the registration ID
       // and send the verification email
       const verificationToken = pasetoSign(this.pasetoKeys.secret, payload);
-      await mailer.sendVerificationEmail(email, verificationToken);
+      await mailer.sendRegistrationVerificationEmail(email, verificationToken);
     } catch (err) {
       throw err;
     }
@@ -300,6 +295,48 @@ class SecurityComponent {
       const { email, passwd, name, surname } = user;
 
       await this.addUser(email, passwd, name,surname);
+
+      this.activeRegistrations.delete(id);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async beginUserPasswordRecovery(email: string) {
+    // Generate a random UUID for the password recovery ID
+    const id = randomUUID();
+
+    // Add the password recovery to the active password recoveries map
+    this.activePasswordRecoveries.set(id, email);
+
+    const payload: EmailVerificationTokenPayload = { id };
+
+    try {
+      // Generate the token containing the password recovery ID
+      // and send the verification email
+      const verificationToken = pasetoSign(this.pasetoKeys.secret, payload);
+      await mailer.sendForgotPasswordVerificationEmail(email, verificationToken);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async resetUserPassword(verificationToken: string, passwd: string) {
+    try {
+      const { payload: { id }}: { payload: EmailVerificationTokenPayload } = pasetoVerify(
+        this.pasetoKeys.public, verificationToken
+      );
+
+      const email = this.activePasswordRecoveries.get(id);
+
+      if (!email) {
+        throw new Error('User active password recovery could not be found.');
+      }
+
+      const hashedPasswd = await argon2.hash(passwd);
+      await db.execute(queries.user.changePassword, [email, hashedPasswd]);
+
+      this.activePasswordRecoveries.delete(id);
     } catch (err) {
       throw err;
     }

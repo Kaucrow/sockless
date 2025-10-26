@@ -10,3 +10,12 @@ export const addUserSchema = z.object({
 export const verifyEmailSchema = z.object({
   token: z.string()
 });
+
+export const forgotPasswordSchema = z.object({
+  email: z.string()
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string(),
+  passwd: z.string() 
+});

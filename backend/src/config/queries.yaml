@@ -25,6 +25,10 @@ user:
     VALUES (
       $1, $2, $3, $4
     )
+  changePassword: |
+    UPDATE security.user
+    SET passwd = $2
+    WHERE email = $1
   addProfile: |
     INSERT INTO security.user_profile (user_id, profile_id)
     VALUES (
