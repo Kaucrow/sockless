@@ -64,14 +64,14 @@ class SessionComponent {
     }
   }
 
-  public enable(app: Express, type: 'express' | 'paseto') {
+  public init(app: Express, type: 'express' | 'paseto') {
     this.type = type;
 
     switch (type) {
       case 'express': {
         // Set up session middleware on the app
 
-        if (!sessionFileConfig.secret) throw new Error("Tried to enable an express session, but the session secret key was not found in the config file.");
+        if (!sessionFileConfig.secret) throw new Error("Tried to init an express session, but the session secret key was not found in the config file.");
 
         const sessionConfig = {
           secret: sessionFileConfig.secret,
@@ -107,7 +107,7 @@ class SessionComponent {
   }
 
   public async create(req: Request, res: Response, userId: UUID, profiles: Set<string>): Promise<string | null> {
-    if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first.");
+    if (!this.type) throw new Error("Session has not been initialized. Call session.init() first.");
 
     switch (this.type) {
       case 'express': {
@@ -144,7 +144,7 @@ class SessionComponent {
   }
 
   public async exists(req: Request): Promise<boolean> {
-    if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first.");
+    if (!this.type) throw new Error("Session has not been initialized. Call session.init() first.");
 
     switch (this.type) {
       case 'express': {
@@ -164,7 +164,7 @@ class SessionComponent {
   }
 
   public async get(req: Request): Promise<Session | null> {
-    if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first.");
+    if (!this.type) throw new Error("Session has not been initialized. Call session.init() first.");
  
     switch (this.type) {
       case 'express': {
@@ -196,7 +196,7 @@ class SessionComponent {
   }
 
   public async destroy(req: Request, res: Response) {
-    if (!this.type) throw new Error("Session has not been initialized. Call session.enable() first.");
+    if (!this.type) throw new Error("Session has not been initialized. Call session.init() first.");
 
     switch (this.type) {
       case 'express': {

@@ -48,7 +48,7 @@ class DatabaseComponent {
           port: dbConfig.port,
           database: dbConfig.name,
           user: dbConfig.user,
-          password: dbConfig.password
+          password: dbConfig.pass
         }).connect();
         break;
       }
@@ -58,7 +58,7 @@ class DatabaseComponent {
           port: dbConfig.port,
           database: dbConfig.name,
           user: dbConfig.user,
-          password: dbConfig.password
+          password: dbConfig.pass
         });
       }
     }

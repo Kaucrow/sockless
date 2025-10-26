@@ -8,18 +8,24 @@ import {
   profileMaintenanceRoutes,
   userMaintenanceRoutes,
   methodMaintenanceRoutes,
-  menuMaintenanceRoutes
+  menuMaintenanceRoutes,
 } from './routes/maintenance/index.js';
-import authRoutes from '@routes/auth/auth.js';
+import {
+  authRoutes,
+  registrationRoutes
+} from '@routes/auth/index.js';
 
 import { config, frontend } from '@const/constants.js';
 
-import { session, db } from '@components/index.js';
+import { session, db, mailer } from '@components/index.js';
 
 const app = express();
 
 // Session middleware
-session.enable(app, config.session.type);
+session.init(app, config.session.type);
+
+// Mailer
+mailer.init();
 
 // Database connection
 db.connect(config.database.type);
@@ -47,6 +53,7 @@ app.use('/maintenance', menuMaintenanceRoutes);
 
 // Auth routes
 app.use('/auth', authRoutes);
+app.use('/auth', registrationRoutes);
 
 /**
  * @swagger

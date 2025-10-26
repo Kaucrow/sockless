@@ -19,7 +19,15 @@ export const configSchema = z.object({
     port: z.number(),
     name: z.string(),
     user: z.string(),
-    password: z.string(),
+    pass: z.string()
+  }),
+  mailer: z.object({
+    service: z.string().optional(),
+    host: z.string().optional(),
+    port: z.number().optional(),
+    secure: z.boolean().optional(),
+    user: z.string(),
+    pass: z.string()
   }),
   maintenance: z.object({
     adminProfile: z.string()

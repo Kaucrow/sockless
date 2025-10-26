@@ -57,28 +57,26 @@ router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Get user
-    const userResult = await db.fetchOne(queries.user.getUserByEmail, userSchema, [email]);
+    // Get the user
+    const user = await db.fetchOne(queries.user.getUserByEmail, userSchema, [email]);
 
-    // If user doesn't exist, respond HTTP 401 Forbidden
-    if (!userResult) {
+    // If the user doesn't exist, respond HTTP 401 Forbidden
+    if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
-
-    const user = objectToCamel(userResult);
 
     // Validate password
     const match = await argon2.verify(user.passwd, password);
 
-    // If password is invalid, respond HTTP 401 Forbidden
+    // If the password is invalid, respond HTTP 401 Forbidden
     if (!match) {
       return res.status(401).json({ message: 'Invalid credentials.' });
     }
 
-    // Get profiles
+    // Get the profiles
     const profiles = await security.getUserProfiles(user.email);
 
-    // Create session
+    // Create the session
     let token = await session.create(req, res, user.userId, profiles);
 
     if (token) {

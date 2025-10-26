@@ -10,3 +10,7 @@ export interface Profile {
   profileId: UUID,
   profileName: string 
 };
+
+export interface EmailVerificationTokenPayload {
+  id: UUID
+};
