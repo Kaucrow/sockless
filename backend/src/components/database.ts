@@ -24,7 +24,7 @@ const MYSQL_BAD_NULL_ERROR = 1048;
 
 class DatabaseComponent {
   static #instance: DatabaseComponent;
-  
+
   private type: 'postgresql' | 'mysql' | undefined = undefined;
   private dbPool: PgPoolClient | MySQLPool | undefined = undefined;
   private transactionClient: PgPoolClient | MySQLPool | null = null;

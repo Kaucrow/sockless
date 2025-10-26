@@ -1,4 +1,3 @@
-import { objectToCamel } from 'ts-case-convert';
 import argon2 from 'argon2';
 import type { Request } from 'express';
 import { session, db } from '@components/index.js';
@@ -7,9 +6,11 @@ import type { MethodData } from '@/types/security.js';
 import {
   methodProfileDataSchema,
   menuProfileDataSchema,
-  profileSchema
+  profileSchema,
+  userSchema
 } from '@schemas/db/index.js';
 import { allowedProfileSchema } from '@schemas/db/index.js';
+import { UserNotFoundError } from '@errors/generic.js';
 
 type MethodProfileData = { [subsystem: string]: { [className: string]: { [method: string]: string[] } } };
 type MenuProfileData = { [subsystem: string]: { [menu: string]: string[] } };
@@ -74,9 +75,7 @@ class SecurityComponent {
   }
 
   public async changeProfileName(profile: string, newName: string): Promise<boolean> {
-    return !!await db.execute(
-      queries.profile.changeName, [profile, newName]
-    ); 
+    return !!(await db.execute(queries.profile.changeName, [profile, newName])); 
   }
 
   public async getMethodProfileData(): Promise<MethodProfileData> {
@@ -123,8 +122,8 @@ class SecurityComponent {
     return profileData;
   }
 
-  public async addMethodProfile(subsystem: string, className: string, method: string, profile: string) {
-    await db.execute(queries.method.addProfile, [subsystem, className, method, profile]);
+  public async addMethodProfile(subsystem: string, className: string, method: string, profile: string): Promise<boolean> {
+    return !!(await db.execute(queries.method.addProfile, [subsystem, className, method, profile]));
   }
 
   public async removeMethodProfile(subsystem: string, className: string, method: string, profile: string): Promise<boolean> {
@@ -169,8 +168,8 @@ class SecurityComponent {
     return profileData;
   }
 
-  public async addMenuProfile(subsystem: string, menu: string, profile: string) {
-    await db.execute(queries.menu.addProfile, [subsystem, menu, profile]);
+  public async addMenuProfile(subsystem: string, menu: string, profile: string): Promise<boolean> {
+    return !!(await db.execute(queries.menu.addProfile, [subsystem, menu, profile]));
   }
 
   public async removeMenuProfile(subsystem: string, menu: string, profile: string): Promise<boolean> {
@@ -183,6 +182,17 @@ class SecurityComponent {
   }
 
   public async getUserProfiles(email: string): Promise<Set<string>> {
+    // Verify the user existence
+    let user = await db.fetchOne(
+      queries.user.getUserByEmail,
+      userSchema,
+      [email]
+    );
+
+    // If no user is found with the submitted email, throw an error
+    if (!user) throw new UserNotFoundError();
+
+    // If the user exists, get its profiles
     let profiles = await db.fetch(
       queries.user.getProfilesByEmail,
       profileSchema,
@@ -197,7 +207,7 @@ class SecurityComponent {
   }
 
   public async removeUserProfile(email: string, profile: string): Promise<boolean> {
-    return !!(await db.execute(queries.user.removeProfile, [email, profile]));
+  return !!(await db.execute(queries.user.removeProfile, [email, profile]));
   }
 
   public async deleteProfile(profile: string): Promise<boolean> {

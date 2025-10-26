@@ -238,7 +238,7 @@ router.put('/profiles/:profileName', async(req, res) => {
  *      200:
  *        description: Success.
  *      400:
- *        description: The profile was not found.
+ *        description: No profile was found with this data.
  *      401:
  *        description: User is not logged in.
  *      403:
