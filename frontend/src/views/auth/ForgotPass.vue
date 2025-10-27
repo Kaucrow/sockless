@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { ref, reactive } from 'vue';
 import { authService } from '@/services/auth';
+import router from '@/router';
 
 
 const initialValue = ref({
@@ -36,6 +37,9 @@ const onFormSubmit = async (data) => {
     await authService.forgotPassword(email);
     status.message = 'If that email exists, a password reset link was sent.';
     status.type = 'success';
+    setTimeout(() => {
+      router.push({ name: 'reset-password' });
+    }, 1000);
   } catch (err) {
     console.error('Forgot password submission failed:', err);
     if (err.response && err.response.data && err.response.data.message) {

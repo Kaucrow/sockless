@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { ref } from 'vue';
 import { authService } from '@/services/auth';
+import router from '@/router';
 
 const initialValues = ref({
     token: '',
@@ -43,6 +44,9 @@ const onFormSubmit = async (data) => {
         try {
             await authService.resetPassword(data.values.token, data.values.password);
             status.value = { message: 'Password reset successfully. You can now log in.', type: 'success' };
+            setTimeout(() => {
+                router.push({ name: 'login' });
+            }, 2000);
         } catch (err) {
             console.error('Reset password failed:', err);
             status.value = { message: 'Failed to reset password. Please try again later.', type: 'error' };
