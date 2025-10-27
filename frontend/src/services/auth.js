@@ -52,6 +52,26 @@ export const authService = {
             console.error('Reset password error:', error);
             throw error;
         }
+    },
+
+    async register(email, password, name, surname) {
+        try {
+            const response = await api.post('/auth/register', { email, password, name, surname });
+            return response.data;
+        } catch (error) {
+            console.error('Registration error:', error);
+            throw error;
+        }
+    },
+
+    async validateEmail(token) {
+        try {
+            const response = await api.post('/auth/register/verify-email', { token });
+            return response.data;
+        } catch (error) {
+            console.error('Email validation error:', error);
+            throw error;
+        }
     }
 
     // getUser() {

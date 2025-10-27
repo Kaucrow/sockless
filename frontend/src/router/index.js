@@ -1,12 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/auth/Home.vue'
 import Login from '../views/auth/Login.vue'
-import forgotPass from '../views/ForgotPass.vue'
-import ResetPass from '../views/ResetPass.vue'
+import forgotPass from '../views/auth/ForgotPass.vue'
+import ResetPass from '../views/auth/ResetPass.vue'
 import MethodManagement from '../views/maintenance/methodMaintenance.vue'
-import menuMaintenance from '../views/maintenance/menuMaintenance.vue'
-import { authService } from '@/services/auth'
 import MenuMaintenance from '../views/maintenance/menuMaintenance.vue'
+import Register from '../views/auth/Register.vue'
+import EmailValidation from '../views/auth/Validation.vue'
+import { authService } from '@/services/auth'
 
 
 const router = createRouter({
@@ -48,6 +49,18 @@ const router = createRouter({
       path: '/menu-management',
       name: 'menu-management',
       component: MenuMaintenance,
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: Register,
+      meta: { layout: 'auth'}
+    },
+    {
+      path: '/validate-email',
+      name: 'validate-email',
+      component: EmailValidation,
+      meta: { layout: 'auth'}
     }
   ],
 })
@@ -55,7 +68,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const isAuthenticated = authService.isAuthenticated();
 
-  if (to.name !== 'login' && to.name !== 'forgot-password' && to.name !== 'reset-password') {
+  if (to.name !== 'login' && to.name !== 'forgot-password' && to.name !== 'reset-password' && to.name !== 'register' && to.name !== 'validate-email') {
     if (!isAuthenticated) {
       next('/login');
     } else {

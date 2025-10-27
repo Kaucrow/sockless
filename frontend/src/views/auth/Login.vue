@@ -107,6 +107,7 @@ const onFormSubmit = async (data) => {
                 <Button type="submit" label="Login" severity="secondary" :disabled="$form.isSubmitting" class="mt-6"/>
                 <div class="text-center mt-1">
                     <router-link to="/forgot-password" class="p-button p-component p-button-link">Forgot Password?</router-link>
+                    <router-link to="/register" class="p-button p-component p-button-link">Create an account</router-link>
                 </div>
 
             </Form>
