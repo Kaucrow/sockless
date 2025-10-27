@@ -66,7 +66,8 @@ export const maintenanceService = {
         try {
             await api.post(`/maintenance/menu/profiles/${profileName}`, {
                 subsystem,
-                menuItem,
+                menu: menuItem,
+                profile: profileName,
             });
             console.log(`Permission added to profile ${profileName}: ${menuItem}`);
         } catch (error) {
@@ -80,7 +81,8 @@ export const maintenanceService = {
             await api.delete(`/maintenance/menu/profiles/${profileName}`, {
                 data: { 
                     subsystem,
-                    menuItem,
+                    menu: menuItem,
+                    profile: profileName,
                 },
             });
             console.log(`Permission removed from profile ${profileName}: ${menuItem}`);

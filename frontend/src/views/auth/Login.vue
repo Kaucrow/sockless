@@ -10,6 +10,7 @@ import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { ref } from 'vue';
 import router from '@/router';
 import { authService } from '@/services/auth';
+import { appStore } from '@/stores/appStore';   
 
 const isLoading = ref(false);
 const errorMessage = ref('');
@@ -37,6 +38,9 @@ const onFormSubmit = async (data) => {
 
             localStorage.setItem('userEmail', email);
             console.log('User logged in successfully');
+
+            await appStore.fetchAppData();
+
             router.push('/home');
         } catch (error) {
             errorMessage.value = 'Login failed. Please try again.';
