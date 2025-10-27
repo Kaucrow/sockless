@@ -46,7 +46,7 @@ export const authService = {
 
     async resetPassword(token, newPassword) {
         try {
-            const response = await api.post('/auth/forgot-password/reset', { token, newPassword });
+            const response = await api.post('/auth/forgot-password/reset', { token, passwd: newPassword });
             return response.data;
         } catch (error) {
             console.error('Reset password error:', error);
@@ -56,7 +56,7 @@ export const authService = {
 
     async register(email, password, name, surname) {
         try {
-            const response = await api.post('/auth/register', { email, password, name, surname });
+            const response = await api.post('/auth/register', { email, passwd: password, name, surname });
             return response.data;
         } catch (error) {
             console.error('Registration error:', error);
