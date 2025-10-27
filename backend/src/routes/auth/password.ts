@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { queries } from '@const/constants.js';
 import { userSchema } from '@schemas/db/index.js';
 import { security, db } from '@components/index.js';
-import { addUserSchema, forgotPasswordSchema, resetPasswordSchema, verifyEmailSchema } from './requests.js';
+import { forgotPasswordSchema, resetPasswordSchema } from './requests.js';
 
 const router = Router();
 

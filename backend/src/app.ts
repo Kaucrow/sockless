@@ -12,7 +12,8 @@ import {
 } from './routes/maintenance/index.js';
 import {
   authRoutes,
-  registrationRoutes
+  registrationRoutes,
+  passwordRoutes,
 } from '@routes/auth/index.js';
 
 import { config, frontend } from '@const/constants.js';
@@ -54,6 +55,7 @@ app.use('/maintenance', menuMaintenanceRoutes);
 // Auth routes
 app.use('/auth', authRoutes);
 app.use('/auth', registrationRoutes);
+app.use('/auth', passwordRoutes);
 
 /**
  * @swagger
