@@ -8,14 +8,22 @@ port = 5173
 
 [session]
 type = ''   # 'paseto' or 'express'
-secret = '' # Session cookie signing key (only required for express session)
+#secret = '' # Session cookie signing key (only required for express session)
 
 [database]
 host = 'localhost'
 port = 5432
 name = ''
 user = ''
-password = ''
+pass = ''
+
+[mailer]
+service = 'gmail'
+#host = 'smtp.gmail.com'
+#port = 587
+#secure = false
+user = ''
+pass = ''
 
 [maintenance]
 adminProfile = ''

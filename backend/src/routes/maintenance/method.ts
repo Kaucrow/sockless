@@ -48,6 +48,8 @@ const router = Router();
  *    responses:
  *      200:
  *        description: Success.
+ *      400:
+ *        description: Failed to find a method and/or profile with this data.
  *      401:
  *        description: User is not logged in.
  *      403:
@@ -69,7 +71,13 @@ router.post('/method/profiles/:profileName', async(req, res) => {
     if (!profile) return res.status(400).json({ message: 'Missing profile name in URL.' });
 
     const { subsystem, class: className, method } = addMethodProfileSchema.parse(req.body);
-    await security.addMethodProfile(subsystem, className, method, profile);
+    
+    const added = await security.addMethodProfile(subsystem, className, method, profile);
+
+    if (!added) {
+      return res.status(400).json({ message: 'Failed to find a method and/or profile with this data.' })
+    }
+
     return res.status(200).send();
   } catch (err) {
     console.error(`Error adding profile to method: ${err}`);

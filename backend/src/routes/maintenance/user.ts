@@ -8,6 +8,7 @@ import {
   getUserProfilesSchema,
   removeUserProfileSchema
 } from './requests.js';
+import { UserNotFoundError } from '@errors/generic.js';
 
 const router = Router();
 
@@ -77,7 +78,9 @@ router.post('/user', async(req, res) => {
       return res.status(403).json({ message: 'User is not allowed to perform this action.' });
 
     const { email, passwd, name, surname } = addUserSchema.parse(req.body);
+
     await security.addUser(email, passwd, name, surname);
+
     return res.status(200).send();
   } catch (err) {
     console.error(`Error adding new user: ${err}`);
@@ -115,6 +118,8 @@ router.post('/user', async(req, res) => {
  *              example:
  *                - admin
  *                - moderator
+ *      400:
+ *        description: No user was found with this email.
  *      401:
  *        description: User is not logged in.
  *      403:
@@ -132,9 +137,15 @@ router.get('/user/profiles', async(req, res) => {
       return res.status(403).json({ message: 'User is not allowed to perform this action.' });
 
     const { email } = getUserProfilesSchema.parse(req.query);
+
     const profiles = await security.getUserProfiles(email);
+
     return res.status(200).json([...profiles]);
   } catch (err) {
+    if (err instanceof UserNotFoundError) {
+      return res.status(400).json({ message: 'No user was found with this email.' });
+    }
+
     console.error(`Error getting user profiles: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
@@ -173,15 +184,7 @@ router.get('/user/profiles', async(req, res) => {
  *      200:
  *        description: Success.
  *      400:
- *        description: The email is already in use by an existing user.
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
- *                message:
- *                  type: string
- *                  example: The email is already in use by an existing user.
+ *        description: No user and/or profile was found with this data.
  *      401:
  *        description: User is not logged in.
  *      403:
@@ -200,6 +203,7 @@ router.post('/user/profiles/:profileName', async(req, res) => {
 
     const profile = req.params.profileName;
     const { email } = addUserProfileSchema.parse(req.body);
+
     await security.addUserProfile(email, profile);
     
     return res.status(200).send();
@@ -207,7 +211,7 @@ router.post('/user/profiles/:profileName', async(req, res) => {
     console.error(`Error adding profile to user: ${err}`);
 
     if (err instanceof DbNotNullViolationError) {
-      return res.status(400).json({ message: 'No record was found with this data.' });
+      return res.status(400).json({ message: 'No user and/or profile was found with this data.' });
     }
 
     return res.status(500).json({ message: 'A server error occurred.' });
@@ -246,6 +250,8 @@ router.post('/user/profiles/:profileName', async(req, res) => {
  *    responses:
  *      200:
  *        description: Success.
+ *      400:
+ *        description: No user-profile relation was found with this data.
  *      401:
  *        description: User is not logged in.
  *      403:
@@ -264,10 +270,11 @@ router.delete('/user/profiles/:profileName', async(req, res) => {
 
     const profile = req.params.profileName;
     const { email } = removeUserProfileSchema.parse(req.body);
+
     const removed = await security.removeUserProfile(email, profile);
 
     if (!removed) {
-      return res.status(400).json({ message: 'No record was found with this data.' });
+      return res.status(400).json({ message: 'No user-profile relation was found with this data.' });
     }
 
     return res.status(200).send();

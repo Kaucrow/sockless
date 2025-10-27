@@ -1,23 +1,49 @@
-import { objectToCamel } from 'ts-case-convert';
 import argon2 from 'argon2';
+import { randomUUID } from 'crypto';
 import type { Request } from 'express';
-import { session, db } from '@components/index.js';
+import {
+  generateKeys as generatePasetoKeys,
+  sign as pasetoSign,
+  verify as pasetoVerify,
+} from 'paseto-ts/v4';
+import { session, db, mailer } from '@components/index.js';
 import { queries } from '@const/constants.js';
-import type { MethodData } from '@/types/security.js';
+import type {
+  MethodProfileData,
+  MenuProfileData,
+  ActiveRegistrations,
+  ActivePasswordRecoveries,
+  MethodData,
+  EmailVerificationTokenPayload,
+} from '@/types/security.js';
 import {
   methodProfileDataSchema,
   menuProfileDataSchema,
-  profileSchema
+  profileSchema,
+  userSchema,
 } from '@schemas/db/index.js';
 import { allowedProfileSchema } from '@schemas/db/index.js';
-
-type MethodProfileData = { [subsystem: string]: { [className: string]: { [method: string]: string[] } } };
-type MenuProfileData = { [subsystem: string]: { [menu: string]: string[] } };
+import { UserNotFoundError } from '@errors/generic.js';
 
 class SecurityComponent {
   static #instance: SecurityComponent;
 
-  private constructor() {}
+  private activeRegistrations: ActiveRegistrations = new Map();
+
+  private activePasswordRecoveries: ActivePasswordRecoveries = new Map();
+
+  private pasetoKeys: {
+    secret: string,
+    public: string
+  };
+
+  private constructor() {
+    const { secretKey, publicKey } = generatePasetoKeys('public');
+    this.pasetoKeys = {
+      secret: secretKey,
+      public: publicKey
+    };
+  }
 
   public static get instance(): SecurityComponent {
     if (!SecurityComponent.#instance) {
@@ -25,6 +51,8 @@ class SecurityComponent {
     }
     return SecurityComponent.#instance;
   }
+
+  /* --- Method execution --- */
 
   public async hasMethodPermission(req: Request, methodCall: MethodData): Promise<boolean> {
     const userData = await session.get(req);
@@ -73,10 +101,10 @@ class SecurityComponent {
     }
   }
 
+  /* --- Maintenance --- */
+
   public async changeProfileName(profile: string, newName: string): Promise<boolean> {
-    return !!await db.execute(
-      queries.profile.changeName, [profile, newName]
-    ); 
+    return !!(await db.execute(queries.profile.changeName, [profile, newName])); 
   }
 
   public async getMethodProfileData(): Promise<MethodProfileData> {
@@ -123,8 +151,8 @@ class SecurityComponent {
     return profileData;
   }
 
-  public async addMethodProfile(subsystem: string, className: string, method: string, profile: string) {
-    await db.execute(queries.method.addProfile, [subsystem, className, method, profile]);
+  public async addMethodProfile(subsystem: string, className: string, method: string, profile: string): Promise<boolean> {
+    return !!(await db.execute(queries.method.addProfile, [subsystem, className, method, profile]));
   }
 
   public async removeMethodProfile(subsystem: string, className: string, method: string, profile: string): Promise<boolean> {
@@ -169,8 +197,8 @@ class SecurityComponent {
     return profileData;
   }
 
-  public async addMenuProfile(subsystem: string, menu: string, profile: string) {
-    await db.execute(queries.menu.addProfile, [subsystem, menu, profile]);
+  public async addMenuProfile(subsystem: string, menu: string, profile: string): Promise<boolean> {
+    return !!(await db.execute(queries.menu.addProfile, [subsystem, menu, profile]));
   }
 
   public async removeMenuProfile(subsystem: string, menu: string, profile: string): Promise<boolean> {
@@ -178,11 +206,22 @@ class SecurityComponent {
   }
 
   public async addUser(email: string, passwd: string, name: string, surname: string) {
-    const hashed_passwd = await argon2.hash(passwd);
-    await db.execute(queries.user.add, [email, hashed_passwd, name, surname]);
+    const hashedPasswd = await argon2.hash(passwd);
+    await db.execute(queries.user.add, [email, hashedPasswd, name, surname]);
   }
 
   public async getUserProfiles(email: string): Promise<Set<string>> {
+    // Verify the user existence
+    let user = await db.fetchOne(
+      queries.user.getUserByEmail,
+      userSchema,
+      [email]
+    );
+
+    // If no user is found with the submitted email, throw an error
+    if (!user) throw new UserNotFoundError();
+
+    // If the user exists, get its profiles
     let profiles = await db.fetch(
       queries.user.getProfilesByEmail,
       profileSchema,
@@ -197,7 +236,7 @@ class SecurityComponent {
   }
 
   public async removeUserProfile(email: string, profile: string): Promise<boolean> {
-    return !!(await db.execute(queries.user.removeProfile, [email, profile]));
+  return !!(await db.execute(queries.user.removeProfile, [email, profile]));
   }
 
   public async deleteProfile(profile: string): Promise<boolean> {
@@ -216,6 +255,89 @@ class SecurityComponent {
       return result;
     } catch (err) {
       await db.rollback();
+      throw err;
+    }
+  }
+
+  /* --- User auth --- */
+
+  public async beginUserRegistration(email: string, passwd: string, name: string, surname: string) {
+    // Generate a random UUID for the registration ID
+    const id = randomUUID();
+
+    // Add the registration to the active registrations map
+    this.activeRegistrations.set(id, { email, passwd, name, surname });
+
+    const payload: EmailVerificationTokenPayload = { id };
+
+    try {
+      // Generate the token containing the registration ID
+      // and send the verification email
+      const verificationToken = pasetoSign(this.pasetoKeys.secret, payload);
+      await mailer.sendRegistrationVerificationEmail(email, verificationToken);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async registerUser(verificationToken: string) {
+    try {
+      const { payload: { id }}: { payload: EmailVerificationTokenPayload } = pasetoVerify(
+        this.pasetoKeys.public, verificationToken
+      );
+
+      const user = this.activeRegistrations.get(id);
+
+      if (!user) {
+        throw new Error('User active registration could not be found.');
+      }
+
+      const { email, passwd, name, surname } = user;
+
+      await this.addUser(email, passwd, name,surname);
+
+      this.activeRegistrations.delete(id);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async beginUserPasswordRecovery(email: string) {
+    // Generate a random UUID for the password recovery ID
+    const id = randomUUID();
+
+    // Add the password recovery to the active password recoveries map
+    this.activePasswordRecoveries.set(id, email);
+
+    const payload: EmailVerificationTokenPayload = { id };
+
+    try {
+      // Generate the token containing the password recovery ID
+      // and send the verification email
+      const verificationToken = pasetoSign(this.pasetoKeys.secret, payload);
+      await mailer.sendForgotPasswordVerificationEmail(email, verificationToken);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async resetUserPassword(verificationToken: string, passwd: string) {
+    try {
+      const { payload: { id }}: { payload: EmailVerificationTokenPayload } = pasetoVerify(
+        this.pasetoKeys.public, verificationToken
+      );
+
+      const email = this.activePasswordRecoveries.get(id);
+
+      if (!email) {
+        throw new Error('User active password recovery could not be found.');
+      }
+
+      const hashedPasswd = await argon2.hash(passwd);
+      await db.execute(queries.user.changePassword, [email, hashedPasswd]);
+
+      this.activePasswordRecoveries.delete(id);
+    } catch (err) {
       throw err;
     }
   }

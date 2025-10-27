@@ -41,7 +41,6 @@ export const getUserProfilesSchema = z.object({
 
 export const removeUserProfileSchema = z.object({
   email: z.string(),
-  profile: z.string()
 });
 
 export const changeProfileNameSchema = z.object({

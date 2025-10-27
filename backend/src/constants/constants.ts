@@ -29,8 +29,19 @@ export const database = {
   port: config.database.port,
   name: config.database.name,
   user: config.database.user,
-  password: config.database.password,
+  pass: config.database.pass,
   url: ''
+};
+
+export const mailer = {
+  service: config.mailer.service,
+  host: config.mailer.host,
+  port: config.mailer.port,
+  secure: config.mailer.secure,
+  auth: {
+    user: config.mailer.user,
+    pass: config.mailer.pass
+  }
 };
 
 export const maintenance = {
