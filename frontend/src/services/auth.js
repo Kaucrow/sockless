@@ -34,6 +34,26 @@ export const authService = {
         return localStorage.getItem('token');
     },
 
+    async forgotPassword(email) {
+        try {
+            const response = await api.post('/auth/forgot-password', { email });
+            return response.data;
+        } catch (error) {
+            console.error('Forgot password error:', error);
+            throw error;
+        }
+    },
+
+    async resetPassword(token, newPassword) {
+        try {
+            const response = await api.post('/auth/forgot-password/reset', { token, newPassword });
+            return response.data;
+        } catch (error) {
+            console.error('Reset password error:', error);
+            throw error;
+        }
+    }
+
     // getUser() {
     //     const user = localStorage.getItem('user');
     //     return user ? JSON.parse(user) : null;

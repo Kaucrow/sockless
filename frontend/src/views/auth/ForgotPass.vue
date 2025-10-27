@@ -6,7 +6,8 @@ import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import { z } from 'zod';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
+import { authService } from '@/services/auth';
 
 
 const initialValue = ref({
@@ -19,12 +20,30 @@ const resolver = zodResolver(
   })
 );
 
-const onFormSubmit = (data) => {
-  if (data.valid) {
-    console.log('Form Data:', data.values);
-    // we send to the server
-  } else {
+const status = reactive({ message: '', type: '' });
+
+const onFormSubmit = async (data) => {
+  if (!data.valid) {
     console.log('errors:', data.errors);
+    status.message = 'Please fix the errors in the form.';
+    status.type = 'error';
+    return;
+  }
+
+  const email = data.values.email;
+
+  try {
+    await authService.forgotPassword(email);
+    status.message = 'If that email exists, a password reset link was sent.';
+    status.type = 'success';
+  } catch (err) {
+    console.error('Forgot password submission failed:', err);
+    if (err.response && err.response.data && err.response.data.message) {
+      status.message = err.response.data.message; 
+    } else {
+      status.message = 'Failed to send reset email. Please try again later.';
+    }
+    status.type = 'error';
   }
 }
 </script>
@@ -47,6 +66,9 @@ const onFormSubmit = (data) => {
           class="flex flex-col gap-3 p-5 bg-surface-0 dark:bg-surface-900 w-full sm:w-[20rem] md:w-[30rem]"
           >
           <div class="flex flex-col gap-1">
+            <Message v-if="status.message" :severity="status.type" size="small" variant="simple" class="mb-2">
+              {{ status.message }}
+            </Message>
             <InputText
               name="email"
               placeholder="Email"
