@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import Navbar from './components/Navbar.vue';
 import Sidebar from './components/sidebar.vue';
+import AuthThemeSwitch from './components/ThemeSwitcher.vue';
 import { appStore } from './stores/appStore';
 
 import { ALL_NAV_ITEMS } from './constants/menuItems';
@@ -104,6 +105,9 @@ onMounted(async () => {
 <template>
   <div id="app" :style="{ '--sidebar-width': sidebarVisible ? '280px' : '0px' }">
     <template v-if="isAuthLayout">
+      <div class="auth-top">
+        <AuthThemeSwitch />
+      </div>
       <router-view />
     </template>
     <template v-else>
@@ -125,6 +129,10 @@ html, body, #app {
   padding: 0;
 }
 
+#app {
+  position: relative;
+}
+
 .main-content {
   flex: 1;
   padding: 2rem;
@@ -142,4 +150,14 @@ html, body, #app {
   max-width: 1200px;
   margin: 0 auto;
 }
+
+.auth-top {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 1200;
+  pointer-events: auto;
+}
+
+
 </style>
