@@ -206,8 +206,15 @@ class SecurityComponent {
   }
 
   public async addUser(email: string, passwd: string, name: string, surname: string) {
-    const hashedPasswd = await argon2.hash(passwd);
-    await db.execute(queries.user.add, [email, hashedPasswd, name, surname]);
+    try {
+      const hashedPasswd = await argon2.hash(passwd);
+      await db.withTransaction(async () => {
+        await db.execute(queries.user.add, [email, hashedPasswd, name, surname]);
+        await db.execute(queries.user.addProfile, [email, "user"]);
+      });
+    } catch (err) {
+      throw err;
+    }
   }
 
   public async getUserProfiles(email: string): Promise<Set<string>> {
