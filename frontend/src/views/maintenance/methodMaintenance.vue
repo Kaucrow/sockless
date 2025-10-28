@@ -86,10 +86,10 @@ onMounted(async () => {
 
 
 <template>
-  <div class="p-4 rounded-lg bg-white">
-    <h2 class="text-3xl font-semibold mb-4 text-gray-800">Method Management</h2>
+  <div class="p-4 rounded-lg">
+    <h2 class="text-3xl font-semibold mb-4 ">Method Management</h2>
     <p v-if="loading" class="text-blue-500">Loading method permissions...</p>
-    <div v-else-if="methodPermissions.length === 0" class="p-4 text-center border rounded-lg bg-gray-50">
+    <div v-else-if="methodPermissions.length === 0" class="p-4 text-center border rounded-lg">
       No methods found or data could not be loaded.
     </div>
     <DataTable 
@@ -101,9 +101,9 @@ onMounted(async () => {
       table-style="min-width: 50rem"
       striped-rows
     >
-      <Column field="fullMethod" header="Method Name" :sortable="true" class="font-medium text-gray-700 w-1/3">
+      <Column field="fullMethod" header="Method Name" :sortable="true" class="font-medium w-1/3">
         <template #body="{ data }">
-            <span class="text-sm font-mono bg-gray-100 p-1 rounded">{{ data.fullMethod }}</span>
+            <span class="text-sm font-mono p-1 rounded">{{ data.fullMethod }}</span>
         </template>
       </Column>
 
