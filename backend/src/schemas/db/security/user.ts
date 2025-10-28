@@ -7,3 +7,7 @@ export const userSchema = z.object({
   name: z.string(),
   surname: z.string()
 });
+
+export const allowedMenusSchema = z.object({
+  menu_name: z.string(),
+});

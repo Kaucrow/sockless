@@ -212,7 +212,7 @@ class DatabaseComponent {
   private async commit(client: PgPoolClient | MySQLPoolConnection) {
     this.queryClient(client, 'COMMIT');
   }
-  
+
   private async rollback(client: PgPoolClient | MySQLPoolConnection) {
     this.queryClient(client, 'ROLLBACK');
   }
