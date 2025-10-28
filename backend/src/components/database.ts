@@ -64,23 +64,29 @@ class DatabaseComponent {
     }
   }
 
-  public async fetchOne<T extends object>(sql: string, schema: ZodType<T>, args?: any[]): Promise<ObjectToCamel<T> | null> {
+  public async fetchOne<T extends object>(
+    sql: string,
+    schema: ZodType<T>,
+    args?: any[],
+    client?: PgPoolClient | MySQLPoolConnection
+  ): Promise<ObjectToCamel<T> | null>
+  {
     if (!this.dbPool || !this.type) throw new Error("Database connection has not been initialized. Call db.connect() first.");
 
-    const dbPool = this.dbPool;
     let row: unknown;
-    
+
     try {
+      const executor = client || this.dbPool;
       switch (this.type) {
         case 'postgresql': {
-          const result = await (dbPool as PgPool).query(sql, args);
+          const result = await (executor as PgPool | PgPoolClient).query(sql, args);
 
           // Get the first row
           row = result.rows[0];
           break;
         }
         case 'mysql': {
-          const [rows] = await (dbPool as MySQLPool).query<RowDataPacket[]>(sql, args);
+          const [rows] = await (executor as MySQLPool | MySQLPoolConnection).query<RowDataPacket[]>(sql, args);
 
           // Get the first row
           row = rows[0];
@@ -105,23 +111,29 @@ class DatabaseComponent {
     }
   }
 
-  public async fetch<T extends object>(sql: string, schema: ZodType<T>, args?: any[]): Promise<ObjectToCamel<T>[]> {
+  public async fetch<T extends object>(
+    sql: string,
+    schema: ZodType<T>,
+    args?: any[],
+    client?: PgPoolClient | MySQLPoolConnection
+  ): Promise<ObjectToCamel<T>[]>
+  {
     if (!this.dbPool || !this.type) throw new Error("Database connection has not been initialized. Call db.connect() first.");
 
-    const dbPool = this.dbPool;
     let rows: unknown[];
 
     try {
+      const executor = client || this.dbPool;
       switch (this.type) {
         case 'postgresql': {
-          const result = await (dbPool as PgPool).query(sql, args);
+          const result = await (executor as PgPool | PgPoolClient).query(sql, args);
 
           // Get all rows
           rows = result.rows;
           break;
         }
         case 'mysql': {
-          const [rawRows] = await (dbPool as MySQLPool).query<RowDataPacket[]>(sql, args);
+          const [rawRows] = await (executor as MySQLPool | MySQLPoolConnection).query<RowDataPacket[]>(sql, args);
 
           // Get all rows
           rows = rawRows;
@@ -145,22 +157,27 @@ class DatabaseComponent {
     }
   }
 
-  public async execute(sql: string, args?: any[]): Promise<number | null> {
+  public async execute(
+    sql: string,
+    args?: any[],
+    client?: PgPoolClient | MySQLPoolConnection
+  ): Promise<number | null>
+  {
     if (!this.dbPool || !this.type) throw new Error("Database connection has not been initialized. Call db.connect() first.");
 
-    const dbPool = this.dbPool;
     let rowCount: number | null;
 
     try {
+      const executor = client || this.dbPool;
       switch (this.type) {
         case 'postgresql': {
-          const result = await (dbPool as PgPool).query(sql, args);
+          const result = await (executor as PgPool | PgPoolClient).query(sql, args);
 
           rowCount = result.rowCount;
           break;
         }
         case 'mysql': {
-          const [result] = await (dbPool as MySQLPool).query(sql, args);
+          const [result] = await (executor as MySQLPool | MySQLPoolConnection).query(sql, args);
 
           rowCount = (result as mysql.ResultSetHeader).affectedRows;
           break;
