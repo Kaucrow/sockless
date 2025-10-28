@@ -5,7 +5,7 @@ import Message from 'primevue/message';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Password from 'primevue/password';
-import { email, z } from 'zod';
+import { z } from 'zod';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { ref } from 'vue';
 import router from '@/router';
@@ -58,7 +58,7 @@ const onFormSubmit = async (data) => {
 </script>
 
 <template>
-    <div class="min-h-screen flex justify-center items-center">
+    <div class="min-h-screen flex justify-center items-center shadow-xl/30 ">
         <Card>
             <template #title>
                 <h2 class="m-0 text-center">Register</h2>
@@ -72,7 +72,7 @@ const onFormSubmit = async (data) => {
                     :initialValues="initialValues"
                     :resolver="resolver"
                     @submit="onFormSubmit"
-                    class="flex flex-col gap-3 p-8 bg-surface-0 dark:bg-surface-900 w-full sm:w-[20rem] md:w-[30rem]"
+                    class="flex flex-col gap-3 p-8 bg-surface-0 dark:bg-surface-900 w-full sm:w-[25rem] md:w-[25rem]"
                     >
                     <div class="flex flex-col gap-1">
                         <InputText
@@ -134,8 +134,6 @@ const onFormSubmit = async (data) => {
                     </div>
                 </Form>
             </template>
-
-
         </Card>
     </div>
 </template>
