@@ -22,41 +22,19 @@ const isAuthLayout = computed(() => route.meta?.layout === 'auth');
 const initialNavItems = ref(ALL_NAV_ITEMS);
 	
 const filterMenuItems = (items, parentSubsystem = null) => {
-    
-    const allowedMenuKeys = new Set();
-    const currentUserProfiles = userProfiles.value;
-    const allMenuPermissions = menuPermissions.value;
+    const allowedMenuKeysSet = new Set(menuPermissions.value);
 
-    if (currentUserProfiles.length === 0) {
+    if (allowedMenuKeysSet.size === 0) {
         return [];
     }
-    if (allMenuPermissions === null || Object.keys(allMenuPermissions).length === 0) {
-        return [];
-    }
-	
-    currentUserProfiles.forEach(profile => {
-        for (const subsystemKey in allMenuPermissions) {
-            if (Object.hasOwnProperty.call(allMenuPermissions, subsystemKey)) {
-                const subsystemPermissions = allMenuPermissions[subsystemKey];
-                for (const menuItemPermKey in subsystemPermissions) {
-                    if (Object.hasOwnProperty.call(subsystemPermissions, menuItemPermKey)) {
-                        const profilesAllowed = subsystemPermissions[menuItemPermKey];
-                        if (profilesAllowed.includes(profile)) {
-                            const keyToAdd = `${subsystemKey}/${menuItemPermKey}`;
-                            allowedMenuKeys.add(keyToAdd);
-                        }
-                    }
-                }
-            }
-        }
-    });
 	
     const recursiveFilter = (navItems, currentSubsystem, level = 0) => {
         return navItems
             .map(item => {
-                const itemSubsystem = item.subsystem || currentSubsystem;
-                const newItem = { ...item };
+                const itemSubsystem = item.subsystem || currentSubsystem; 
 
+                const newItem = { ...item }; 
+                
                 if (newItem.items && newItem.items.length > 0) {
                     newItem.items = recursiveFilter(newItem.items, itemSubsystem, level + 1);
                 }
@@ -64,17 +42,16 @@ const filterMenuItems = (items, parentSubsystem = null) => {
                 const hasVisibleChildren = newItem.items && newItem.items.length > 0;
                 let isDirectlyPermitted = false;
 
-                if (item.to && itemSubsystem && item.menuItemKey) {
-                    const permissionKeyChecked = `${itemSubsystem}/${item.menuItemKey}`;
-                    isDirectlyPermitted = allowedMenuKeys.has(permissionKeyChecked);
+                if (item.to && item.menuItemKey) {
+                    isDirectlyPermitted = allowedMenuKeysSet.has(item.menuItemKey);
+                } else if (item.to && !item.menuItemKey) {
                 }
-
                 if (hasVisibleChildren || isDirectlyPermitted) {
                     return newItem;
                 }
-                return null;
+                return null; 
             })
-        .filter(Boolean); 
+            .filter(Boolean);
     };
 	
     const result = recursiveFilter(items, parentSubsystem);
@@ -82,8 +59,7 @@ const filterMenuItems = (items, parentSubsystem = null) => {
 };
 	
 const filteredNavItems = computed(() => {
-  // If data is still loading or not available, return an empty array immediately
-  if (isLoadingMenuData.value || userProfiles.value.length === 0 || menuPermissions.value === null) {
+  if (isLoadingMenuData.value || menuPermissions.value === null) {
       return [];
   }
 
@@ -91,7 +67,7 @@ const filteredNavItems = computed(() => {
 });
 	
 onMounted(async () => {
-  if (!isAuthLayout.value && !appStore.state.userProfiles.length || appStore.state.menuPermissions === null) {
+  if (!isAuthLayout.value &&  appStore.state.menuPermissions === null) {
 	console.log('App.vue mounted: Fetching app data...');
 	await appStore.fetchAppData();
   } else if (isAuthLayout.value) {

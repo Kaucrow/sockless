@@ -62,6 +62,16 @@ export const maintenanceService = {
         }
     },
 
+    async getUserMenu() {
+        try {
+            const response = await api.get('/auth/user/menu');
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching user menu:', error);
+            throw error;
+        }
+    },
+
     async addMenuProfile(profileName, subsystem, menuItem) {
         try {
             await api.post(`/maintenance/menu/profiles/${profileName}`, {
