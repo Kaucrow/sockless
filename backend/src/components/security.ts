@@ -208,9 +208,9 @@ class SecurityComponent {
   public async addUser(email: string, passwd: string, name: string, surname: string) {
     try {
       const hashedPasswd = await argon2.hash(passwd);
-      await db.withTransaction(async () => {
-        await db.execute(queries.user.add, [email, hashedPasswd, name, surname]);
-        await db.execute(queries.user.addProfile, [email, "user"]);
+      await db.withTransaction(async (txClient) => {
+        await db.execute(queries.user.add, [email, hashedPasswd, name, surname], txClient);
+        await db.execute(queries.user.addProfile, [email, "user"], txClient);
       });
     } catch (err) {
       throw err;
@@ -248,11 +248,11 @@ class SecurityComponent {
 
   public async deleteProfile(profile: string): Promise<boolean> {
     try {
-      const result = await db.withTransaction(async () => {
-        await db.execute(queries.profile.removeFromAllUsers, [profile]);
-        await db.execute(queries.profile.removeFromAllMethods, [profile]);
-        await db.execute(queries.profile.removeFromAllMenus, [profile]);
-        return !!(await db.execute(queries.profile.delete, [profile]));
+      const result = await db.withTransaction(async (txClient) => {
+        await db.execute(queries.profile.removeFromAllUsers, [profile], txClient);
+        await db.execute(queries.profile.removeFromAllMethods, [profile], txClient);
+        await db.execute(queries.profile.removeFromAllMenus, [profile], txClient);
+        return !!(await db.execute(queries.profile.delete, [profile]), txClient);
       });
 
       return result;

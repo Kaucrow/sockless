@@ -9,6 +9,7 @@ export const queriesSchema = z.object({
     getUserById: z.string(),
     getProfilesByUserId: z.string(),
     getProfilesByEmail: z.string(),
+    getAllowedMenus: z.string(),
     add: z.string(),
     changePassword: z.string(),
     addProfile: z.string(),
