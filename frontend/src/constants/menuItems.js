@@ -12,7 +12,7 @@ export const ALL_NAV_ITEMS = [
       {
         label: "Permissions Console",
         icon: "pi pi-shield",
-        to: "/users/permissions",
+        to: "/permission-console",
         menuItemKey: "Permissions Console"
       },
       {

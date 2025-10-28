@@ -17,7 +17,7 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(['toggle-item']);
+const emit = defineEmits(['toggle-item', 'navigate']);
 
 const hasSubmenu = computed(() => props.item.items && props.item.items.length > 0);
 const isCurrentItemExpanded = computed(() => props.expandedStates[props.item.label] || false);
@@ -33,16 +33,18 @@ const paddingLeft = computed(() => `${1.5 + props.level * 1.5}rem`)
 
 <template>
     <div :class="{ 'nav-item-with-submenu': hasSubmenu }">
-        <a 
-            v-if="!hasSubmenu"
-            :href="item.to || '#'"
-            class="nav-item"
-            :style="{ paddingLeft: paddingLeft }"
-        >
-            <i v-if="item.icon" :class="item.icon"></i>
-            <span>{{ item.label }}</span>
-            <span v-if="item.badge" class="badge">{{ item.badge }}</span>
-        </a>
+    <router-link
+      v-if="!hasSubmenu"
+      :to="item.to || '#'
+      "
+      class="nav-item"
+      :style="{ paddingLeft: paddingLeft }"
+      @click="$emit('navigate')"
+    >
+      <i v-if="item.icon" :class="item.icon"></i>
+      <span>{{ item.label }}</span>
+      <span v-if="item.badge" class="badge">{{ item.badge }}</span>
+    </router-link>
         <div 
             v-else
             class="nav-item"
@@ -57,14 +59,15 @@ const paddingLeft = computed(() => `${1.5 + props.level * 1.5}rem`)
             ></i>
         </div>
         <div v-if="hasSubmenu" class="submenu" :class="{ expanded: isCurrentItemExpanded }">
-            <SideBarNavItem 
-                v-for="(subItem, index) in item.items" 
-                :key="subItem.label" 
-                :item="subItem" 
-                :expandedStates="expandedStates"
-                :level="level + 1"
-                @toggle-item="$emit('toggle-item', $event)"
-            />
+      <SideBarNavItem 
+        v-for="(subItem, index) in item.items" 
+        :key="subItem.label" 
+        :item="subItem" 
+        :expandedStates="expandedStates"
+        :level="level + 1"
+        @toggle-item="$emit('toggle-item', $event)"
+        @navigate="$emit('navigate')"
+      />
         </div>
     </div>
 </template>

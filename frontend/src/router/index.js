@@ -7,6 +7,7 @@ import MethodManagement from '../views/maintenance/methodMaintenance.vue'
 import MenuMaintenance from '../views/maintenance/menuMaintenance.vue'
 import Register from '../views/auth/Register.vue'
 import EmailValidation from '../views/auth/Validation.vue'
+import PermissionsConsole from '../views/maintenance/PermissionsConsole.vue'
 import { authService } from '@/services/auth'
 
 
@@ -61,6 +62,11 @@ const router = createRouter({
       name: 'validate-email',
       component: EmailValidation,
       meta: { layout: 'auth'}
+    },
+    {
+      path: '/permission-console',
+      name: 'permission-console',
+      component: PermissionsConsole,
     }
   ],
 })
