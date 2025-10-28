@@ -241,20 +241,15 @@ class SecurityComponent {
 
   public async deleteProfile(profile: string): Promise<boolean> {
     try {
-      let result: boolean;
-
-      await db.beginTransaction();
-
-      await db.execute(queries.profile.removeFromAllUsers, [profile]);
-      await db.execute(queries.profile.removeFromAllMethods, [profile]);
-      await db.execute(queries.profile.removeFromAllMenus, [profile]);
-      result = !!(await db.execute(queries.profile.delete, [profile]));
-
-      await db.commit();
+      const result = await db.withTransaction(async () => {
+        await db.execute(queries.profile.removeFromAllUsers, [profile]);
+        await db.execute(queries.profile.removeFromAllMethods, [profile]);
+        await db.execute(queries.profile.removeFromAllMenus, [profile]);
+        return !!(await db.execute(queries.profile.delete, [profile]));
+      });
 
       return result;
     } catch (err) {
-      await db.rollback();
       throw err;
     }
   }

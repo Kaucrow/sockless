@@ -4,7 +4,8 @@ import {
 } from 'pg';
 import mysql, {
   type RowDataPacket,
-  type Pool as MySQLPool
+  type Pool as MySQLPool,
+  type PoolConnection as MySQLPoolConnection,
 } from 'mysql2/promise';
 import {
   DbError,
@@ -26,8 +27,7 @@ class DatabaseComponent {
   static #instance: DatabaseComponent;
 
   private type: 'postgresql' | 'mysql' | undefined = undefined;
-  private dbPool: PgPoolClient | MySQLPool | undefined = undefined;
-  private transactionClient: PgPoolClient | MySQLPool | null = null;
+  private dbPool: PgPool | MySQLPool | undefined = undefined;
 
   private constructor() {}
 
@@ -43,13 +43,13 @@ class DatabaseComponent {
 
     switch (type) {
       case 'postgresql': {
-        this.dbPool = await new PgPool({
+        this.dbPool = new PgPool({
           host: dbConfig.host,
           port: dbConfig.port,
           database: dbConfig.name,
           user: dbConfig.user,
           password: dbConfig.pass
-        }).connect();
+        });
         break;
       }
       case 'mysql': {
@@ -73,7 +73,7 @@ class DatabaseComponent {
     try {
       switch (this.type) {
         case 'postgresql': {
-          const result = await (dbPool as PgPoolClient).query(sql, args);
+          const result = await (dbPool as PgPool).query(sql, args);
 
           // Get the first row
           row = result.rows[0];
@@ -114,7 +114,7 @@ class DatabaseComponent {
     try {
       switch (this.type) {
         case 'postgresql': {
-          const result = await (dbPool as PgPoolClient).query(sql, args);
+          const result = await (dbPool as PgPool).query(sql, args);
 
           // Get all rows
           rows = result.rows;
@@ -154,7 +154,7 @@ class DatabaseComponent {
     try {
       switch (this.type) {
         case 'postgresql': {
-          const result = await (dbPool as PgPoolClient).query(sql, args);
+          const result = await (dbPool as PgPool).query(sql, args);
 
           rowCount = result.rowCount;
           break;
@@ -180,85 +180,48 @@ class DatabaseComponent {
     return rowCount;
   }
 
-  public async beginTransaction(): Promise<void> {
-    if (!this.dbPool || !this.type) throw new Error("Database connection has not been initialized. Call db.connect() first.");
-
-    if (this.transactionClient) throw new Error("Transaction already in progress.");
+  public async withTransaction<T>(
+    callback: (client: PgPoolClient | MySQLPoolConnection) => Promise<T>
+  ): Promise<T>
+  {
+    let client: PgPoolClient | MySQLPoolConnection | undefined;
 
     try {
-      switch (this.type) {
-        case 'postgresql': {
-          this.transactionClient = this.dbPool as PgPoolClient;
-          this.transactionClient.query('BEGIN');
-          break;
-        }
-        case 'mysql': {
-          this.transactionClient = this.dbPool as MySQLPool;
-          this.transactionClient.query('START TRANSACTION');
-          break;
-        }
+      if (this.type === 'postgresql') {
+        client = await (this.dbPool as PgPool).connect();
+        await client.query('BEGIN');
+      } else {
+        client = await (this.dbPool as MySQLPool).getConnection();
+        await client.query('START TRANSACTION');
       }
+
+      const result = await callback(client);
+
+      await this.commit(client);
+      return result;
     } catch (err) {
-      throw new DbError(`Failed to begin transaction: ${err}`);
+      if (client) await this.rollback(client);
+      throw err;
+    } finally {
+      if (client && this.type === 'postgresql') {
+        (client as PgPoolClient).release();
+      }
     }
   }
 
-  public async commit() {
-    if (!this.dbPool || !this.type) throw new Error("Database connection has not been initialized. Call db.connect() first.");
-
-    if (!this.transactionClient) throw new Error("No transaction in progress.");
-
-    try {
-      switch (this.type) {
-        case 'postgresql': {
-          await (this.transactionClient as PgPoolClient).query('COMMIT');
-          break;
-        }
-        case 'mysql': {
-          await (this.transactionClient as MySQLPool).query('COMMIT');
-          break;
-        }
-      }
-    } catch (err) {
-      throw new DbError(`Failed to commit transaction: ${err}`);
-    } finally {
-      switch (this.type) {
-        case 'postgresql': {
-          (this.transactionClient as PgPoolClient).release();
-          break;
-        }
-      }
-
-      this.transactionClient = null;
-    }
+  private async commit(client: PgPoolClient | MySQLPoolConnection) {
+    this.queryClient(client, 'COMMIT');
+  }
+  
+  private async rollback(client: PgPoolClient | MySQLPoolConnection) {
+    this.queryClient(client, 'ROLLBACK');
   }
 
-  public async rollback() {
-    if (!this.dbPool || !this.type) throw new Error("Database connection has not been initialized. Call db.connect() first.");
-
-    if (!this.transactionClient) throw new Error("No transaction in progress.");
-
-    try {
-      switch (this.type) {
-        case 'postgresql': {
-          await (this.transactionClient as PgPoolClient).query('ROLLBACK');
-          break;
-        }
-        case 'mysql': {
-          await (this.transactionClient as MySQLPool).query('ROLLBACK');
-        }
-      }
-    } catch (err) {
-      throw new DbError(`Failed to rollback transaction: ${err}`);
-    } finally {
-      switch (this.type) {
-        case 'postgresql': {
-          (this.transactionClient as PgPoolClient).release();
-          break;
-        }
-      }
-
-      this.transactionClient = null;
+  private async queryClient(client: PgPoolClient | MySQLPoolConnection, query: string) {
+    if (this.type === 'postgresql') {
+      await (client as PgPoolClient).query(query);
+    } else {
+      await (client as MySQLPoolConnection).query(query);
     }
   }
 }
