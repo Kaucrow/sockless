@@ -1,8 +1,7 @@
 import { Router } from 'express';
 import type { MenuProfileData, MethodProfileData } from './responses.js';
 import { config } from '@const/constants.js';
-import { session } from '@components/session.js';
-import { security } from '@components/security.js';
+import { session, security, logger } from '@components/index.js';
 import { changeProfileNameSchema } from './requests.js';
 
 const router = Router();
@@ -56,7 +55,7 @@ router.get('/profiles/method-data', async (req, res) => {
     const profileData: MethodProfileData = await security.getMethodProfileData();
     return res.status(200).json(profileData);
   } catch (err) {
-    console.error(`Error getting methods' profile data: ${err}`);
+    logger.error(`Error getting methods' profile data: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
 });
@@ -107,7 +106,7 @@ router.get('/profiles/menu-data', async (req, res) => {
     const profileData: MenuProfileData = await security.getMenuProfileData();
     return res.status(200).json(profileData);
   } catch (err) {
-    console.error(`Error getting menus' profile data: ${err}`);
+    logger.error(`Error getting menus' profile data: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
 });
@@ -149,7 +148,7 @@ router.get('/profiles', async(req, res) => {
     const profiles = await security.getProfiles();
     return res.status(200).json([...profiles]);
   } catch(err) {
-    console.error(`Error getting profiles: ${err}`);
+    logger.error(`Error getting profiles: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
 });
@@ -214,7 +213,7 @@ router.put('/profiles/:profileName', async(req, res) => {
 
     return res.status(200).send();
   } catch(err) {
-    console.error(`Error changing profile name: ${err}`);
+    logger.error(`Error changing profile name: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
 });
@@ -264,7 +263,7 @@ router.delete('/profiles/:profileName', async(req, res) => {
 
     return res.status(200).send();
   } catch (err) {
-    console.error(`Error adding profile to method: ${err}`);
+    logger.error(`Error adding profile to method: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
 });

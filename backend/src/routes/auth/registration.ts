@@ -72,7 +72,7 @@ router.post('/register', async (req, res) => {
 
     return res.status(200).send();
   } catch (err) {
-    console.error(`User registration error: ${err}`);
+    logger.error(`User registration error: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
 });
@@ -118,7 +118,7 @@ router.post('/register/verify-email', async (req, res) => {
     await security.registerUser(token);
     return res.status(200).send(); 
   } catch (err) {
-    console.error(`Failed to verify registration email: ${err}`);
+    logger.error(`Failed to verify registration email: ${err}`);
     return res.status(403).json({ message: 'Failed to perform the registration email verification.' });
   }
 });

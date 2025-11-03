@@ -94,7 +94,7 @@ class DispatcherComponent {
     } catch (err) {
       // Catch dynamic import errors
       if (err instanceof Error && (err as any).code === 'MODULE_NOT_FOUND') {
-        console.error(`Module not found at ${subsystem}/${className}. Returning null.`);
+        logger.error(`Module not found at ${subsystem}/${className}. Returning null.`);
         return null
       }
 

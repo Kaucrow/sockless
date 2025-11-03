@@ -75,7 +75,7 @@ router.post('/menu/profiles/:profileName', async(req, res) => {
 
     return res.status(200).send();
   } catch (err) {
-    console.error(`Error adding profile to method: ${err}`);
+    logger.error(`Error adding profile to method: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
 });
@@ -148,7 +148,7 @@ router.delete('/menu/profiles/:profileName', async(req, res) => {
 
     return res.status(200).send();
   } catch (err) {
-    console.error(`Error adding profile to method: ${err}`);
+    logger.error(`Error adding profile to method: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
 });

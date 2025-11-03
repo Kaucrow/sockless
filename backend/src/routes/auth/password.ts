@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { queries } from '@const/constants.js';
 import { userSchema } from '@schemas/db/index.js';
-import { security, db } from '@components/index.js';
+import { security, db, logger } from '@components/index.js';
 import { forgotPasswordSchema, resetPasswordSchema } from './requests.js';
 
 const router = Router();
@@ -57,7 +57,7 @@ router.post('/forgot-password', async (req, res) => {
 
     return res.status(200).send();
   } catch (err) {
-    console.error(`User password recovery error: ${err}`);
+    logger.error(`User password recovery error: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
 });
@@ -107,7 +107,7 @@ router.put('/forgot-password/reset', async (req, res) => {
     await security.resetUserPassword(token, passwd);
     return res.status(200).send(); 
   } catch (err) {
-    console.error(`Failed to perform the password reset: ${err}`);
+    logger.error(`Failed to perform the password reset: ${err}`);
     return res.status(403).json({ message: 'Failed to perform the password reset.' });
   }
 });
