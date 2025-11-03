@@ -19,7 +19,12 @@ import {
 
 import { config, frontend } from '@const/constants.js';
 
-import { session, db, mailer } from '@components/index.js';
+import {
+  session,
+  db,
+  mailer,
+  logger,
+} from '@components/index.js';
 
 const app = express();
 
@@ -28,6 +33,9 @@ session.init(app, config.session.type);
 
 // Mailer
 mailer.init();
+
+// Logger
+logger.init(app);
 
 // Database connection
 db.connect(config.database.type);

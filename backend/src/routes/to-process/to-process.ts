@@ -13,7 +13,7 @@ router.post('/to-process', async (req, res) => {
       default: return res.status(200).json(result);
     }
   } catch(err) {
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({ message: 'A server error occurred.' });
   };
 });

@@ -83,7 +83,7 @@ router.post('/user', async(req, res) => {
 
     return res.status(200).send();
   } catch (err) {
-    console.error(`Error adding new user: ${err}`);
+    logger.error(`Error adding new user: ${err}`);
 
     // Email already in use
     if (err instanceof DbConflictError) {
@@ -146,7 +146,7 @@ router.get('/user/profiles', async(req, res) => {
       return res.status(400).json({ message: 'No user was found with this email.' });
     }
 
-    console.error(`Error getting user profiles: ${err}`);
+    logger.error(`Error getting user profiles: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
 });
@@ -208,7 +208,7 @@ router.post('/user/profiles/:profileName', async(req, res) => {
     
     return res.status(200).send();
   } catch (err) {
-    console.error(`Error adding profile to user: ${err}`);
+    logger.error(`Error adding profile to user: ${err}`);
 
     if (err instanceof DbNotNullViolationError) {
       return res.status(400).json({ message: 'No user and/or profile was found with this data.' });
@@ -279,7 +279,7 @@ router.delete('/user/profiles/:profileName', async(req, res) => {
 
     return res.status(200).send();
   } catch (err) {
-    console.error(`Error removing profile from user: ${err}`);
+    logger.error(`Error removing profile from user: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
 });

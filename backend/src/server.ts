@@ -14,5 +14,5 @@ app.listen(server.port, server.host, () => {
 
   console.log(`Server listening on ${chalk.yellow(serverUrl)}.\n`);
 
-  console.log(`View the (quite epic) documentation at ${chalk.cyan(docsUrl)}.`);
+  console.log(`View the (quite epic) documentation at ${chalk.cyan(docsUrl)}.\n`);
 });

@@ -1,5 +1,6 @@
 import nodemailer, { type Transporter, type SentMessageInfo } from 'nodemailer';
 import { mailer as mailerConfig } from '@const/constants.js';
+import { logger } from '@components/index.js';
 import type {
   EmailOptions,
   SendEmailResult
@@ -29,7 +30,7 @@ class MailerComponent {
     try {
       await this.transporter.verify();
     } catch (err) {
-      console.error('SMTP verification failed:', err);
+      logger.error(`SMTP verification failed: ${err}`);
       throw err;
     }
   }
@@ -107,7 +108,7 @@ class MailerComponent {
 
       await this.verifyTransporter();
     } catch (err) {
-      console.error('Failed to initialize MailerComponent:', err);
+      logger.error(`Failed to initialize MailerComponent: ${err}`);
       throw err;
     }
   }
@@ -130,7 +131,7 @@ class MailerComponent {
 
       return info as SendEmailResult;
     } catch (err) {
-      console.error('Error sending email:', err);
+      logger.error(`Error sending email: ${err}`);
       throw err;
     }
   }

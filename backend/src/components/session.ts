@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 
 import type { UUID } from '@/types/global.js';
 import type { Session } from '@/types/session.js';
+import { logger } from './logger.js';
 import { session as sessionFileConfig } from '@const/constants.js';
 
 class SessionComponent {
@@ -30,38 +31,6 @@ class SessionComponent {
       SessionComponent.#instance = new SessionComponent();
     }
     return SessionComponent.#instance;
-  }
-
-  private async getPasetoPayload(req: Request): Promise<Session | null> {
-    // Get the token
-    let token: string | undefined;
-
-    // Check for token in the Authorization Header
-    const authHeader = req.headers.authorization;
-    if (authHeader?.startsWith('Bearer ')) {
-      // Extract the token part: 'Bearer <token>'
-      token = authHeader.split(' ')[1];
-    }
-
-    // If no token in the header, check for token in the cookies
-    if (!token) token = req.cookies?.session;
-
-    // If still no token, throw an error
-    if (!token) {
-      throw new Error("No session token found in Authorization header or cookies"); // Token is missing
-    }
-
-    try {
-      const { payload }: { payload: Session } = pasetoVerify(this.pasetoKeys!.public, token);
-
-      if (!this.tokenSessions!.has(payload.userId)) {
-        return null;  // Session set does not have the user ID (might have expired)
-      }
-
-      return payload as Session;  // Verification succeeded
-    } catch (err) {
-      throw err;
-    }
   }
 
   public init(app: Express, type: 'express' | 'paseto') {
@@ -156,7 +125,7 @@ class SessionComponent {
           await this.getPasetoPayload(req);
           return true;
         } catch (err) {
-          console.error(err);
+          logger.error(String(err));
           return false;
         }
       }
@@ -180,7 +149,7 @@ class SessionComponent {
           const payload: Session | null = await this.getPasetoPayload(req);
           return payload;
         } catch (err) {
-          console.error(err);
+          logger.error(String(err));
           return null;
         }
       }
@@ -210,7 +179,7 @@ class SessionComponent {
           const payload: Session | null = await this.getPasetoPayload(req);
 
           if (!payload) {
-            console.error("Cannot delete session server-side since it doesn't exist");
+            logger.error("Cannot delete session server-side since it doesn't exist");
             res.clearCookie('session');
             return;
           }
@@ -218,9 +187,41 @@ class SessionComponent {
           this.tokenSessions!.delete(payload.userId);
           res.clearCookie('session');
         } catch (err) {
-          console.error(err);
+          logger.error(String(err));
         }
       }
+    }
+  }
+  
+  private async getPasetoPayload(req: Request): Promise<Session | null> {
+    // Get the token
+    let token: string | undefined;
+
+    // Check for token in the Authorization Header
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+      // Extract the token part: 'Bearer <token>'
+      token = authHeader.split(' ')[1];
+    }
+
+    // If no token in the header, check for token in the cookies
+    if (!token) token = req.cookies?.session;
+
+    // If still no token, throw an error
+    if (!token) {
+      throw new Error("No session token found in Authorization header or cookies"); // Token is missing
+    }
+
+    try {
+      const { payload }: { payload: Session } = pasetoVerify(this.pasetoKeys!.public, token);
+
+      if (!this.tokenSessions!.has(payload.userId)) {
+        return null;  // Session set does not have the user ID (might have expired)
+      }
+
+      return payload as Session;  // Verification succeeded
+    } catch (err) {
+      throw err;
     }
   }
 };

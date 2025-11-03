@@ -6,7 +6,12 @@ import {
   sign as pasetoSign,
   verify as pasetoVerify,
 } from 'paseto-ts/v4';
-import { session, db, mailer } from '@components/index.js';
+import {
+  session,
+  db,
+  mailer,
+  logger
+} from '@components/index.js';
 import { queries } from '@const/constants.js';
 import type {
   MethodProfileData,
@@ -82,7 +87,7 @@ class SecurityComponent {
 
       return new Set(profiles.map(p => p.profileName));
     } catch (err) {
-      console.error(`Error getting allowed user profiles: ${err}`);
+      logger.error(`Error getting allowed user profiles: ${err}`);
       throw err;
     }
   }
@@ -96,7 +101,7 @@ class SecurityComponent {
 
       return new Set(profiles.map(p => p.profileName));
     } catch (err) {
-      console.error(`Error getting profiles: ${err}`);
+      logger.error(`Error getting profiles: ${err}`);
       throw err;
     }
   }
@@ -144,7 +149,7 @@ class SecurityComponent {
         if (profile) profileData[subsystem][className][method].push(profile);
       });
     } catch (err) {
-      console.error(`Error getting methods' allowed profiles: ${err}`);
+      logger.error(`Error getting methods' allowed profiles: ${err}`);
       throw err;
     }
 
@@ -190,7 +195,7 @@ class SecurityComponent {
         if (profile) profileData[subsystem][menu].push(profile);
       });
     } catch (err) {
-      console.error(`Error getting menus' allowed profiles: ${err}`);
+      logger.error(`Error getting menus' allowed profiles: ${err}`);
       throw err;
     }
 

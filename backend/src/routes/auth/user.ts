@@ -43,7 +43,7 @@ router.get('/user/menu', async (req, res) => {
 
     return res.status(200).json(menus);
   } catch (err) {
-    console.error(`Error getting user menus: ${err}`);
+    logger.error(`Error getting user menus: ${err}`);
     return res.status(500).json({ message: 'A server error occurred.' });
   }
 });
