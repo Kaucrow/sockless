@@ -1,5 +1,3 @@
-## Backend
-
 ### Database Migration
 
 To apply the database migrations, navigate to the `migrations` folder and execute the following command:
