@@ -22,6 +22,67 @@ class MailerComponent {
     return MailerComponent.#instance;
   }
 
+  /* --- Init --- */
+
+  public async init() {
+    try {
+      this.transporter = nodemailer.createTransport(mailerConfig);
+      this.fromAddress = mailerConfig.auth.user;
+
+      await this.verifyTransporter();
+    } catch (err) {
+      logger.error(`Failed to initialize MailerComponent: ${err}`);
+      throw err;
+    }
+  }
+
+  /* --- Send email methods --- */
+
+  public async sendEmail(options: EmailOptions): Promise<SendEmailResult> {
+    if (!this.fromAddress || !this.transporter) throw new Error('Mailer has not been initialized. Call mailer.init() first.');
+
+    try {
+      const mailOptions = {
+        from: this.fromAddress,
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+        text: options.text,
+      };
+
+      const info: SentMessageInfo = await this.transporter.sendMail(mailOptions);
+
+      return info as SendEmailResult;
+    } catch (err) {
+      logger.error(`Error sending email: ${err}`);
+      throw err;
+    }
+  }
+
+  public async sendRegistrationVerificationEmail(to: string, verificationToken: string): Promise<SendEmailResult> {
+    const subject = 'Verify Your Email Address';
+
+    const html = this.generateRegistrationVerificationTemplate(verificationToken);
+
+    return await this.sendEmail({
+      to,
+      subject,
+      html
+    });
+  }
+
+  public async sendForgotPasswordVerificationEmail(to: string, verificationToken: string): Promise<SendEmailResult> {
+    const subject = 'Verify Your Email Address';
+
+    const html = this.generateForgotPasswordVerificationTemplate(verificationToken);
+
+    return await this.sendEmail({
+      to,
+      subject,
+      html
+    });
+  }
+
   private async verifyTransporter() {
     if (!this.transporter) {
       throw new Error('MailerComponent transporter not configured.');
@@ -97,67 +158,6 @@ class MailerComponent {
         </body>
       </html>
     `;
-  }
-
-  /* --- Init --- */
-
-  public async init() {
-    try {
-      this.transporter = nodemailer.createTransport(mailerConfig);
-      this.fromAddress = mailerConfig.auth.user;
-
-      await this.verifyTransporter();
-    } catch (err) {
-      logger.error(`Failed to initialize MailerComponent: ${err}`);
-      throw err;
-    }
-  }
-
-  /* --- Send email methods --- */
-
-  public async sendEmail(options: EmailOptions): Promise<SendEmailResult> {
-    if (!this.fromAddress || !this.transporter) throw new Error('Mailer has not been initialized. Call mailer.init() first.');
-
-    try {
-      const mailOptions = {
-        from: this.fromAddress,
-        to: options.to,
-        subject: options.subject,
-        html: options.html,
-        text: options.text,
-      };
-
-      const info: SentMessageInfo = await this.transporter.sendMail(mailOptions);
-
-      return info as SendEmailResult;
-    } catch (err) {
-      logger.error(`Error sending email: ${err}`);
-      throw err;
-    }
-  }
-
-  public async sendRegistrationVerificationEmail(to: string, verificationToken: string): Promise<SendEmailResult> {
-    const subject = 'Verify Your Email Address';
-
-    const html = this.generateRegistrationVerificationTemplate(verificationToken);
-
-    return await this.sendEmail({
-      to,
-      subject,
-      html
-    });
-  }
-
-  public async sendForgotPasswordVerificationEmail(to: string, verificationToken: string): Promise<SendEmailResult> {
-    const subject = 'Verify Your Email Address';
-
-    const html = this.generateForgotPasswordVerificationTemplate(verificationToken);
-
-    return await this.sendEmail({
-      to,
-      subject,
-      html
-    });
   }
 };
 
