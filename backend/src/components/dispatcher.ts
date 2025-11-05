@@ -2,8 +2,7 @@ import { queries } from "@const/constants.js";
 import { methodDataSchema } from "@schemas/db/index.js";
 import { toProcessSchema } from "@schemas/dispatcher.js";
 import type { Request } from "express";
-import type { MethodData } from "@/types/security.js";
-import { security, db } from "@components/index.js";
+import { security, db, logger } from "@components/index.js";
 import { toPascal } from "ts-case-convert";
 
 type ExecutionError = 'TxNotFound' | 'PermissionDenied';
@@ -51,7 +50,7 @@ class DispatcherComponent {
     // If the method ref is of type function, execute it.
     // Otherwise, throw an error
     if (typeof methodRef === 'function') {
-      const result = await methodRef.apply(instance, args);
+      const result = await methodRef.call(instance, args);
       return result;
     } else {
       const targetClassName = toPascal(className);

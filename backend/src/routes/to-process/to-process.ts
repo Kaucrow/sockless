@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { dispatcher } from '@components/dispatcher.js';
+import { dispatcher, logger } from '@components/index.js';
+import { ValidationError } from '@errors/validator.js';
 
 const router = Router();
 
@@ -13,7 +14,12 @@ router.post('/to-process', async (req, res) => {
       default: return res.status(200).json(result);
     }
   } catch(err) {
-    logger.error(err);
+    if (err instanceof ValidationError) {
+      logger.debug(err.message);
+      return res.status(400).json({ message: err.message });
+    }
+
+    logger.error(err as string);
     return res.status(500).json({ message: 'A server error occurred.' });
   };
 });

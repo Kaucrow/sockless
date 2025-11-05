@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS people.staff_role (
 CREATE TABLE IF NOT EXISTS people.staff_event (
     staff_id UUID NOT NULL,
     event_id UUID NOT NULL,
-    staff_role_id INTEGER NOT NULL,
+    staff_role_id UUID NOT NULL,
     cost_amt DECIMAL(10, 2) NOT NULL,
     PRIMARY KEY (staff_id, event_id),
     FOREIGN KEY (staff_id) REFERENCES people.staff(user_id),

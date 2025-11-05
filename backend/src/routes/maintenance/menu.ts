@@ -1,8 +1,7 @@
 import { Router } from 'express';
 import { config } from '@const/constants.js';
-import { session } from '@components/session.js';
-import { security } from '@components/security.js';
-import { addMenuProfileSchema, removeMenuProfileSchema } from './requests.js';
+import { session, security, logger } from '@components/index.js';
+import { addMenuProfileSchema } from './requests.js';
 
 const router = Router();
 

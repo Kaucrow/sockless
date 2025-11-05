@@ -33,5 +33,8 @@ export const queriesSchema = z.object({
     removeFromAllMethods: z.string(),
     removeFromAllMenus: z.string(),
     delete: z.string()
-  })
+  }),
+  event: z.object({
+    create: z.string(),
+  }),
 });

@@ -22,10 +22,10 @@ CREATE TABLE IF NOT EXISTS security.subsystem (
 --- Table: security.class
 CREATE TABLE IF NOT EXISTS security.class (
     class_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    subsystem_id UUID NOT NULL
+    subsystem_id UUID NOT NULL,
     "name" VARCHAR(50) NOT NULL,
     UNIQUE (subsystem_id, "name"),
-    FOREIGN KEY (subsystem_id) REFERENCES (security.subsystem_id)
+    FOREIGN KEY (subsystem_id) REFERENCES security.subsystem(subsystem_id)
 );
 
 --- Table: security.method
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS security.method (
     class_id UUID NOT NULL,
     "name" VARCHAR(50) NOT NULL,
     UNIQUE (class_id, "name"),
-    FOREIGN KEY (class_id) REFERENCES (security.class)
+    FOREIGN KEY (class_id) REFERENCES security.class(class_id)
 );
 
 --- Table: security.menu
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS security.menu (
     subsystem_id UUID NOT NULL,
     "name" VARCHAR(50) NOT NULL,
     UNIQUE (subsystem_id, "name"),
-    FOREIGN KEY (subsystem_id)
+    FOREIGN KEY (subsystem_id) REFERENCES security.subsystem(subsystem_id)
 );
 
 --- Table: security.tx
