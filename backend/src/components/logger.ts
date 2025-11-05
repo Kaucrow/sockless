@@ -102,7 +102,7 @@ class LoggerComponent {
     if (!this.logger) throw new Error('Logger has not been initialized. Call logger.init() first.');
     this.logger.error(msg, meta);
   }
-  
+ 
   public warn(msg: string, meta?: Record<string, any>): void {
     if (!this.logger) throw new Error('Logger has not been initialized. Call logger.init() first.');
     this.logger.warn(msg, meta);
