@@ -2,7 +2,7 @@ import { Router } from 'express';
 import argon2 from 'argon2';
 import { queries } from '@const/constants.js';
 import { userSchema } from '@schemas/db/index.js';
-import { session, security, db } from '@components/index.js';
+import { session, security, db, logger } from '@components/index.js';
 
 const router = Router();
 

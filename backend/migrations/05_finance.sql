@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS finance.payment_method (
 CREATE TABLE IF NOT EXISTS finance.payment (
     payment_id UUID PRIMARY KEY,
     attendee_ci INTEGER NOT NULL,
-    payment_method_id INTEGER NOT NULL,
+    payment_method_id UUID NOT NULL,
     amt DECIMAL(10, 2) NOT NULL,
     dt TIMESTAMP WITH TIME ZONE NOT NULL,
     FOREIGN KEY (attendee_ci) REFERENCES people.attendee(attendee_ci),

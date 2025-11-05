@@ -165,3 +165,12 @@ profile:
   delete: |
     DELETE FROM security.profile
     WHERE "name" = $1
+event:
+  create: |
+    INSERT INTO events.event (
+      name,
+      start_dt,
+      end_dt,
+      desc_txt
+    )
+    VALUES ($1, $2, $3, $4)

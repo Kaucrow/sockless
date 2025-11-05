@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { config } from '@const/constants.js';
-import { session, security } from '@components/index.js';
+import { session, security, logger } from '@components/index.js';
 import { DbConflictError, DbNotNullViolationError } from '@errors/index.js';
 import {
   addUserProfileSchema,

@@ -2,5 +2,5 @@ import { z } from 'zod';
 
 export const toProcessSchema = z.object({
   tx: z.number(),
-  args: z.array(z.any())
+  args: z.record(z.any(), z.any())
 });
