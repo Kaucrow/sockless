@@ -8,6 +8,7 @@ import MenuMaintenance from '../views/maintenance/menuMaintenance.vue'
 import Register from '../views/auth/Register.vue'
 import EmailValidation from '../views/auth/Validation.vue'
 import PermissionsConsole from '../views/maintenance/PermissionsConsole.vue'
+import Assistance from '../views/event/Assistance.vue'
 import { authService } from '@/services/auth'
 
 
@@ -67,6 +68,11 @@ const router = createRouter({
       path: '/permission-console',
       name: 'permission-console',
       component: PermissionsConsole,
+    },
+    {
+      path: '/admin/event-assistance',
+      name: 'event-assistance',
+      component: Assistance,
     }
   ],
 })

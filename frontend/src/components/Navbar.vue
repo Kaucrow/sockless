@@ -35,7 +35,8 @@ const currentPageName = computed(() => {
     'settings': 'Settings',
     'menu-management' : 'Admin Panel',
     'method-management' : 'Admin Panel',
-    'permission-console' : 'Admin Panel'
+    'permission-console' : 'Admin Panel',
+    'event-assistance' : 'Event Assistance',
   };
   
   return nameMap[routeName] || routeName.charAt(0).toUpperCase() + routeName.slice(1);
