@@ -4,6 +4,24 @@ export const queriesSchema = z.object({
   tx: z.object({
     getMethodCall: z.string(),
   }),
+  sync: z.object({
+    deleteMethodProfiles: z.string(),
+    deleteMenuProfiles: z.string(),
+    deleteMethods: z.string(),
+    deleteMenus: z.string(),
+    deleteClasses: z.string(),
+    deleteSubsystems: z.string(),
+    deleteTx: z.string(),
+    addSubsystem: z.string(),
+    addClass: z.string(),
+    addMethod: z.string(),
+    addTx: z.string(),
+    getSubsystemId: z.string(),
+    getClassId: z.string(),
+    getMethodId: z.string(),
+    getProfileId: z.string(),
+    linkMethodProfile: z.string()
+  }),
   user: z.object({
     getUserByEmail: z.string(),
     getUserById: z.string(),

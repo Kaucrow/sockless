@@ -58,17 +58,20 @@ CREATE TABLE IF NOT EXISTS security.tx (
 --- Table: security.user_profile
 CREATE TABLE IF NOT EXISTS security.user_profile (
     user_id UUID NOT NULL REFERENCES security.user(user_id),
-    profile_id UUID NOT NULL REFERENCES security.profile(profile_id)
+    profile_id UUID NOT NULL REFERENCES security.profile(profile_id),
+    UNIQUE (user_id, profile_id)
 );
 
 --- Table: security.method_profile
 CREATE TABLE IF NOT EXISTS security.method_profile (
     method_id UUID NOT NULL REFERENCES security.method(method_id),
-    profile_id UUID NOT NULL REFERENCES security.profile(profile_id)
+    profile_id UUID NOT NULL REFERENCES security.profile(profile_id),
+    UNIQUE (method_id, profile_id)
 );
 
 --- Table: security.menu_profile
 CREATE TABLE IF NOT EXISTS security.menu_profile (
     menu_id UUID NOT NULL REFERENCES security.menu(menu_id),
-    profile_id UUID NOT NULL REFERENCES security.profile(profile_id)
+    profile_id UUID NOT NULL REFERENCES security.profile(profile_id),
+    UNIQUE (menu_id, profile_id)
 );

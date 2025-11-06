@@ -26,19 +26,26 @@ import {
   logger,
 } from '@components/index.js';
 
+import '@bo/index.js';
+
+import { registerAllPermissions } from '@decorators/allow-method.decorator.js';
+
 const app = express();
 
 // Session middleware
 session.init(app, config.session.type);
 
 // Mailer
-mailer.init();
+await mailer.init();
 
 // Logger
-logger.init(app);
+await logger.init(app);
 
 // Database connection
-db.connect(config.database.type);
+await db.connect(config.database.type);
+
+// Sync database
+await registerAllPermissions();
 
 // Middleware to parse JSON from request body
 app.use(express.json());
