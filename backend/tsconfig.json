@@ -53,6 +53,9 @@
         "@schemas/*": ["./schemas/*"],
         "@errors/*": ["./errors/*"],
         "@components/*": ["./components/*"],
+        "@decorators/*": ["./decorators/*"],
+        "@services/*": ["./services/*"],
+        "@bo/*": ["./business-objects/*"],
         "@/*": ["./*"]
     },
   }

@@ -27,3 +27,11 @@ export interface Profile {
 export interface EmailVerificationTokenPayload {
   id: UUID
 };
+
+export interface MethodPermissionInput {
+  tx: number;
+  subsystem: string;
+  className: string;
+  methodName: string;
+  profiles: string[];
+};

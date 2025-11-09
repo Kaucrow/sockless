@@ -1,7 +1,9 @@
 import { validator, db } from "@components/index.js";
 import { queries } from "@const/constants.js";
 import { CreateEventSchema } from "./schemas.js";
+import { register, allow } from "@decorators/allow-method.decorator.js";
 
+@register('events')
 export class Event {
   /**
    * @swagger
@@ -70,6 +72,7 @@ export class Event {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
+  @allow(1, ["event-admin"])
   private async createEvent(args: object) {
     const { name, startDt, endDt, description } = validator.validate(args, CreateEventSchema);
 

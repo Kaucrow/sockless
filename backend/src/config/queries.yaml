@@ -1,6 +1,56 @@
 tx:
   getMethodCall: |
     SELECT * FROM security.tx WHERE tx_id = $1
+sync:
+  deleteMethodProfiles: |
+    DELETE FROM security.method_profile
+  deleteMenuProfiles: |
+    DELETE FROM security.menu_profile
+  deleteMethods: |
+    DELETE FROM security.method
+  deleteMenus: |
+    DELETE FROM security.menu
+  deleteClasses: |
+    DELETE FROM security.class
+  deleteSubsystems: |
+    DELETE FROM security.subsystem
+  deleteTx: |
+    DELETE FROM security.tx
+  addSubsystem: |
+    INSERT INTO security.subsystem (name)
+    VALUES ($1)
+    ON CONFLICT (name) DO NOTHING
+  addClass: |
+    INSERT INTO security.class (subsystem_id, name)
+    VALUES ($1, $2)
+    ON CONFLICT (subsystem_id, name) DO NOTHING
+  addMethod: |
+    INSERT INTO security.method (class_id, name)
+    VALUES ($1, $2)
+    ON CONFLICT (class_id, name) DO NOTHING
+  addTx: |
+    INSERT INTO security.tx (tx_id, subsystem, class, method)
+    VALUES ($1, $2, $3, $4)
+    ON CONFLICT (subsystem, class, method) DO NOTHING
+  getSubsystemId: |
+    SELECT subsystem_id FROM security.subsystem WHERE name = $1
+  getClassId: |
+    SELECT c.class_id
+    FROM security.class c
+    JOIN security.subsystem s ON c.subsystem_id = s.subsystem_id
+    WHERE s.name = $1 AND c.name = $2
+  getMethodId: |
+    SELECT method_id
+    FROM security.method
+    WHERE
+      class_id = $1 AND
+      name = $2
+  getProfileId: |
+    SELECT profile_id FROM security.profile WHERE name = $1
+  linkMethodProfile: |
+    INSERT INTO security.method_profile (method_id, profile_id)
+    VALUES ($1, $2)
+    ON CONFLICT (method_id, profile_id) DO NOTHING 
 user:
   getUserByEmail: |
     SELECT * FROM security.user WHERE email = $1
