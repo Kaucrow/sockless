@@ -72,7 +72,7 @@ export class Event {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(["event-admin"])
+  @allow(1, ["event-admin"])
   private async createEvent(args: object) {
     const { name, startDt, endDt, description } = validator.validate(args, CreateEventSchema);
 

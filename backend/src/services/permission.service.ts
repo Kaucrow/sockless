@@ -7,9 +7,20 @@ import {
   profileIdSchema
 } from '@schemas/db/sync/sync.js';
 
-export class PermissionService {
+class PermissionService {
+  static #instance: PermissionService;
+
+  private constructor() {}
+
+  public static get instance(): PermissionService {
+    if (!PermissionService.#instance) {
+      PermissionService.#instance = new PermissionService();
+    }
+    return PermissionService.#instance;
+  }
+
   async registerAllPermissions(
-    permissions: Array<{
+    permissionsMap: Map<number, {
       subsystem: string;
       className: string;
       methodName: string;
@@ -25,21 +36,33 @@ export class PermissionService {
         // Group permissions by subsystem and class to minimize DB operations
         const subsystemMap = new Map<string, Set<string>>(); // subsystem -> classes
         const classMap = new Map<string, Set<string>>(); // subsystem.class -> methods
-        
-        for (const permission of permissions) {
-          const classKey = `${permission.subsystem}.${permission.className}`;
-          
-          // Track subsystems
-          if (!subsystemMap.has(permission.subsystem)) {
-            subsystemMap.set(permission.subsystem, new Set());
-          }
-          subsystemMap.get(permission.subsystem)!.add(permission.className);
+        const txMap = new Map<number, { subsystem: string; className: string; methodName: string }>(); // tx -> method info
  
+        // Process the Map structure
+        for (const [tx, methodInfo] of permissionsMap) {
+          const classKey = `${methodInfo.subsystem}.${methodInfo.className}`;
+
+          // Track subsystems
+          if (!subsystemMap.has(methodInfo.subsystem)) {
+            subsystemMap.set(methodInfo.subsystem, new Set());
+          }
+          subsystemMap.get(methodInfo.subsystem)!.add(methodInfo.className);
+
           // Track classes and methods
           if (!classMap.has(classKey)) {
             classMap.set(classKey, new Set());
           }
-          classMap.get(classKey)!.add(permission.methodName);
+          classMap.get(classKey)!.add(methodInfo.methodName);
+
+          // Track tx mappings
+          if (txMap.has(tx)) {
+            throw new Error(`Duplicate transaction ID found: ${tx}. Each tx must be unique.`);
+          }
+          txMap.set(tx, {
+            subsystem: methodInfo.subsystem,
+            className: methodInfo.className,
+            methodName: methodInfo.methodName
+          });
         }
 
         // Insert subsystems
@@ -51,32 +74,32 @@ export class PermissionService {
         for (const [classKey, methods] of classMap) {
           const [subsystemName, className] = classKey.split('.');
           const { subsystemId } = (await db.fetchOne(queries.sync.getSubsystemId, subsystemIdSchema, [subsystemName], txClient))!;
-  
+ 
           await db.execute(queries.sync.addClass, [subsystemId, className], txClient);
         }
 
         // Insert methods and their profile relationships
-        for (const permission of permissions) {
+        for (const [tx, methodInfo] of permissionsMap) {
           // Get class ID
           const { classId } = (await db.fetchOne(queries.sync.getClassId, classIdSchema, [
-            permission.subsystem, 
-            permission.className
+            methodInfo.subsystem,
+            methodInfo.className
           ], txClient))!;
-  
+
           // Insert method
-          await db.execute(queries.sync.addMethod, [classId, permission.methodName], txClient);
+          await db.execute(queries.sync.addMethod, [classId, methodInfo.methodName], txClient);
 
           // Get method ID
           const { methodId } = (await db.fetchOne(queries.sync.getMethodId, methodIdSchema, [
             classId, 
-            permission.methodName
+            methodInfo.methodName
           ], txClient))!;
 
           // Insert profile relationships for this method
-          for (const profileName of permission.profiles) {
+          for (const profileName of methodInfo.profiles) {
             // Get profile ID
             const profileResult = await db.fetchOne(queries.sync.getProfileId, profileIdSchema, [profileName], txClient);
-  
+
             if (!profileResult) throw new Error(`Profile not found in database: ${profileName}`);
 
             const { profileId } = profileResult;
@@ -86,16 +109,15 @@ export class PermissionService {
           }
         }
 
-        // Also update the security.tx table
-        for (const permission of permissions) {
+        // Update the security.tx table with transaction IDs
+        for (const [tx, methodInfo] of txMap) {
           await db.execute(queries.sync.addTx, [
-            permission.subsystem,
-            permission.className, 
-            permission.methodName
+            tx,
+            methodInfo.subsystem,
+            methodInfo.className, 
+            methodInfo.methodName
           ], txClient);
         }
-
-        console.log(`Successfully registered ${permissions.length} permissions across ${subsystemMap.size} subsystems`);
       });
     } catch (error) {
       console.error('Failed to register permissions:', error);
@@ -114,3 +136,5 @@ export class PermissionService {
     await db.execute(queries.sync.deleteTx, [], txClient);
   }
 }
+
+export const permissionService = PermissionService.instance;

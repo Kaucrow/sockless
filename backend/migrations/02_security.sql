@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS security.menu (
 
 --- Table: security.tx
 CREATE TABLE IF NOT EXISTS security.tx (
-    tx_id SERIAL PRIMARY KEY,
+    tx_id INT PRIMARY KEY,
     subsystem VARCHAR(50) NOT NULL,
     class VARCHAR(50) NOT NULL,
     method VARCHAR(50) NOT NULL,
