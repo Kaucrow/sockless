@@ -7,16 +7,16 @@ import {
   profileIdSchema
 } from '@schemas/db/sync/sync.js';
 
-class PermissionService {
-  static #instance: PermissionService;
+class MethodPermissionService {
+  static #instance: MethodPermissionService;
 
   private constructor() {}
 
-  public static get instance(): PermissionService {
-    if (!PermissionService.#instance) {
-      PermissionService.#instance = new PermissionService();
+  public static get instance(): MethodPermissionService {
+    if (!MethodPermissionService.#instance) {
+      MethodPermissionService.#instance = new MethodPermissionService();
     }
-    return PermissionService.#instance;
+    return MethodPermissionService.#instance;
   }
 
   async registerAllPermissions(
@@ -137,4 +137,4 @@ class PermissionService {
   }
 }
 
-export const permissionService = PermissionService.instance;
+export const methodPermissionService = MethodPermissionService.instance;

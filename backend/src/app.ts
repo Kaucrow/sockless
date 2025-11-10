@@ -28,7 +28,9 @@ import {
 
 import '@bo/index.js';
 
-import { registerAllPermissions } from '@decorators/allow-method.decorator.js';
+import { registerAllMethods } from '@decorators/allow-method.decorator.js';
+
+import { menuPermissionService } from '@services/menu-permission.service.js';
 
 const app = express();
 
@@ -45,7 +47,8 @@ await logger.init(app);
 await db.connect(config.database.type);
 
 // Sync database
-await registerAllPermissions();
+await registerAllMethods();
+await menuPermissionService.registerAllMenus();
 
 // Middleware to parse JSON from request body
 app.use(express.json());

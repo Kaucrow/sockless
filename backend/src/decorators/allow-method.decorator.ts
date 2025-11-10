@@ -1,4 +1,4 @@
-import { permissionService } from '@services/permission.service.js';
+import { methodPermissionService } from '@services/method-permission.service.js';
 
 const registeredPermissions = new Map<number, {
   subsystem: string;
@@ -58,6 +58,8 @@ export function allow(tx: number, profiles: string[]) {
   };
 }
 
-export async function registerAllPermissions() {
-  permissionService.registerAllPermissions(registeredPermissions);
+export async function registerAllMethods() {
+  methodPermissionService.registerAllPermissions(
+    registeredPermissions
+  );
 }

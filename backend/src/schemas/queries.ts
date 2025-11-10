@@ -15,12 +15,15 @@ export const queriesSchema = z.object({
     addSubsystem: z.string(),
     addClass: z.string(),
     addMethod: z.string(),
+    addMenu: z.string(),
     addTx: z.string(),
     getSubsystemId: z.string(),
     getClassId: z.string(),
     getMethodId: z.string(),
+    getMenuId: z.string(),
     getProfileId: z.string(),
-    linkMethodProfile: z.string()
+    linkMethodProfile: z.string(),
+    linkMenuProfile: z.string(),
   }),
   user: z.object({
     getUserByEmail: z.string(),

@@ -1,0 +1,8 @@
+{
+    "events": [
+        {
+            "name": "test",
+            "profiles": ["event-admin"]
+        }
+    ]
+}

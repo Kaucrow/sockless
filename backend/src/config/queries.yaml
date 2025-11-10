@@ -28,6 +28,10 @@ sync:
     INSERT INTO security.method (class_id, name)
     VALUES ($1, $2)
     ON CONFLICT (class_id, name) DO NOTHING
+  addMenu: |
+    INSERT INTO security.menu (subsystem_id, name)
+    VALUES ($1, $2)
+    ON CONFLICT (subsystem_id, name) DO NOTHING
   addTx: |
     INSERT INTO security.tx (tx_id, subsystem, class, method)
     VALUES ($1, $2, $3, $4)
@@ -45,12 +49,22 @@ sync:
     WHERE
       class_id = $1 AND
       name = $2
+  getMenuId: |
+    SELECT menu_id 
+    FROM security.menu
+    WHERE
+      subsystem_id = $1 AND
+      name = $2
   getProfileId: |
     SELECT profile_id FROM security.profile WHERE name = $1
   linkMethodProfile: |
     INSERT INTO security.method_profile (method_id, profile_id)
     VALUES ($1, $2)
     ON CONFLICT (method_id, profile_id) DO NOTHING 
+  linkMenuProfile: |
+    INSERT INTO security.menu_profile (menu_id, profile_id)
+    VALUES ($1, $2)
+    ON CONFLICT (menu_id, profile_id) DO NOTHING 
 user:
   getUserByEmail: |
     SELECT * FROM security.user WHERE email = $1
