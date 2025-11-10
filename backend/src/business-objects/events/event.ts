@@ -1,13 +1,17 @@
 import { validator, db } from "@components/index.js";
 import { queries } from "@const/constants.js";
-import { CreateEventSchema } from "./schemas.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
+import {
+  createEventSchema,
+  getEventSchema,
+} from "./schemas.js";
+import { eventSchema } from "@schemas/db/events/event.js";
 
 @register('events')
 export class Event {
   /**
    * @swagger
-   * /to-process:
+   * /to-process/createEvent:
    *  post:
    *    tags:
    *      - events
@@ -74,8 +78,155 @@ export class Event {
    */
   @allow(1, ["event-admin"])
   private async createEvent(args: object) {
-    const { name, startDt, endDt, description } = validator.validate(args, CreateEventSchema);
+    const { name, startDt, endDt, description } = validator.validate(args, createEventSchema);
 
     await db.execute(queries.event.create, [name, startDt, endDt, description]);
+  }
+
+  /**
+   * @swagger
+   * /to-process/getAllEvents:
+   *   post:
+   *     tags:
+   *       - events
+   *     summary: Get all events
+   *     description: Gets all events' data.
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               tx:
+   *                 type: number 
+   *                 description: Transaction number.
+   *                 example: 2
+   *               args:
+   *                 type: object
+   *                 description: Empty.
+   *             required:
+   *               - tx
+   *               - args
+   *     responses:
+   *       200:
+   *         description: Success.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 type: object
+   *                 properties:
+   *                   eventId:
+   *                     type: string
+   *                     format: uuid
+   *                     example: "4de5dca6-fca4-45fa-9539-cfe652c40a0a"
+   *                   name:
+   *                     type: string
+   *                     example: "Neovim Conference"
+   *                   descTxt:
+   *                     type: string
+   *                     example: "A free community conference on all things neovim."
+   *                   startDt:
+   *                     type: string
+   *                     format: date-time
+   *                     example: "2077-12-15T09:00:00.000Z"
+   *                   endDt:
+   *                     type: string
+   *                     format: date-time
+   *                     example: "2077-12-18T09:00:00.000Z"
+   *       403:
+   *         description: User is not logged in or doesn't have permission to execute this method.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "User is not allowed to perform this action."
+   */
+  @allow(2, ["event-admin"])
+  private async getAllEvents(args: object) {
+    const events = await db.fetch(queries.event.getAll, eventSchema);
+
+    return events;
+  }
+
+  /**
+   * @swagger
+   * /to-process/getEvent:
+   *   post:
+   *     tags:
+   *       - events
+   *     summary: Get one event
+   *     description: Gets one event's data.
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               tx:
+   *                 type: number 
+   *                 description: Transaction number.
+   *                 example: 3
+   *               args:
+   *                 type: object
+   *                 description: Event ID.
+   *                 properties:
+   *                  eventId:
+   *                    type: string
+   *                    format: uuid
+   *                    description: Event ID.  
+   *             required:
+   *               - tx
+   *               - args
+   *     responses:
+   *       200:
+   *         description: Success.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                eventId:
+   *                  type: string
+   *                  format: uuid 
+   *                  example: "4de5dca6-fca4-45fa-9539-cfe652c40a0a"
+   *                name:
+   *                  type: string
+   *                  example: "Neovim Conference"
+   *                descTxt:
+   *                  type: string
+   *                  example: "A free community conference on all things neovim."
+   *                startDt:
+   *                  type: string
+   *                  format: date-time
+   *                  example: "2077-12-15T09:00:00.000Z"
+   *                endDt:
+   *                  type: string
+   *                  format: date-time
+   *                  example: "2077-12-18T09:00:00.000Z"
+   *       403:
+   *         description: User is not logged in or doesn't have permission to execute this method.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "User is not allowed to perform this action."
+   */
+  @allow(3, ["event-admin"])
+  private async getEvent(args: object) {
+    const { eventId } = validator.validate(args, getEventSchema);
+
+    const event = await db.fetchOne(queries.event.getEventById, eventSchema, [eventId]);
+
+    return event;
   }
 }

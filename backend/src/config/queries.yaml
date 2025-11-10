@@ -238,3 +238,8 @@ event:
       desc_txt
     )
     VALUES ($1, $2, $3, $4)
+  getAll: |
+    SELECT * FROM events.event
+  getEventById: |
+    SELECT * from events.event
+    WHERE event.event_id = $1

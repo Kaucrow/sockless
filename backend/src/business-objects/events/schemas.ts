@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const CreateEventSchema = z.object({
+export const createEventSchema = z.object({
   name: z.string()
     .min(1, "Event name is required")
     .max(200, "Event name must be 200 characters or less")
@@ -20,4 +20,8 @@ export const CreateEventSchema = z.object({
 }).refine((data) => new Date(data.endDt) > new Date(data.startDt), {
   message: "End date must be after start date",
   path: ["endDt"]
+});
+
+export const getEventSchema = z.object({
+  eventId: z.uuid()
 });

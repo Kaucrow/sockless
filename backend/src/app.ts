@@ -51,6 +51,11 @@ await db.connect(config.database.type);
 await methodPermissionService.registerAllMethods();
 await menuPermissionService.registerAllMenus();
 
+// Redirect to-process slugs to plain to-process
+app.use('/to-process/:slug', (req, res) => {
+  return res.redirect(308, '/to-process');
+});
+
 // Middleware to parse JSON from request body
 app.use(express.json());
 

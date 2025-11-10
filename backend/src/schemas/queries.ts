@@ -57,5 +57,7 @@ export const queriesSchema = z.object({
   }),
   event: z.object({
     create: z.string(),
+    getAll: z.string(),
+    getEventById: z.string()
   }),
 });
