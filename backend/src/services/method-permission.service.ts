@@ -10,6 +10,13 @@ import {
 class MethodPermissionService {
   static #instance: MethodPermissionService;
 
+  public registeredPermissions = new Map<number, {
+    subsystem: string;
+    className: string;
+    methodName: string;
+    profiles: string[];
+  }>();
+
   private constructor() {}
 
   public static get instance(): MethodPermissionService {
@@ -19,14 +26,7 @@ class MethodPermissionService {
     return MethodPermissionService.#instance;
   }
 
-  async registerAllPermissions(
-    permissionsMap: Map<number, {
-      subsystem: string;
-      className: string;
-      methodName: string;
-      profiles: string[];
-    }>
-  ): Promise<void> {
+  public async registerAllMethods() {
     try {
       // Start transaction
       db.withTransaction(async (txClient) => {
@@ -39,7 +39,7 @@ class MethodPermissionService {
         const txMap = new Map<number, { subsystem: string; className: string; methodName: string }>(); // tx -> method info
  
         // Process the Map structure
-        for (const [tx, methodInfo] of permissionsMap) {
+        for (const [tx, methodInfo] of this.registeredPermissions) {
           const classKey = `${methodInfo.subsystem}.${methodInfo.className}`;
 
           // Track subsystems
@@ -79,7 +79,7 @@ class MethodPermissionService {
         }
 
         // Insert methods and their profile relationships
-        for (const [tx, methodInfo] of permissionsMap) {
+        for (const [tx, methodInfo] of this.registeredPermissions) {
           // Get class ID
           const { classId } = (await db.fetchOne(queries.sync.getClassId, classIdSchema, [
             methodInfo.subsystem,

@@ -9,7 +9,7 @@ import {
   userMaintenanceRoutes,
   methodMaintenanceRoutes,
   menuMaintenanceRoutes,
-} from './routes/maintenance/index.js';
+} from '@routes/maintenance/index.js';
 import {
   authRoutes,
   registrationRoutes,
@@ -26,11 +26,12 @@ import {
   logger,
 } from '@components/index.js';
 
+import {
+  methodPermissionService,
+  menuPermissionService
+} from '@services/index.js';
+
 import '@bo/index.js';
-
-import { registerAllMethods } from '@decorators/allow-method.decorator.js';
-
-import { menuPermissionService } from '@services/menu-permission.service.js';
 
 const app = express();
 
@@ -47,7 +48,7 @@ await logger.init(app);
 await db.connect(config.database.type);
 
 // Sync database
-await registerAllMethods();
+await methodPermissionService.registerAllMethods();
 await menuPermissionService.registerAllMenus();
 
 // Middleware to parse JSON from request body

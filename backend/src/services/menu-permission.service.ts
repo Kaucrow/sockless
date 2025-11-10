@@ -20,7 +20,7 @@ class MenuPermissionService {
     return MenuPermissionService.#instance;
   }
 
-  public async registerAllMenus(): Promise<void> {
+  public async registerAllMenus() {
     try {
       await db.withTransaction(async (txClient) => {
         // The menu object's keys are the subsystem names
