@@ -42,10 +42,24 @@ export const updateEventSchema = z.object({
   endDt: z.iso.datetime("End date must be a valid ISO 8601 date string"),
  
   description: z.string()
-    .min(1, "Description is required")
-    .max(1000, "Description must be 1000 characters or less")
+    .min(1, "Event description is required")
+    .max(1000, "Event description must be 1000 characters or less")
     .trim()
 }).refine((data) => new Date(data.endDt) > new Date(data.startDt), {
   message: "End date must be after start date",
   path: ["endDt"]
+});
+
+export const createLocationSchema = z.object({
+  country: z.string()
+    .min(1, "Country name is required")
+    .max(100, "Country name must be 100 characters or less"),
+  
+  city: z.string()
+    .min(1, "City name is required")
+    .max(100, "City name must be 100 characters or less"),
+
+  name: z.string()
+    .min(1, "Location name is required")
+    .max(200, "Location name must be 200 characters or less"),
 });

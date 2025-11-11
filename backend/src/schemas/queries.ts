@@ -61,4 +61,8 @@ export const queriesSchema = z.object({
     getEventById: z.string(),
     update: z.string(),
   }),
+  location: z.object({
+    create: z.string(),
+    getAll: z.string(),
+  }),
 });

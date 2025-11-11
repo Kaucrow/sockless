@@ -4,9 +4,11 @@ import { register, allow } from "@decorators/allow-method.decorator.js";
 import {
   createEventSchema,
   getEventSchema,
-  updateEventSchema
+  updateEventSchema,
 } from "./schemas.js";
-import { eventSchema } from "@schemas/db/events/event.js";
+import {
+  eventSchema,
+} from "@schemas/db/events/index.js";
 import { ToProcessBadReqError } from "@errors/to-process.js";
 
 @register('events')
@@ -294,12 +296,12 @@ export class Event {
       args, updateEventSchema
     );
 
-    const rows = await db.execute(
+    const rowsAffected = await db.execute(
       queries.event.update,
       [eventId, name, description, startDt, endDt]
     );
 
-    if (!rows) {
+    if (!rowsAffected) {
       throw new ToProcessBadReqError(`Failed to find an event with ID: '${eventId}'`);
     }
   }

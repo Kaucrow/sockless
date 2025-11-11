@@ -268,3 +268,10 @@ event:
       end_dt = $5
     WHERE
       event_id = $1
+location:
+  create: |
+    INSERT INTO events.location (country, city, "name")
+    VALUES ($1, $2, $3)
+    ON CONFLICT (country, city, "name") DO NOTHING
+  getAll: |
+    SELECT * FROM events.location
