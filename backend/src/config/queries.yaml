@@ -16,22 +16,38 @@ sync:
     DELETE FROM security.subsystem
   deleteTx: |
     DELETE FROM security.tx
-  addSubsystem: |
-    INSERT INTO security.subsystem (name)
-    VALUES ($1)
-    ON CONFLICT (name) DO NOTHING
-  addClass: |
-    INSERT INTO security.class (subsystem_id, name)
-    VALUES ($1, $2)
-    ON CONFLICT (subsystem_id, name) DO NOTHING
-  addMethod: |
-    INSERT INTO security.method (class_id, name)
-    VALUES ($1, $2)
-    ON CONFLICT (class_id, name) DO NOTHING
-  addMenu: |
-    INSERT INTO security.menu (subsystem_id, name)
-    VALUES ($1, $2)
-    ON CONFLICT (subsystem_id, name) DO NOTHING
+  addSubsystemReturnId: |
+    WITH ins AS (
+      INSERT INTO security.subsystem (name)
+      VALUES ($1)
+      ON CONFLICT (name) DO NOTHING
+      RETURNING subsystem_id
+    )
+    SELECT subsystem_id FROM ins
+  addClassReturnId: |
+    WITH ins AS (
+      INSERT INTO security.class (subsystem_id, name)
+      VALUES ($1, $2)
+      ON CONFLICT (subsystem_id, name) DO NOTHING
+      RETURNING class_id
+    )
+    SELECT class_id FROM ins
+  addMethodReturnId: |
+    WITH ins AS (
+      INSERT INTO security.method (class_id, name)
+      VALUES ($1, $2)
+      ON CONFLICT (class_id, name) DO NOTHING
+      RETURNING method_id
+    )
+    SELECT method_id FROM ins
+  addMenuReturnId: |
+    WITH ins AS (
+      INSERT INTO security.menu (subsystem_id, name)
+      VALUES ($1, $2)
+      ON CONFLICT (subsystem_id, name) DO NOTHING
+      RETURNING menu_id
+    )
+    SELECT menu_id FROM ins
   addTx: |
     INSERT INTO security.tx (tx_id, subsystem, class, method)
     VALUES ($1, $2, $3, $4)

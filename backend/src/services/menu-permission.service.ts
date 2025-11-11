@@ -37,13 +37,15 @@ class MenuPermissionService {
           for (const menu of menuItems) {
             const menuName = menu.name;
 
-            // Add the menu
-            await db.execute(queries.sync.addMenu, [subsystemId, menuName], txClient);
-
-            // Get the menu's ID
-            const menuIdResult = await db.fetchOne(queries.sync.getMenuId, menuIdSchema, [subsystemId, menuName], txClient);
+            // Add the menu and get its ID
+            const menuIdResult = await db.fetchOne(
+              queries.sync.addMenuReturnId,
+              menuIdSchema,
+              [subsystemId, menuName],
+              txClient
+            );
             if (!menuIdResult) {
-              throw new Error(`Failed to find menu: ${menuName} in subsystem: ${subsystem}`);
+              throw new Error(`Failed to insert menu: ${menuName} in subsystem: ${subsystem}`);
             }
             const { menuId } = menuIdResult;
 
