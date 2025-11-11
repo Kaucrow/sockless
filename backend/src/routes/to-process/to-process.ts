@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { dispatcher, logger } from '@components/index.js';
 import { ValidationError } from '@errors/validator.js';
+import { ToProcessBadReqError } from '@errors/to-process.js';
 
 const router = Router();
 
@@ -14,7 +15,7 @@ router.post('/to-process', async (req, res) => {
       default: return res.status(200).json(result);
     }
   } catch(err) {
-    if (err instanceof ValidationError) {
+    if (err instanceof ValidationError || err instanceof ToProcessBadReqError) {
       logger.debug(err.message);
       return res.status(400).json({ message: err.message });
     }

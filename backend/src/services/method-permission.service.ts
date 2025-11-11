@@ -125,7 +125,7 @@ class MethodPermissionService {
     }
   }
 
-  private async clearAllPermissions(txClient: any): Promise<void> {
+  private async clearAllPermissions(txClient: any) {
     // Clear all relationships and base data (in correct order due to foreign keys)
     await db.execute(queries.sync.deleteMethodProfiles, [], txClient);
     await db.execute(queries.sync.deleteMenuProfiles, [], txClient);

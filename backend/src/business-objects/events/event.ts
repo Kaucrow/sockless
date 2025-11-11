@@ -4,8 +4,10 @@ import { register, allow } from "@decorators/allow-method.decorator.js";
 import {
   createEventSchema,
   getEventSchema,
+  updateEventSchema
 } from "./schemas.js";
 import { eventSchema } from "@schemas/db/events/event.js";
+import { ToProcessBadReqError } from "@errors/to-process.js";
 
 @register('events')
 export class Event {
@@ -228,5 +230,77 @@ export class Event {
     const event = await db.fetchOne(queries.event.getEventById, eventSchema, [eventId]);
 
     return event;
+  }
+
+  /**
+   * @swagger
+   * /to-process/updateEvent:
+   *   post:
+   *     tags:
+   *       - events
+   *     summary: Update an event
+   *     description: Updates an event's data.
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               tx:
+   *                 type: number 
+   *                 description: Transaction number.
+   *                 example: 4
+   *               args:
+   *                 type: object
+   *                 description: Event data.
+   *                 properties:
+   *                  eventId:
+   *                    type: string
+   *                    format: uuid
+   *                    description: Event ID.
+   *                  name:
+   *                    type: string
+   *                    description: Event name.
+   *                  description:
+   *                    type: string
+   *                    description: Event description.
+   *                  startDt:
+   *                    type: string
+   *                    description: Event start date object.
+   *                  endDt:
+   *                    type: string
+   *                    description: Event end date object.
+   *             required:
+   *               - tx
+   *               - args
+   *     responses:
+   *       200:
+   *         description: Success.
+   *       403:
+   *         description: User is not logged in or doesn't have permission to execute this method.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "User is not allowed to perform this action."
+   */
+  @allow(4, ["event-admin"])
+  private async updateEvent(args: object) {
+    const { eventId, name, description, startDt, endDt } = validator.validate(
+      args, updateEventSchema
+    );
+
+    const rows = await db.execute(
+      queries.event.update,
+      [eventId, name, description, startDt, endDt]
+    );
+
+    if (!rows) {
+      throw new ToProcessBadReqError(`Failed to find an event with ID: '${eventId}'`);
+    }
   }
 }

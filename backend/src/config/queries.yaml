@@ -243,3 +243,12 @@ event:
   getEventById: |
     SELECT * from events.event
     WHERE event.event_id = $1
+  update: |
+    UPDATE events.event
+    SET
+      "name" = $2
+      desc_txt = $3
+      start_dt = $4
+      end_dt = $5
+    WHERE
+      event_id = $1
