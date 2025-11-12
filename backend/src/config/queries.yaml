@@ -275,3 +275,18 @@ location:
     ON CONFLICT (country, city, "name") DO NOTHING
   getAll: |
     SELECT * FROM events.location
+reservation:
+  create: |
+    INSERT INTO events.location_reservation (event_id, location_id, cost)
+    VALUES ($1, $2, $3)
+  getByEventId: |
+    SELECT
+      lr.cost,
+      l.country,
+      l.city,
+      l."name" AS location_name
+    FROM
+      events.location_reservation AS lr
+    JOIN 
+      events.location AS l ON lr.location_id = l.location_id
+    WHERE lr.event_id = $1 

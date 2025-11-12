@@ -63,3 +63,17 @@ export const createLocationSchema = z.object({
     .min(1, "Location name is required")
     .max(200, "Location name must be 200 characters or less"),
 });
+
+export const setEventReservationSchema = z.object({
+  eventId: z.uuid(),
+
+  locationId: z.uuid(),
+
+  cost: z.number()
+    .positive("Cost must be a positive number")
+    .multipleOf(0.01)   // Max 2 decimal places
+});
+
+export const getEventReservationSchema = z.object({
+  eventId: z.uuid(),
+});

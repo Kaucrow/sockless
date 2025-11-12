@@ -65,4 +65,8 @@ export const queriesSchema = z.object({
     create: z.string(),
     getAll: z.string(),
   }),
+  reservation: z.object({
+    create: z.string(),
+    getByEventId: z.string(),
+  }),
 });
