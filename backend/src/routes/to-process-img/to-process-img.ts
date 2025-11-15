@@ -2,13 +2,26 @@ import { Router } from 'express';
 import { dispatcher, logger } from '@components/index.js';
 import { ValidationError } from '@errors/validator.js';
 import { ToProcessBadReqError } from '@errors/to-process.js';
-import { toProcessSchema } from '@schemas/dispatcher.js';
+import { toProcessImgSchema } from '@schemas/dispatcher.js';
+import { upload } from '@const/constants.js';
 
 const router = Router();
 
-router.post('/to-process', async (req, res) => {
+router.post(
+  '/to-process-img',
+  upload.single('imageFile'),
+  async (req, res) =>
+{
   try {
-    const { tx, args } = toProcessSchema.parse(req.body);
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ message: "No 'imageFile' provided." });
+    }
+
+    let { tx, args } = toProcessImgSchema.parse(req.body);
+
+    args.imageFile = file;
 
     const result = await dispatcher.executeMethod(req, tx, args);
 

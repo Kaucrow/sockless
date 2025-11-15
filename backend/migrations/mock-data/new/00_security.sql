@@ -7,7 +7,8 @@ ON CONFLICT (email) DO NOTHING;
 
 -- Profiles
 INSERT INTO security.profile ("name") VALUES
-    ('event-admin')
+    ('event-admin'),
+    ('finance-admin')
 ON CONFLICT ("name") DO NOTHING;
 
 -- Assign profiles to users
@@ -15,7 +16,8 @@ INSERT INTO security.user_profile (user_id, profile_id)
     SELECT u.user_id, p.profile_id 
     FROM security.user u, security.profile p 
     WHERE (u.email, p.name) IN (
-        ('user1@example.com', 'event-admin')
+        ('user1@example.com', 'event-admin'),
+        ('user1@example.com', 'finance-admin')
     )
 ON CONFLICT DO NOTHING;
 

@@ -1,15 +1,17 @@
 import express from 'express';
 import cors from 'cors';
+import fs from 'fs';
 import swaggerUI from 'swagger-ui-express';
 import { swaggerDocs, swaggerUIOptions } from './swagger.js';
 
 import toProcessRoute from '@routes/to-process/to-process.js';
+import toProcessImgRoute from '@routes/to-process-img/to-process-img.js';
 import {
   profileMaintenanceRoutes,
   userMaintenanceRoutes,
   methodMaintenanceRoutes,
   menuMaintenanceRoutes,
-} from './routes/maintenance/index.js';
+} from '@routes/maintenance/index.js';
 import {
   authRoutes,
   registrationRoutes,
@@ -17,7 +19,11 @@ import {
   userRoutes
 } from '@routes/auth/index.js';
 
-import { config, frontend } from '@const/constants.js';
+import {
+  config,
+  frontend,
+  UPLOAD_DIR
+} from '@const/constants.js';
 
 import {
   session,
@@ -26,9 +32,14 @@ import {
   logger,
 } from '@components/index.js';
 
+import {
+  methodPermissionService,
+  menuPermissionService
+} from '@services/index.js';
+
 import '@bo/index.js';
 
-import { registerAllPermissions } from '@decorators/allow-method.decorator.js';
+fs.mkdir(UPLOAD_DIR, { recursive: true }, () => {});
 
 const app = express();
 
@@ -45,7 +56,17 @@ await logger.init(app);
 await db.connect(config.database.type);
 
 // Sync database
-await registerAllPermissions();
+await methodPermissionService.registerAllMethods();
+await menuPermissionService.registerAllMenus();
+
+// Redirect to-process slugs to plain to-process
+app.use('/to-process/:slug', (req, res) => {
+  return res.redirect(308, '/to-process');
+});
+
+app.use('/to-process-img/:slug', (req, res) => {
+  return res.redirect(308, '/to-process-img');
+});
 
 // Middleware to parse JSON from request body
 app.use(express.json());
@@ -61,6 +82,9 @@ app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs, swaggerUIOptions)
 
 // To-Process route
 app.use('/', toProcessRoute);
+
+// To-Process image route
+app.use('/', toProcessImgRoute);
 
 // Maintenance routes
 app.use('/maintenance', profileMaintenanceRoutes);

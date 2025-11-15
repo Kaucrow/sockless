@@ -12,15 +12,18 @@ export const queriesSchema = z.object({
     deleteClasses: z.string(),
     deleteSubsystems: z.string(),
     deleteTx: z.string(),
-    addSubsystem: z.string(),
-    addClass: z.string(),
-    addMethod: z.string(),
+    addSubsystemReturnId: z.string(),
+    addClassReturnId: z.string(),
+    addMethodReturnId: z.string(),
+    addMenuReturnId: z.string(),
     addTx: z.string(),
     getSubsystemId: z.string(),
     getClassId: z.string(),
     getMethodId: z.string(),
+    getMenuId: z.string(),
     getProfileId: z.string(),
-    linkMethodProfile: z.string()
+    linkMethodProfile: z.string(),
+    linkMenuProfile: z.string(),
   }),
   user: z.object({
     getUserByEmail: z.string(),
@@ -54,5 +57,16 @@ export const queriesSchema = z.object({
   }),
   event: z.object({
     create: z.string(),
+    getAll: z.string(),
+    getEventById: z.string(),
+    update: z.string(),
+  }),
+  location: z.object({
+    create: z.string(),
+    getAll: z.string(),
+  }),
+  reservation: z.object({
+    create: z.string(),
+    getByEventId: z.string(),
   }),
 });

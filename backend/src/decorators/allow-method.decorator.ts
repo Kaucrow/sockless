@@ -1,11 +1,4 @@
-import { permissionService } from '@services/permission.service.js';
-
-const registeredPermissions = new Map<number, {
-  subsystem: string;
-  className: string;
-  methodName: string;
-  profiles: string[];
-}>();
+import { methodPermissionService } from '@services/method-permission.service.js';
 
 export function register(subsystem: string) {
   return function ClassDecorator<C extends new (...args: any[]) => any>(
@@ -23,8 +16,9 @@ export function register(subsystem: string) {
           const { tx, profiles } = metadata;
 
           // Check if tx already exists
-          let methodInfo = registeredPermissions.get(tx);
+          let methodInfo = methodPermissionService.registeredPermissions.get(tx);
           if (methodInfo) {
+            // The decorator may be executed twice due to the class being imported statically and dynamically.
             // If the tx isn't related to the exact same method, throw an error
             if (!(
               subsystem === methodInfo.subsystem &&
@@ -37,7 +31,7 @@ export function register(subsystem: string) {
             }
           }
 
-          registeredPermissions.set(tx, {
+          methodPermissionService.registeredPermissions.set(tx, {
             subsystem,
             className,
             methodName,
@@ -56,8 +50,4 @@ export function allow(tx: number, profiles: string[]) {
     // Store both tx and profiles in metadata
     context.metadata[methodName] = { tx, profiles };
   };
-}
-
-export async function registerAllPermissions() {
-  permissionService.registerAllPermissions(registeredPermissions);
 }

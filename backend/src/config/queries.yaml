@@ -16,18 +16,38 @@ sync:
     DELETE FROM security.subsystem
   deleteTx: |
     DELETE FROM security.tx
-  addSubsystem: |
-    INSERT INTO security.subsystem (name)
-    VALUES ($1)
-    ON CONFLICT (name) DO NOTHING
-  addClass: |
-    INSERT INTO security.class (subsystem_id, name)
-    VALUES ($1, $2)
-    ON CONFLICT (subsystem_id, name) DO NOTHING
-  addMethod: |
-    INSERT INTO security.method (class_id, name)
-    VALUES ($1, $2)
-    ON CONFLICT (class_id, name) DO NOTHING
+  addSubsystemReturnId: |
+    WITH ins AS (
+      INSERT INTO security.subsystem (name)
+      VALUES ($1)
+      ON CONFLICT (name) DO NOTHING
+      RETURNING subsystem_id
+    )
+    SELECT subsystem_id FROM ins
+  addClassReturnId: |
+    WITH ins AS (
+      INSERT INTO security.class (subsystem_id, name)
+      VALUES ($1, $2)
+      ON CONFLICT (subsystem_id, name) DO NOTHING
+      RETURNING class_id
+    )
+    SELECT class_id FROM ins
+  addMethodReturnId: |
+    WITH ins AS (
+      INSERT INTO security.method (class_id, name)
+      VALUES ($1, $2)
+      ON CONFLICT (class_id, name) DO NOTHING
+      RETURNING method_id
+    )
+    SELECT method_id FROM ins
+  addMenuReturnId: |
+    WITH ins AS (
+      INSERT INTO security.menu (subsystem_id, name)
+      VALUES ($1, $2)
+      ON CONFLICT (subsystem_id, name) DO NOTHING
+      RETURNING menu_id
+    )
+    SELECT menu_id FROM ins
   addTx: |
     INSERT INTO security.tx (tx_id, subsystem, class, method)
     VALUES ($1, $2, $3, $4)
@@ -45,12 +65,22 @@ sync:
     WHERE
       class_id = $1 AND
       name = $2
+  getMenuId: |
+    SELECT menu_id 
+    FROM security.menu
+    WHERE
+      subsystem_id = $1 AND
+      name = $2
   getProfileId: |
     SELECT profile_id FROM security.profile WHERE name = $1
   linkMethodProfile: |
     INSERT INTO security.method_profile (method_id, profile_id)
     VALUES ($1, $2)
     ON CONFLICT (method_id, profile_id) DO NOTHING 
+  linkMenuProfile: |
+    INSERT INTO security.menu_profile (menu_id, profile_id)
+    VALUES ($1, $2)
+    ON CONFLICT (menu_id, profile_id) DO NOTHING 
 user:
   getUserByEmail: |
     SELECT * FROM security.user WHERE email = $1
@@ -224,3 +254,39 @@ event:
       desc_txt
     )
     VALUES ($1, $2, $3, $4)
+  getAll: |
+    SELECT * FROM events.event
+  getEventById: |
+    SELECT * from events.event
+    WHERE event.event_id = $1
+  update: |
+    UPDATE events.event
+    SET
+      "name" = $2
+      desc_txt = $3
+      start_dt = $4
+      end_dt = $5
+    WHERE
+      event_id = $1
+location:
+  create: |
+    INSERT INTO events.location (country, city, "name")
+    VALUES ($1, $2, $3)
+    ON CONFLICT (country, city, "name") DO NOTHING
+  getAll: |
+    SELECT * FROM events.location
+reservation:
+  create: |
+    INSERT INTO events.location_reservation (event_id, location_id, cost)
+    VALUES ($1, $2, $3)
+  getByEventId: |
+    SELECT
+      lr.cost,
+      l.country,
+      l.city,
+      l."name" AS location_name
+    FROM
+      events.location_reservation AS lr
+    JOIN 
+      events.location AS l ON lr.location_id = l.location_id
+    WHERE lr.event_id = $1 

@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS events.location (
     location_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     country VARCHAR(100) NOT NULL,
     city VARCHAR(100) NOT NULL,
-    "name" VARCHAR(255) NOT NULL
+    "name" VARCHAR(255) NOT NULL,
+    UNIQUE (country, city, "name")
 );
 
 --- Table: events.event
