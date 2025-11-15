@@ -71,5 +71,6 @@ export const queriesSchema = z.object({
   }),
   flyer: z.object({
     addEventFlyer: z.string(),
+    getEventFlyer: z.string(),
   }),
 });

@@ -85,3 +85,7 @@ export const addEventFlyerSchema = z.object({
 
   eventId: z.uuid(),
 });
+
+export const getEventFlyerSchema = z.object({
+  eventId: z.uuid(),
+});

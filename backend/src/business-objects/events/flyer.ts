@@ -1,12 +1,15 @@
 import { validator, db, logger } from "@components/index.js";
 import { queries, UPLOAD_DIR } from "@const/constants.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
+import { flyerSchema } from "@schemas/db/events/flyer.js";
 import {
-  addEventFlyerSchema
+  addEventFlyerSchema,
+  getEventFlyerSchema,
 } from "./schemas.js";
 import path from "path";
 import fs from 'fs';
 import crypto from 'crypto';
+import { ToProcessBadReqError } from "@errors/to-process.js";
 
 @register('events')
 export class Flyer {
@@ -83,5 +86,81 @@ export class Flyer {
     fs.writeFile(savePath, imageFile.buffer, () => {});
 
     logger.debug(`File '${newFilename} saved to '${UPLOAD_DIR}'.`);
+  }
+
+  /**
+   * @swagger
+   * /to-process/getEventFlyer:
+   *  post:
+   *    tags:
+   *      - events
+   *    summary: Get an event's flyer
+   *    description: Gets one event's flyer.
+   *    requestBody:
+   *      description: Event ID.
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            type: object
+   *            properties:
+   *              tx:
+   *                type: number 
+   *                description: Transaction number.
+   *                example: 10
+   *              args:
+   *                type: object
+   *                description: Event ID.
+   *                properties:
+   *                  eventId:
+   *                    type: string
+   *                    format: uuid
+   *                    description: Event ID.  
+   *          required:
+   *            - tx
+   *            - args
+   *    responses:
+   *      200:
+   *        description: Success.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *               url:
+   *                 type: string
+   *                 example: "ed1db90c93f4c0fa8e1afb84cb037eb9.png"
+   *      400:
+   *        description: Invalid args.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *                message:
+   *                  type: string
+   *                  example: "Property 'name': Invalid input: expected string, received undefined"
+   *      403:
+   *        description: User is not logged in or doesn't have permission to execute this method.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *                message:
+   *                  type: string
+   *                  example: "User is not allowed to perform this action."
+   */
+  @allow(10, ["event-admin"])
+  private async getEventFlyer(args: object) {
+    const { eventId } = validator.validate(args, getEventFlyerSchema);
+
+    const flyer = await db.fetchOne(queries.flyer.getEventFlyer, flyerSchema, [eventId]);
+
+    if (!flyer) {
+      throw new ToProcessBadReqError(`Event with ID '${eventId}' doesn't exist or has no flyer.`);
+    }
+
+    return flyer;
   }
 }
