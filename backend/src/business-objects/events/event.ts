@@ -5,11 +5,12 @@ import {
   createEventSchema,
   getEventSchema,
   updateEventSchema,
-} from "./schemas.js";
+} from "./requests.js";
 import {
   eventSchema,
 } from "@schemas/db/events/index.js";
 import { ToProcessBadReqError } from "@errors/to-process.js";
+import type { Request } from "express";
 
 @register('events')
 export class Event {
@@ -81,7 +82,7 @@ export class Event {
    *                  example: "User is not allowed to perform this action."
    */
   @allow(1, ["event-admin"])
-  private async createEvent(args: object) {
+  private async createEvent(req: Request, args: object) {
     const { name, startDt, endDt, description } = validator.validate(args, createEventSchema);
 
     await db.execute(queries.event.create, [name, startDt, endDt, description]);
@@ -152,7 +153,7 @@ export class Event {
    *                   example: "User is not allowed to perform this action."
    */
   @allow(2, ["event-admin"])
-  private async getAllEvents(args: object) {
+  private async getAllEvents(req: Request, args: object) {
     const events = await db.fetch(queries.event.getAll, eventSchema);
 
     return events;
@@ -226,7 +227,7 @@ export class Event {
    *                   example: "User is not allowed to perform this action."
    */
   @allow(3, ["event-admin"])
-  private async getEvent(args: object) {
+  private async getEvent(req: Request, args: object) {
     const { eventId } = validator.validate(args, getEventSchema);
 
     const event = await db.fetchOne(queries.event.getEventById, eventSchema, [eventId]);
@@ -291,7 +292,7 @@ export class Event {
    *                   example: "User is not allowed to perform this action."
    */
   @allow(4, ["event-admin"])
-  private async updateEvent(args: object) {
+  private async updateEvent(req: Request, args: object) {
     const { eventId, name, description, startDt, endDt } = validator.validate(
       args, updateEventSchema
     );

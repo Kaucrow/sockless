@@ -4,12 +4,13 @@ import { register, allow } from "@decorators/allow-method.decorator.js";
 import {
   setEventReservationSchema,
   getEventReservationSchema,
-} from "./schemas.js";
+} from "./requests.js";
 import {
   reservationSchema
 } from "@schemas/db/events/reservation.js";
 import { ToProcessBadReqError } from "@errors/to-process.js";
 import { inspect } from "util";
+import type { Request } from "express";
 
 @register('events')
 export class Reservation {
@@ -79,7 +80,7 @@ export class Reservation {
    *                  example: "User is not allowed to perform this action."
    */
   @allow(7, ["finance-admin"])
-  private async setEventReservation(args: object) {
+  private async setEventReservation(req: Request, args: object) {
     const { eventId, locationId, cost } = validator.validate(args, setEventReservationSchema);
 
     const rowsAffected = await db.execute(queries.reservation.create, [eventId, locationId, cost]);
@@ -154,7 +155,7 @@ export class Reservation {
    *                  example: "User is not allowed to perform this action."
    */
   @allow(8, ["event-admin"])
-  private async getEventReservation(args: object) {
+  private async getEventReservation(req: Request, args: object) {
     const { eventId } = validator.validate(args, getEventReservationSchema);
 
     const reservation = await db.fetchOne(

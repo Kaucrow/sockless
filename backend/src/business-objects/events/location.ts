@@ -3,12 +3,13 @@ import { queries } from "@const/constants.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
 import {
   createLocationSchema,
-} from "./schemas.js";
+} from "./requests.js";
 import {
   locationSchema,
 } from "@schemas/db/events/index.js";
 import { ToProcessBadReqError } from "@errors/to-process.js";
 import { inspect } from "util";
+import type { Request } from "express";
 
 @register('events')
 export class Location {
@@ -65,7 +66,7 @@ export class Location {
    *                   example: "User is not allowed to perform this action."
    */
   @allow(5, ["finance-admin"])
-  private async createLocation(args: object) {
+  private async createLocation(req: Request, args: object) {
     const { country, city, name } = validator.validate(
       args, createLocationSchema
     );
@@ -140,7 +141,7 @@ export class Location {
    *                   example: "User is not allowed to perform this action."
    */
   @allow(6, ["finance-admin"])
-  private async getAllLocations(args: object) {
+  private async getAllLocations(req: Request, args: object) {
     const locations = await db.fetch(queries.location.getAll, locationSchema);
 
     return locations;

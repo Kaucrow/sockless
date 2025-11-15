@@ -2,14 +2,15 @@ import { validator, db, logger } from "@components/index.js";
 import { queries, UPLOAD_DIR } from "@const/constants.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
 import { flyerSchema } from "@schemas/db/events/flyer.js";
+import { ToProcessBadReqError } from "@errors/to-process.js";
 import {
   addEventFlyerSchema,
   getEventFlyerSchema,
-} from "./schemas.js";
+} from "./requests.js";
 import path from "path";
 import fs from 'fs';
 import crypto from 'crypto';
-import { ToProcessBadReqError } from "@errors/to-process.js";
+import type { Request } from "express";
 
 @register('events')
 export class Flyer {
@@ -73,7 +74,7 @@ export class Flyer {
    *                  example: "User is not allowed to perform this action."
    */
   @allow(9, ["event-admin"])
-  private async setEventFlyer(args: object) {
+  private async setEventFlyer(req: Request, args: object) {
     const { imageFile, eventId } = validator.validate(args, addEventFlyerSchema);
 
     const ext = path.extname(imageFile.originalname);
@@ -152,7 +153,7 @@ export class Flyer {
    *                  example: "User is not allowed to perform this action."
    */
   @allow(10, ["event-admin"])
-  private async getEventFlyer(args: object) {
+  private async getEventFlyer(req: Request, args: object) {
     const { eventId } = validator.validate(args, getEventFlyerSchema);
 
     const flyer = await db.fetchOne(queries.flyer.getEventFlyer, flyerSchema, [eventId]);

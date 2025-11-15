@@ -80,7 +80,7 @@ sync:
   linkMenuProfile: |
     INSERT INTO security.menu_profile (menu_id, profile_id)
     VALUES ($1, $2)
-    ON CONFLICT (menu_id, profile_id) DO NOTHING 
+    ON CONFLICT (menu_id, profile_id) DO NOTHING
 user:
   getUserByEmail: |
     SELECT * FROM security.user WHERE email = $1
@@ -295,8 +295,15 @@ flyer:
     INSERT INTO events.flyer (event_id, url)
     VALUES ($1, $2)
     ON CONFLICT (event_id)
-    DO UPDATE SET
-      url = EXCLUDED.url;
+      DO UPDATE SET
+        url = EXCLUDED.url;
   getEventFlyer: |
     SELECT * FROM events.flyer
     WHERE event_id = $1
+attendee:
+  add: |
+    INSERT INTO people.attendee_event (user_id, event_id)
+    VALUES ($1, $2)
+    ON CONLICT (user_id, event_id)
+      DO UPDATE SET
+        event_id = EXCLUDED.event_id
