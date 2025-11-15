@@ -1,11 +1,9 @@
-import { validator, db } from "@components/index.js";
-import { queries } from "@const/constants.js";
+import { validator, db, logger } from "@components/index.js";
+import { queries, UPLOAD_DIR } from "@const/constants.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
 import {
   addEventFlyerSchema
 } from "./schemas.js";
-import { logger } from "@components/index.js";
-import { UPLOAD_DIR } from "@const/constants.js";
 import path from "path";
 import fs from 'fs';
 import crypto from 'crypto';
@@ -14,45 +12,37 @@ import crypto from 'crypto';
 export class Flyer {
   /**
    * @swagger
-   * /to-process/setEventFlyer:
+   * /to-process-img/setEventFlyer:
    *  post:
    *    tags:
    *      - events
-   *    summary: Create event
-   *    description: Creates a new event.
+   *    summary: Add or update event flyer
+   *    description: >
+   *      Uploads a flyer image for a specific event.
+   *      If a flyer already exists for the event it will be overwritten.
    *    requestBody:
-   *      description: New event's data.
+   *      description: Event ID and image file.
    *      required: true
    *      content:
-   *        application/json:
+   *        multipart/form-data:
    *          schema:
    *            type: object
    *            properties:
+   *              imageFile:
+   *                type: string
+   *                format: binary
+   *                description: The flyer image file to upload. 
    *              tx:
-   *                type: number 
+   *                type: string
    *                description: Transaction number.
-   *                example: 1
+   *                example: 9
    *              args:
-   *                type: object
-   *                description: Method's arguments.
-   *                properties:
-   *                  name:
-   *                    type: string
-   *                    description: Event name.
-   *                    example: "Neovim Conference"
-   *                  startDt:
-   *                    type: string
-   *                    description: Event start datetime.
-   *                    example: "2077-12-15T09:00:00Z"
-   *                  endDt:
-   *                    type: string
-   *                    description: Event end datetime.
-   *                    example: "2077-12-18T09:00:00Z"
-   *                  description:
-   *                    type: string
-   *                    description: Event description.
-   *                    example: "A free community conference on all things neovim."
+   *                type: string
+   *                description: >
+   *                  Method's arguments, as a stringified JSON.
+   *                  Must include the 'eventId'.
    *          required:
+   *            - imageFile
    *            - tx
    *            - args
    *    responses:
@@ -80,13 +70,15 @@ export class Flyer {
    *                  example: "User is not allowed to perform this action."
    */
   @allow(9, ["event-admin"])
-  private async addEventFlyer(args: object) {
+  private async setEventFlyer(args: object) {
     const { imageFile, eventId } = validator.validate(args, addEventFlyerSchema);
 
     const ext = path.extname(imageFile.originalname);
 
     const newFilename = `${crypto.randomBytes(16).toString('hex')}${ext}`;
     const savePath = path.join(UPLOAD_DIR, newFilename);
+
+    await db.execute(queries.flyer.addEventFlyer, [eventId, newFilename]);
 
     fs.writeFile(savePath, imageFile.buffer, () => {});
 
