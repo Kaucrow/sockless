@@ -21,9 +21,7 @@ class DispatcherComponent {
     return DispatcherComponent.#instance;
   }
 
-  public async executeMethod(req: Request): Promise<any | ExecutionError> {
-    const { tx, args } = toProcessSchema.parse(req.body);
-
+  public async executeMethod(req: Request, tx: number, args: object): Promise<any | ExecutionError> {
     // Get the method call object from the TX number
     const methodCall = await db.fetchOne(
       queries.tx.getMethodCall,

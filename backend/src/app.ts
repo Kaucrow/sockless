@@ -1,9 +1,11 @@
 import express from 'express';
 import cors from 'cors';
+import fs from 'fs';
 import swaggerUI from 'swagger-ui-express';
 import { swaggerDocs, swaggerUIOptions } from './swagger.js';
 
 import toProcessRoute from '@routes/to-process/to-process.js';
+import toProcessImgRoute from '@routes/to-process-img/to-process-img.js';
 import {
   profileMaintenanceRoutes,
   userMaintenanceRoutes,
@@ -17,7 +19,11 @@ import {
   userRoutes
 } from '@routes/auth/index.js';
 
-import { config, frontend } from '@const/constants.js';
+import {
+  config,
+  frontend,
+  UPLOAD_DIR
+} from '@const/constants.js';
 
 import {
   session,
@@ -32,6 +38,8 @@ import {
 } from '@services/index.js';
 
 import '@bo/index.js';
+
+fs.mkdir(UPLOAD_DIR, { recursive: true }, () => {});
 
 const app = express();
 
@@ -56,6 +64,10 @@ app.use('/to-process/:slug', (req, res) => {
   return res.redirect(308, '/to-process');
 });
 
+app.use('/to-process-img/:slug', (req, res) => {
+  return res.redirect(308, '/to-process-img');
+});
+
 // Middleware to parse JSON from request body
 app.use(express.json());
 
@@ -70,6 +82,9 @@ app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs, swaggerUIOptions)
 
 // To-Process route
 app.use('/', toProcessRoute);
+
+// To-Process image route
+app.use('/', toProcessImgRoute);
 
 // Maintenance routes
 app.use('/maintenance', profileMaintenanceRoutes);

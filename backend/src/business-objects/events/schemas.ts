@@ -77,3 +77,11 @@ export const setEventReservationSchema = z.object({
 export const getEventReservationSchema = z.object({
   eventId: z.uuid(),
 });
+
+export const addEventFlyerSchema = z.object({
+  imageFile: z.custom<Express.Multer.File>(
+    (val) => val instanceof Object && 'fieldname' in val && 'originalname' in val
+  ),
+
+  eventId: z.uuid(),
+});
