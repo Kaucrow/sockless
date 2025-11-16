@@ -89,7 +89,10 @@ const resetNewEvent = () => {
 const fetchEvents = async () => {
     try {
         const events = await toProcessService.getAllEvents(2, {});
-        eventList.value = events;
+        eventList.value = events.map(e => ({
+            ...e,
+            description: e.description ?? e.descTxt ?? ''
+        }));
         console.log('Fetched events: ', events);
     } catch (err) {
         console.error('Error fetching events: ', err);
@@ -97,7 +100,10 @@ const fetchEvents = async () => {
 }
 
 const editEvent = (event) => {
-    editingEvent.value = { ...event };
+    editingEvent.value = {
+        ...event,
+        description: event.description ?? event.descTxt ?? ''
+    };
     if (editingEvent.value.startDt) {
         editingEvent.value.startDate = new Date(editingEvent.value.startDt);
     } else {
