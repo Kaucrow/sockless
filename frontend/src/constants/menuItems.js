@@ -53,4 +53,16 @@ export const ALL_NAV_ITEMS = [
       },
     ],
   },
+  {
+    label: "EVENT MANAGEMENT",
+    subsystem: "events",
+    items: [
+      {
+        label: "test",
+        icon: "pi pi-calendar",
+        to: "/events",
+        menuItemKey: "Events"        
+      }
+    ]
+  },
 ];
