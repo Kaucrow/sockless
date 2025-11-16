@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-
 </script>
 
 <template>

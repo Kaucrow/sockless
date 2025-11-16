@@ -9,6 +9,7 @@ import Register from '../views/auth/Register.vue'
 import EmailValidation from '../views/auth/Validation.vue'
 import PermissionsConsole from '../views/maintenance/PermissionsConsole.vue'
 import Assistance from '../views/event/Assistance.vue'
+import Events from '../views/event/Events.vue'
 import { authService } from '@/services/auth'
 
 
@@ -73,6 +74,11 @@ const router = createRouter({
       path: '/admin/event-assistance',
       name: 'event-assistance',
       component: Assistance,
+    },
+    {
+      path: '/events',
+      name: 'events',
+      component: Events,      
     }
   ],
 })

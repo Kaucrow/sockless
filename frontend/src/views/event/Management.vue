@@ -1,6 +1,6 @@
 <script setup></script>
 <template>
     <div class="p-4 rounded-lg">
-        <h2 class="text-3xl font-semibold mb-4">General Expenses</h2>
+        <h2 class="text-3xl font-semibold mb-4">Event Management</h2>
     </div>
 </template>
