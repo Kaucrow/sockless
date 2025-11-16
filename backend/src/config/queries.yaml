@@ -262,9 +262,9 @@ event:
   update: |
     UPDATE events.event
     SET
-      "name" = $2
-      desc_txt = $3
-      start_dt = $4
+      "name" = $2,
+      desc_txt = $3,
+      start_dt = $4,
       end_dt = $5
     WHERE
       event_id = $1
