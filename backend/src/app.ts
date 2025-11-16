@@ -68,6 +68,9 @@ app.use('/to-process-img/:slug', (req, res) => {
   return res.redirect(308, '/to-process-img');
 });
 
+// Serve static files
+app.use('/uploads', express.static(UPLOAD_DIR));
+
 // Middleware to parse JSON from request body
 app.use(express.json());
 

@@ -6,22 +6,13 @@ CREATE TABLE IF NOT EXISTS people.staff (
     FOREIGN KEY (user_id) REFERENCES security.user(user_id)
 );
 
---- Table: people.attendee
-CREATE TABLE IF NOT EXISTS people.attendee (
-    attendee_ci INT PRIMARY KEY,
-    user_id UUID UNIQUE NOT NULL,
-    "name" VARCHAR(100) NOT NULL,
-    surname VARCHAR(100),
-    FOREIGN KEY (user_id) REFERENCES people.attendee(user_id)
-);
-
 --- Table: people.attendee_event
 CREATE TABLE IF NOT EXISTS people.attendee_event (
-    attendee_ci INTEGER NOT NULL,
+    user_id UUID NOT NULL,
     event_id UUID NOT NULL,
     attended BOOLEAN NOT NULL DEFAULT FALSE,
-    PRIMARY KEY (attendee_ci, event_id),
-    FOREIGN KEY (attendee_ci) REFERENCES people.attendee(attendee_ci),
+    UNIQUE (user_id, event_id),
+    FOREIGN KEY (user_id) REFERENCES security.user(user_id),
     FOREIGN KEY (event_id) REFERENCES events.event(event_id)
 );
 

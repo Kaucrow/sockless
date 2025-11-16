@@ -1,58 +1,52 @@
-import { validator, db } from "@components/index.js";
-import { queries } from "@const/constants.js";
+import { validator, db, logger } from "@components/index.js";
+import { queries, UPLOAD_DIR } from "@const/constants.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
+import { flyerSchema } from "@schemas/db/events/flyer.js";
+import { ToProcessBadReqError } from "@errors/to-process.js";
 import {
-  addEventFlyerSchema
-} from "./schemas.js";
-import { logger } from "@components/index.js";
-import { UPLOAD_DIR } from "@const/constants.js";
+  addEventFlyerSchema,
+  getEventFlyerSchema,
+} from "./requests.js";
 import path from "path";
 import fs from 'fs';
 import crypto from 'crypto';
+import type { Request } from "express";
 
 @register('events')
 export class Flyer {
   /**
    * @swagger
-   * /to-process/setEventFlyer:
+   * /to-process-img/setEventFlyer:
    *  post:
    *    tags:
    *      - events
-   *    summary: Create event
-   *    description: Creates a new event.
+   *    summary: Add or update event flyer
+   *    description: >
+   *      Uploads a flyer image for a specific event.
+   *      If a flyer already exists for the event it will be overwritten.
    *    requestBody:
-   *      description: New event's data.
+   *      description: Event ID and image file.
    *      required: true
    *      content:
-   *        application/json:
+   *        multipart/form-data:
    *          schema:
    *            type: object
    *            properties:
+   *              imageFile:
+   *                type: string
+   *                format: binary
+   *                description: The flyer image file to upload. 
    *              tx:
-   *                type: number 
+   *                type: string
    *                description: Transaction number.
-   *                example: 1
+   *                example: 9
    *              args:
-   *                type: object
-   *                description: Method's arguments.
-   *                properties:
-   *                  name:
-   *                    type: string
-   *                    description: Event name.
-   *                    example: "Neovim Conference"
-   *                  startDt:
-   *                    type: string
-   *                    description: Event start datetime.
-   *                    example: "2077-12-15T09:00:00Z"
-   *                  endDt:
-   *                    type: string
-   *                    description: Event end datetime.
-   *                    example: "2077-12-18T09:00:00Z"
-   *                  description:
-   *                    type: string
-   *                    description: Event description.
-   *                    example: "A free community conference on all things neovim."
+   *                type: string
+   *                description: >
+   *                  Method's arguments, as a stringified JSON.
+   *                  Must include the 'eventId'.
    *          required:
+   *            - imageFile
    *            - tx
    *            - args
    *    responses:
@@ -80,7 +74,7 @@ export class Flyer {
    *                  example: "User is not allowed to perform this action."
    */
   @allow(9, ["event-admin"])
-  private async addEventFlyer(args: object) {
+  private async setEventFlyer(req: Request, args: object) {
     const { imageFile, eventId } = validator.validate(args, addEventFlyerSchema);
 
     const ext = path.extname(imageFile.originalname);
@@ -88,8 +82,86 @@ export class Flyer {
     const newFilename = `${crypto.randomBytes(16).toString('hex')}${ext}`;
     const savePath = path.join(UPLOAD_DIR, newFilename);
 
+    await db.execute(queries.flyer.addEventFlyer, [eventId, newFilename]);
+
     fs.writeFile(savePath, imageFile.buffer, () => {});
 
     logger.debug(`File '${newFilename} saved to '${UPLOAD_DIR}'.`);
+  }
+
+  /**
+   * @swagger
+   * /to-process/getEventFlyer:
+   *  post:
+   *    tags:
+   *      - events
+   *    summary: Get an event's flyer
+   *    description: Gets one event's flyer.
+   *    requestBody:
+   *      description: Event ID.
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            type: object
+   *            properties:
+   *              tx:
+   *                type: number 
+   *                description: Transaction number.
+   *                example: 10
+   *              args:
+   *                type: object
+   *                description: Event ID.
+   *                properties:
+   *                  eventId:
+   *                    type: string
+   *                    format: uuid
+   *                    description: Event ID.  
+   *          required:
+   *            - tx
+   *            - args
+   *    responses:
+   *      200:
+   *        description: Success.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *               url:
+   *                 type: string
+   *                 example: "ed1db90c93f4c0fa8e1afb84cb037eb9.png"
+   *      400:
+   *        description: Invalid args.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *                message:
+   *                  type: string
+   *                  example: "Property 'name': Invalid input: expected string, received undefined"
+   *      403:
+   *        description: User is not logged in or doesn't have permission to execute this method.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *                message:
+   *                  type: string
+   *                  example: "User is not allowed to perform this action."
+   */
+  @allow(10, ["event-admin"])
+  private async getEventFlyer(req: Request, args: object) {
+    const { eventId } = validator.validate(args, getEventFlyerSchema);
+
+    const flyer = await db.fetchOne(queries.flyer.getEventFlyer, flyerSchema, [eventId]);
+
+    if (!flyer) {
+      throw new ToProcessBadReqError(`Event with ID '${eventId}' doesn't exist or has no flyer.`);
+    }
+
+    return flyer;
   }
 }
