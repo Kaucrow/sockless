@@ -60,6 +60,7 @@ export const queriesSchema = z.object({
     getAll: z.string(),
     getEventById: z.string(),
     update: z.string(),
+    getAttendances: z.string(),
   }),
   location: z.object({
     create: z.string(),
@@ -75,5 +76,7 @@ export const queriesSchema = z.object({
   }),
   attendee: z.object({
     add: z.string(),
+    getAttendances: z.string(),
+    checkIn: z.string(),
   }),
 });

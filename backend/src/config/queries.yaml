@@ -268,6 +268,9 @@ event:
       end_dt = $5
     WHERE
       event_id = $1
+  getAttendances: |
+    SELECT (user_id, attended) FROM people.attendee_event
+    WHERE event_id = $1
 location:
   create: |
     INSERT INTO events.location (country, city, "name")
@@ -307,3 +310,12 @@ attendee:
     ON CONLICT (user_id, event_id)
       DO UPDATE SET
         event_id = EXCLUDED.event_id
+  getAttendances: |
+    SELECT (event_id, attended) FROM people.attendee_event
+    WHERE user_id = $1
+  checkIn: |
+    UPDATE people.attendee_event
+    SET attended = TRUE
+    WHERE
+      user_id = $1 AND
+      event_id = $2

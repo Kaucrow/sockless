@@ -85,7 +85,7 @@ export class User {
     const user = await db.fetchOne(queries.user.getUserByEmail, userSchema, [email]);
 
     if (!user) {
-      return new ToProcessBadReqError(`Failed to find a user with email '${email}'`);
+      throw new ToProcessBadReqError(`Failed to find a user with email '${email}'`);
     }
 
     return {

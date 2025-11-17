@@ -86,7 +86,7 @@ export class Reservation {
     const rowsAffected = await db.execute(queries.reservation.create, [eventId, locationId, cost]);
  
     if (!rowsAffected) {
-      throw new ToProcessBadReqError(`Reservation with: ${inspect(args)} already exists`);
+      throw new ToProcessBadReqError(`Reservation already exists.`);
     }
   }
 
