@@ -1,8 +1,6 @@
-import { dispatcher, validator, db } from "@components/index.js";
+import { validator, db } from "@components/index.js";
 import { queries } from "@const/constants.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
-import { ToProcessBadReqError } from "@errors/to-process.js";
-import type { GetUserResponse } from "@bo/users/responses.js";
 import {
   eventAttendanceSchema
 } from "@schemas/db/people/attendance.js";
@@ -18,7 +16,7 @@ export class Attendance {
    * /to-process/getEventAttendances:
    *  post:
    *    tags:
-   *      - attendance
+   *      - reports
    *    summary: Get event's attendances
    *    description: Gets the attendance data for an event.
    *    requestBody:
