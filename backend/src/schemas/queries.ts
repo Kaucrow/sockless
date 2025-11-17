@@ -27,6 +27,7 @@ export const queriesSchema = z.object({
   }),
   user: z.object({
     getUserByEmail: z.string(),
+    getManyUsersByEmail: z.string(),
     getUserById: z.string(),
     getProfilesByUserId: z.string(),
     getProfilesByEmail: z.string(),

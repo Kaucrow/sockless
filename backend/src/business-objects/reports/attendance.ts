@@ -17,7 +17,7 @@ export class Attendance {
    *  post:
    *    tags:
    *      - reports
-   *    summary: Get event's attendances
+   *    summary: Get an event's attendances
    *    description: Gets the attendance data for an event.
    *    requestBody:
    *      required: true
@@ -54,7 +54,7 @@ export class Attendance {
    *                  userId:
    *                    type: string
    *                    format: uuid
-   *                    example: 
+   *                    example: "4aace07a-15b6-46cd-8582-454e8b5acd11"
    *                  eventId:
    *                    type: string
    *                    format: uuid

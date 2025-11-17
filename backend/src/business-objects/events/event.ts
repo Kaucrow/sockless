@@ -20,7 +20,7 @@ export class Event {
    *  post:
    *    tags:
    *      - events
-   *    summary: Create event
+   *    summary: Create an event
    *    description: Creates a new event.
    *    requestBody:
    *      description: New event's data.
@@ -165,7 +165,7 @@ export class Event {
    *   post:
    *     tags:
    *       - events
-   *     summary: Get one event
+   *     summary: Get an event's data
    *     description: Gets one event's data.
    *     requestBody:
    *       required: true

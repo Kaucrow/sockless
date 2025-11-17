@@ -31,7 +31,7 @@ router.post(
       return res.status(200).json(result);
     } catch(err) {
       if (err instanceof MethodExecutionError) {
-        logger.debug(`Error: ${err.message} with args: '${inspect(args)}'`);
+        logger.debug(`Error: '${err.name}' with args: '${inspect(args)}'`);
         switch (err.name) {
           case 'TxNotFound': return res.status(400).json({ message: 'Invalid TX.'});
           case 'PermissionDenied': return res.status(403).json({ message: 'User is not allowed to perform this action.'});
@@ -39,11 +39,11 @@ router.post(
       }
 
       if (err instanceof ValidationError || err instanceof ToProcessBadReqError) {
-        logger.debug(`Error: ${err.message} with args: '${inspect(args)}'`);
+        logger.debug(`Error: '${err.message}' with args: '${inspect(args)}'`);
         return res.status(400).json({ message: err.message });
       }
 
-      logger.error(`Error: ${err as string} with args: '${args}'`);
+      logger.error(`Error: '${err as string}' with args: '${inspect(args)}'`);
       return res.status(500).json({ message: 'A server error occurred.' });
     }
   } catch(err) {

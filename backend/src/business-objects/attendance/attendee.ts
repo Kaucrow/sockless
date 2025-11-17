@@ -89,7 +89,7 @@ export class Attendee {
    *  post:
    *    tags:
    *      - attendance
-   *    summary: Get user's attendances 
+   *    summary: Get a user's attendances 
    *    description: Gets the data of every event attendance for a user.
    *    requestBody:
    *      required: true
