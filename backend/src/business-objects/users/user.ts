@@ -2,15 +2,21 @@ import { validator, db } from "@components/index.js";
 import { queries } from "@const/constants.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
 import { ToProcessBadReqError } from "@errors/to-process.js";
-import { getUserSchema } from "./requests.js";
-import { userSchema } from "@schemas/db/index.js";
+import {
+  userSchema,
+  userShortSchema,
+} from "@schemas/db/index.js";
+import {
+  getOneUserSchema,
+  getManyUsersSchema,
+} from "./requests.js";
 import type { Request } from "express";
 
 @register('users')
 export class User {
   /**
    * @swagger
-   * /to-process/getUser:
+   * /to-process/getOneUser:
    *  post:
    *    tags:
    *      - users
@@ -30,7 +36,7 @@ export class User {
    *                example: 11
    *              args:
    *                type: object
-   *                description: User's email.
+   *                description: Method's arguments.
    *                properties:
    *                  email:
    *                    type: string
@@ -79,13 +85,13 @@ export class User {
    *                  example: "User is not allowed to perform this action."
    */
   @allow(11, ["event-admin"])
-  private async getUser(req: Request, args: object) {
-    const { email } = validator.validate(args, getUserSchema);
+  private async getOneUser(req: Request, args: object) {
+    const { email } = validator.validate(args, getOneUserSchema);
 
     const user = await db.fetchOne(queries.user.getUserByEmail, userSchema, [email]);
 
     if (!user) {
-      return new ToProcessBadReqError(`Failed to find a user with email '${email}'`);
+      throw new ToProcessBadReqError('Failed to find user.');
     }
 
     return {
@@ -93,5 +99,90 @@ export class User {
       name: user.name,
       surname: user.surname,
     }
+  }
+
+  /**
+   * @swagger
+   * /to-process/getManyUsers:
+   *  post:
+   *    tags:
+   *      - users
+   *    summary: Gets multiple users' data
+   *    description: Gets multiple users' data.
+   *    requestBody:
+   *      description: Users' email.
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            type: object
+   *            properties:
+   *              tx:
+   *                type: number 
+   *                description: Transaction number.
+   *                example: 16
+   *              args:
+   *                type: object
+   *                description: Method's arguments.
+   *                properties:
+   *                  emails:
+   *                    type: array
+   *                    items:
+   *                      type: string 
+   *                      description: User's email.
+   *                      example: "user1@example.com"
+   *          required:
+   *            - tx
+   *            - args
+   *    responses:
+   *      200:
+   *        description: Success.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *                userId:
+   *                  type: string
+   *                  format: uuid
+   *                  example: "4de5dca6-fca4-45fa-9539-cfe652c40a0a"
+   *                name:
+   *                  type: string
+   *                  example: "Maya"
+   *                surname:
+   *                  type: string
+   *                  example: "Fey"
+   *      400:
+   *        description: Invalid args.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *                message:
+   *                  type: string
+   *                  example: "Property 'name': Invalid input: expected string, received undefined"
+   *      403:
+   *        description: User is not logged in or doesn't have permission to execute this method.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *                message:
+   *                  type: string
+   *                  example: "User is not allowed to perform this action."
+   */
+  @allow(16, ["event-admin"])
+  private async getManyUsers(req: Request, args: object) {
+    const { emails } = validator.validate(args, getManyUsersSchema);
+
+    const users = await db.fetch(queries.user.getManyUsersByEmail, userShortSchema, [emails]);
+
+    if (users.length !== emails.length) {
+      throw new ToProcessBadReqError('Failed to find all users.');
+    }
+
+    return users;
   }
 }

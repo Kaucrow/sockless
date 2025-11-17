@@ -8,7 +8,6 @@ import {
   locationSchema,
 } from "@schemas/db/events/index.js";
 import { ToProcessBadReqError } from "@errors/to-process.js";
-import { inspect } from "util";
 import type { Request } from "express";
 
 @register('events')
@@ -77,7 +76,7 @@ export class Location {
     );
 
     if (!rowsAffected) {
-      throw new ToProcessBadReqError(`Location with: ${inspect(args)} already exists`);
+      throw new ToProcessBadReqError(`Location already exists.`);
     }
   }
 
