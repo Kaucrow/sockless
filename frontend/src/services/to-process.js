@@ -12,6 +12,7 @@ export const toProcessService = {
     },
 
     // wrappers
+    async getOneUser(tx, args) { return this.toProcess(tx, args); },
     async createEvent(tx, args) { return this.toProcess(tx, args); },
     async getAllEvents(tx, args) { return this.toProcess(tx, args); },
     async getEvent(tx, args) { return this.toProcess(tx, args); },
