@@ -21,5 +21,6 @@ export const toProcessService = {
     async createLocation(tx, args) { return this.toProcess(tx, args); },
     async getAllLocations(tx, args) { return this.toProcess(tx, args); },
     async setEventReservation(tx, args) { return this.toProcess(tx, args); },
-    async getEventReservations(tx, args) { return this.toProcess(tx, args); }
+    async getEventReservations(tx, args) { return this.toProcess(tx, args); },
+    async getEventAttendances(tx, args) { return this.toProcess(tx, args); }
 }
