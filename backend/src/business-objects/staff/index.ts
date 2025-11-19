@@ -1,1 +1,2 @@
-export * from './attendee.js';
+export * from './roles.js';
+export * from './staff.js';

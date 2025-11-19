@@ -87,4 +87,9 @@ export const queriesSchema = z.object({
     getRoles: z.string(),
     createRole: z.string(),
   }),
+  costCategory: z.object({
+    getAll: z.string(),
+    add: z.string(),
+    update: z.string(),
+  }),
 });

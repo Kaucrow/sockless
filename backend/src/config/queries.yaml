@@ -348,3 +348,17 @@ staff:
     INSERT INTO people.staff_role ("name", desc_txt)
     VALUES ($1, $2)
     ON CONFLICT ("name") DO NOTHING
+costCategory:
+  getAll: |
+    SELECT cost_category_id, "name", desc_txt AS description
+    FROM finance.cost_category
+  add: |
+    INSERT INTO finance.cost_category ("name", desc_txt)
+    VALUES ($1, $2)
+  update: |
+    UPDATE finance.cost_category
+    SET
+      "name" = $2
+      desc_txt = $3
+    WHERE
+      cost_category_id = $1
