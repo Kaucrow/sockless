@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS people.staff_event (
     event_id UUID NOT NULL,
     staff_role_id UUID NOT NULL,
     cost_amt DECIMAL(10, 2) NOT NULL,
-    PRIMARY KEY (staff_id, event_id),
+    UNIQUE (staff_id, event_id, staff_role_id),
     FOREIGN KEY (staff_id) REFERENCES people.staff(user_id),
     FOREIGN KEY (event_id) REFERENCES events.event(event_id),
     FOREIGN KEY (staff_role_id) REFERENCES people.staff_role(staff_role_id)

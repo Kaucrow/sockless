@@ -109,7 +109,7 @@ export class Event {
    *                 example: 2
    *               args:
    *                 type: object
-   *                 description: Empty.
+   *                 description: .
    *             required:
    *               - tx
    *               - args
