@@ -323,3 +323,49 @@ attendee:
     WHERE
       user_id = $1 AND
       event_id = $2
+staff:
+  add: |
+    INSERT INTO people.staff (user_id, phone, "address")
+    VALUES ($1, $2, $3)
+  addToEvent: |
+    INSERT INTO people.staff_event (staff_id, event_id, staff_role_id, cost_amt)
+    VALUES ($1, $2, $3, $4)
+    ON CONFLICT (staff_id, event_id, staff_role_id) DO NOTHING
+  getAllInEvent: |
+    SELECT
+      se.staff_id,
+      se.event_id,
+      se.cost_amt AS cost,
+      sr.staff_role_id,
+      sr.name AS role_name,
+      sr.desc_txt AS role_description
+    FROM people.staff_event se
+    JOIN people.staff_role sr ON se.staff_role_id = sr.staff_role_id
+    WHERE se.event_id = $1;
+  getRoles: |
+    SELECT * FROM people.staff_role
+  createRole: |
+    INSERT INTO people.staff_role ("name", desc_txt)
+    VALUES ($1, $2)
+    ON CONFLICT ("name") DO NOTHING
+costCategory:
+  getAll: |
+    SELECT cost_category_id, "name", desc_txt AS description
+    FROM finance.cost_category
+  add: |
+    INSERT INTO finance.cost_category ("name", desc_txt)
+    VALUES ($1, $2)
+  update: |
+    UPDATE finance.cost_category
+    SET
+      "name" = $2
+      desc_txt = $3
+    WHERE
+      cost_category_id = $1
+paymentMethod:
+  getAll: |
+    SELECT payment_method_id, "name"
+    FROM finance.payment_method
+  add: |
+    INSERT INTO finance.payment_method ("name")
+    VALUES ($1)

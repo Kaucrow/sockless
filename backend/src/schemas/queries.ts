@@ -80,4 +80,20 @@ export const queriesSchema = z.object({
     getAttendances: z.string(),
     checkIn: z.string(),
   }),
+  staff: z.object({
+    add: z.string(),
+    addToEvent: z.string(),
+    getAllInEvent: z.string(),
+    getRoles: z.string(),
+    createRole: z.string(),
+  }),
+  costCategory: z.object({
+    getAll: z.string(),
+    add: z.string(),
+    update: z.string(),
+  }),
+  paymentMethod: z.object({
+    getAll: z.string(),
+    add: z.string(),
+  }),
 });
