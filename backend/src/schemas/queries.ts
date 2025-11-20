@@ -92,4 +92,8 @@ export const queriesSchema = z.object({
     add: z.string(),
     update: z.string(),
   }),
+  paymentMethod: z.object({
+    getAll: z.string(),
+    add: z.string(),
+  }),
 });

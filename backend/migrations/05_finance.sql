@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS finance.cost (
 --- Table: finance.payment_method
 CREATE TABLE IF NOT EXISTS finance.payment_method (
     payment_method_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(100) NOT NULL
+    "name" VARCHAR(100) NOT NULL
 );
 
 --- Table: finance.payment

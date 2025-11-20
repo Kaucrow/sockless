@@ -15,3 +15,8 @@ export const updateCostCategorySchema = z.object({
 
   description: z.string().optional(),
 });
+
+export const addPaymentMethodSchema = z.object({
+  name: z.string()
+    .min(1, "Payment method name is required"),
+});

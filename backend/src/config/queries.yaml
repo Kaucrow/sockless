@@ -362,3 +362,10 @@ costCategory:
       desc_txt = $3
     WHERE
       cost_category_id = $1
+paymentMethod:
+  getAll: |
+    SELECT payment_method_id, "name"
+    FROM finance.payment_method
+  add: |
+    INSERT INTO finance.payment_method ("name")
+    VALUES ($1)
