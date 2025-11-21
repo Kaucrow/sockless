@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS events.location_reservation (
     event_id UUID PRIMARY KEY,
     location_id UUID NOT NULL,
     cost DECIMAL(10, 2) NOT NULL,
+    UNIQUE (event_id, location_id),
     FOREIGN KEY (location_id) REFERENCES events.location(location_id),
     FOREIGN KEY (event_id) REFERENCES events.event(event_id)
 );
