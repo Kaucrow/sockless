@@ -239,16 +239,36 @@ onMounted(() => {
                 </template>
             </Column>
             <Column field="descTxt" header="Description"></Column>
-            <Column header="Edit Event">
+            <Column header="Actions" :exportable="false" style="min-width: 8rem;">
                 <template #body="slotProps">
-                    <Button 
-                        icon="pi pi-pencil"
-                        severity="info"
-                        text
-                        rounded
-                        aria-label="Edit"
-                        @click="editEvent(slotProps.data)"
-                    />
+                    <div class="flex gap-2">
+                        <Button 
+                            icon="pi pi-pencil"
+                            severity="info"
+                            text
+                            rounded
+                            aria-label="Edit"
+                            @click="editEvent(slotProps.data)"
+                        />
+                    <router-link :to="{name: 'event-management', params: { id: slotProps.data.eventId }}">
+                        <Button 
+                            icon="pi pi-eye"
+                            severity="secondary"
+                            text
+                            rounded
+                            aria-label="View Details"
+                        />
+                    </router-link>
+                    <!-- <router-link :to="{name: 'event-assistance'}"> maybe not)?
+                        <Button 
+                            icon="pi pi-users"
+                            severity="help"
+                            text
+                            rounded
+                            aria-label="View Assistance"
+                        />
+                    </router-link> -->
+                    </div>
                 </template>
             </Column>
         </DataTable>

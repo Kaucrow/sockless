@@ -8,6 +8,7 @@ import StyleClass from 'primevue/styleclass';
 import '../src/index.css'
 import 'primeicons/primeicons.css';
 import { createPinia } from 'pinia';
+import ConfirmationService from 'primevue/confirmationservice';
 
 const app = createApp(App)
 const pinia = createPinia();
@@ -25,6 +26,7 @@ app.use(PrimeVue, {
     ripple: true,
 })
 app.use(pinia);
+app.use(ConfirmationService);
 app.directive('ripple', Ripple);
 app.directive('styleclass', StyleClass);
 app.mount('#app')
