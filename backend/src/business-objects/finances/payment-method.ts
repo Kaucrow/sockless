@@ -85,7 +85,7 @@ export class PaymentMethod {
 
   /**
    * @swagger
-   * /to-process/addPaymentMethod
+   * /to-process/addPaymentMethod:
    *  post:
    *    tags:
    *      - finances 

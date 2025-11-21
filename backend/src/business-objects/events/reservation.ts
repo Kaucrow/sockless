@@ -33,7 +33,7 @@ export class Reservation {
    *              tx:
    *                type: number 
    *                description: Transaction number.
-   *                example: 1
+   *                example: 7
    *              args:
    *                type: object
    *                description: Method's arguments.
@@ -51,7 +51,7 @@ export class Reservation {
    *                  cost:
    *                    type: number
    *                    description: Reservation cost, with max 2 decimal places.
-   *                    example: "420.67"
+   *                    example: 420.67
    *          required:
    *            - tx
    *            - args
@@ -108,7 +108,7 @@ export class Reservation {
    *              tx:
    *                type: number 
    *                description: Transaction number.
-   *                example: 2
+   *                example: 8
    *              args:
    *                type: object
    *                description: Method's arguments.
@@ -127,22 +127,20 @@ export class Reservation {
    *        content:
    *          application/json:
    *            schema:
-   *              type: array
-   *              items:
-   *                type: object
-   *                properties:
-   *                  cost:
-   *                    type: number 
-   *                    example: 420.67
-   *                  country:
-   *                    type: string
-   *                    example: "Uganda"
-   *                  city:
-   *                    type: string
-   *                    example: "Kampala"
-   *                  locationName:
-   *                    type: string
-   *                    example: "Da wae"
+   *              type: object
+   *              properties:
+   *                cost:
+   *                  type: number 
+   *                  example: 420.67
+   *                country:
+   *                  type: string
+   *                  example: "Uganda"
+   *                city:
+   *                  type: string
+   *                  example: "Kampala"
+   *                locationName:
+   *                  type: string
+   *                  example: "Da wae"
    *      403:
    *        description: User is not logged in or doesn't have permission to execute this method.
    *        content:
