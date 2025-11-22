@@ -38,7 +38,7 @@ const onFormSubmit = async (data) => {
             const email = data.values.email;
             await authService.login(data.values.email, data.values.password);
 
-            const user = await toProcessService.getOneUser(11, { email });
+            const user = await toProcessService.getOneUser({email});
             console.log('Fetched user data:', user);
 
             const userData = {

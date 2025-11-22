@@ -15,7 +15,7 @@ const selectedEventId = ref(null);
 
 const fetchEvents = async () => {
     try {
-        const events = await toProcessService.getAllEvents(2, {});
+        const events = await toProcessService.getAllEvents({});
         eventList.value = events;
     } catch (err) {
         console.error('Error fetching events: ', err);
@@ -29,7 +29,7 @@ const fetchAttendance = async () => {
     }
     try {
         const args = { eventId: selectedEventId.value };
-        const attendance = await toProcessService.getEventAttendances(15, args);
+        const attendance = await toProcessService.getEventAttendances(args);
         assistanceList.value = attendance;
         console.log('Fetched attendance:', attendance);
     } catch (err) {

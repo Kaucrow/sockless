@@ -90,9 +90,8 @@ export const useUserStore = defineStore("user", {
                 }
             }
             try {
-                const txId = 11;
                 const args = { email: this.email };
-                const userData = await toProcessService.getOneUser(txId, args);
+                const userData = await toProcessService.getOneUser(args);
                 this.setUser({
                     email: userData.email || this.email,
                     name: userData.name,

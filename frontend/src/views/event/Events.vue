@@ -41,7 +41,6 @@ const createEvent = async () => {
         return;
     }
 
-    const txId = 1; 
     const eventArgs = {
         name: newEvent.value.name,
         startDt: combineDateWithBaseTimeUTC(newEvent.value.startDate),
@@ -50,7 +49,7 @@ const createEvent = async () => {
     };
 
     try {
-        await toProcessService.createEvent(txId, eventArgs);
+        await toProcessService.createEvent(eventArgs);
         console.log('Event created successfully!');
         createVisible.value = false;
         fetchEvents(); // Re-fetch events to update the list
@@ -88,7 +87,7 @@ const resetNewEvent = () => {
 
 const fetchEvents = async () => {
     try {
-        const events = await toProcessService.getAllEvents(2, {});
+        const events = await toProcessService.getAllEvents({});
         eventList.value = events.map(e => ({
             ...e,
             description: e.description ?? e.descTxt ?? ''
@@ -123,7 +122,6 @@ const updateEvent = async () => {
         return;
     }
 
-    const txId = 4; 
     const eventArgs = {
         eventId: editingEvent.value.eventId,
         name: editingEvent.value.name,
@@ -133,7 +131,7 @@ const updateEvent = async () => {
     };
 
     try {
-        await toProcessService.updateEvent(txId, eventArgs);
+        await toProcessService.updateEvent(eventArgs);
         console.log('Event updated successfully!');
         editVisible.value = false;
         fetchEvents(); 

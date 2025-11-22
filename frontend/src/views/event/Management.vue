@@ -56,8 +56,7 @@ const confirm = useConfirm();
 
 const fetchEventFlyer = async () => {
     try {
-        const txId = 10;
-        const flyerData = await toProcessService.getEventFlyer(txId, { eventId: eventId.value });
+        const flyerData = await toProcessService.getEventFlyer({ eventId: eventId.value });
         if (flyerData && flyerData.url) {
             eventFlyer.value = flyerData.url;
             flyerPreview.value = `http://localhost:8000/uploads/${flyerData.url}`;
@@ -120,8 +119,7 @@ const removeFlyer = async () => {
 
 const fetchAllLocations = async () => {
     try {
-        const txId = 6;
-        const locationsData = await toProcessService.getAllLocations(txId, {});
+        const locationsData = await toProcessService.getAllLocations({});
         locations.value = Array.isArray(locationsData) ? locationsData : [];
     } catch (err) {
         console.error('Error fetching locations: ', err);
@@ -140,8 +138,7 @@ const createLocation = async () => {
     }
 
     try {
-        const txId = 5;
-        const locationData = await toProcessService.createLocation(txId, {
+        const locationData = await toProcessService.createLocation({
             country: newLocation.value.country,
             city: newLocation.value.city,
             name: newLocation.value.name
@@ -162,8 +159,7 @@ const createLocation = async () => {
 
 const fetchEventReservation = async () => {
     try {
-        const txId = 2;
-        const reservationData = await toProcessService.getEventReservation(txId, { eventId: eventId.value });
+        const reservationData = await toProcessService.getEventReservation({ eventId: eventId.value });
         if (reservationData) {
             reservation.value = {
                 locationId: reservationData.locationId || null,
@@ -196,15 +192,13 @@ const saveReservation = async () => {
 
     savingReservation.value = true;
     try {
-        const txId = 7;
-        await toProcessService.setEventReservation(txId, {
+        await toProcessService.setEventReservation({
             eventId: eventId.value,
             locationId: reservation.value.locationId,
             cost: reservation.value.cost
         });
         
         console.log('Reservation saved successfully');
-        // After saving, the cost now exists in the backend, so mark it as from endpoint
         costFromEndpoint.value = true;
     } catch (err) {
         console.error('Error saving reservation: ', err);
@@ -225,8 +219,7 @@ const fetchEvent = async (id) => {
     loading.value = true;
     error.value = null;
     try {
-        const txId = 3;
-        const eventData = await toProcessService.getEvent(txId, { eventId: id });
+        const eventData = await toProcessService.getEvent({ eventId: id });
         
         event.value = {
             ...eventData,
@@ -259,8 +252,7 @@ const addAttendee = async () => {
     }
 
     try {
-        const txId = 14;
-        await toProcessService.checkInAttendee(txId, {
+        await toProcessService.checkInAttendee({
             email: newAttendee.value.email,
             eventId: eventId.value
         });
