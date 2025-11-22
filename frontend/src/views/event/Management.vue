@@ -161,23 +161,35 @@ const fetchEventReservation = async () => {
     try {
         const reservationData = await toProcessService.getEventReservation({ eventId: eventId.value });
         if (reservationData) {
+            let foundLocationId = null;
+            const locationName = reservationData.locationName || reservationData.location_name;
+            if (reservationData.country && reservationData.city && locationName) {
+                const matchingLocation = locations.value.find(loc => 
+                    loc.country === reservationData.country &&
+                    loc.city === reservationData.city &&
+                    loc.name === locationName
+                );
+                if (matchingLocation) {
+                    foundLocationId = matchingLocation.locationId || matchingLocation.location_id;
+                }
+            }
+            
             reservation.value = {
-                locationId: reservationData.locationId || null,
+                locationId: foundLocationId,
                 cost: reservationData.cost || null
             };
-            selectedLocation.value = reservationData.locationId || null;
-            // Track if cost was fetched from endpoint (already exists)
-            // Only set to true if cost is a valid number (not null, not undefined)
+            selectedLocation.value = foundLocationId;
+            
             const hasCost = reservationData.cost !== null && reservationData.cost !== undefined && reservationData.cost !== '';
             costFromEndpoint.value = hasCost;
         } else {
-            // No reservation data returned - allow editing
+            // No reservation data returned we allow editing
             reservation.value = { locationId: null, cost: null };
             selectedLocation.value = null;
             costFromEndpoint.value = false;
         }
     } catch (err) {
-        // If endpoint errors, assume no existing reservation - allow editing
+        // If endpoint errors ("Failed to find reservation"), assume no existing reservation so we allow editing
         console.error('Error fetching reservation (assuming no existing reservation): ', err);
         reservation.value = { locationId: null, cost: null };
         selectedLocation.value = null;
@@ -208,6 +220,11 @@ const saveReservation = async () => {
 };
 
 const onLocationChange = () => {
+    // Don't allow location change if it came from endpoint (same as cost)
+    if (costFromEndpoint.value) {
+        selectedLocation.value = reservation.value.locationId;
+        return;
+    }
     reservation.value.locationId = selectedLocation.value;
     // If location changes, reset cost and allow editing (unless cost was from endpoint)
     if (!costFromEndpoint.value) {
@@ -289,9 +306,10 @@ onMounted(async () => {
     await Promise.all([
         fetchEvent(props.id),
         fetchEventFlyer(),
-        fetchAllLocations(),
-        fetchEventReservation()
+        fetchAllLocations()
     ]);
+    // Fetch reservation after locations are loaded to match location properly
+    await fetchEventReservation();
 });
 
 watch(
@@ -302,9 +320,9 @@ watch(
             await Promise.all([
                 fetchEvent(newId),
                 fetchEventFlyer(),
-                fetchAllLocations(),
-                fetchEventReservation()
+                fetchAllLocations()
             ]);
+            await fetchEventReservation();
         }
     },
     { immediate: true }
@@ -423,15 +441,21 @@ watch(
                                     optionValue="locationId"
                                     placeholder="Select a location"
                                     class="flex-1"
+                                    :disabled="costFromEndpoint"
                                     @change="onLocationChange"
                                 />
                                 <Button
                                     icon="pi pi-plus"
                                     label="New"
                                     severity="secondary"
+                                    :disabled="costFromEndpoint"
                                     @click="openCreateLocationDialog"
                                 />
                             </div>
+                            <p v-if="costFromEndpoint" class="text-sm text-surface-500 mt-2">
+                                <i class="pi pi-info-circle mr-1"></i>
+                                Location is set and cannot be modified.
+                            </p>
                         </div>
                         <div>
                             <label for="reservationCost" class="block text-surface-700 dark:text-surface-300 font-bold mb-2">
@@ -458,7 +482,7 @@ watch(
                             icon="pi pi-save"
                             @click="saveReservation"
                             :loading="savingReservation"
-                            :disabled="!selectedLocation || reservation.cost === null"
+                            :disabled="!selectedLocation || reservation.cost === null || costFromEndpoint"
                             class="mt-2"
                         />
                     </div>
