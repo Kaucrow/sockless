@@ -241,7 +241,7 @@ export class Staff {
     const { eventId } = validator.validate(args, getAllStaffInEventSchema);
 
     const staff = await db.fetch(
-      queries.staff.getRoles,
+      queries.staff.getAllInEvent,
       staffInEventSchema,
       [eventId]
     );

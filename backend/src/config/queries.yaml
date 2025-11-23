@@ -311,7 +311,7 @@ attendee:
   add: |
     INSERT INTO people.attendee_event (user_id, event_id)
     VALUES ($1, $2)
-    ON CONLICT (user_id, event_id)
+    ON CONFLICT (user_id, event_id)
       DO UPDATE SET
         event_id = EXCLUDED.event_id
   getAttendances: |
