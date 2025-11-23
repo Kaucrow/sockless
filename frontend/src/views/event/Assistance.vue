@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Select from 'primevue/select';
@@ -9,16 +9,26 @@ import Checkbox from 'primevue/checkbox';
 import Paginator from 'primevue/paginator';
 import { toProcessService } from '@/services/to-process';
 
+const props = defineProps({
+    id: {
+        type: String,
+        required: true
+    }
+});
+
 const eventList = ref([]);
 const assistanceList = ref([]);
-const selectedEventId = ref(null);
+const selectedEventId = ref(props.id);
+const event = ref(null);
 
-const fetchEvents = async () => {
+const fetchEvent = async (id) => {
     try {
-        const events = await toProcessService.getAllEvents({});
-        eventList.value = events;
+        const eventData = await toProcessService.getEvent({eventId: id});
+        event.value = eventData;
+        console.log('Fetched event: ', eventData);
     } catch (err) {
-        console.error('Error fetching events: ', err);
+        console.error('Error fetching event: ', err);
+        event.value = null;
     }
 }
 
@@ -42,19 +52,37 @@ const onEventChange = () => {
     fetchAttendance();
 }
 
-onMounted(() => {
-    fetchEvents();
+onMounted(async () => {
+    await fetchAttendance();
+    await fetchEvent(selectedEventId.value);
 });
+
+// Watch for route id so that we can fetch the new data
+watch(
+    () => props.id,
+    async (newId, oldId) => {
+        if (newId && newId !== oldId) {
+            selectedEventId.value = newId;
+            await fetchAttendance();
+        }
+    }
+);
 </script>
 
 <template>
     <!-- We choose the event that we want to check assistance, with a select -->
     <!-- Then we'll receive the people that are supposed to assist to that event -->
     <!-- We'll show the data in a dataTable and there is gonna be a check to check the assistance -->
+     <!-- We dont check with a select anymore xd -->
     <div class="p-4 rounded-lg">
         <div class="flex items-center justify-between mb-4">
-            <h2 class="text-3xl font-semibold m-0">Event Assistance</h2>
-            <Select 
+            <router-link :to="{ name: 'events'}" class="p-button-secondary p-button-sm">
+                <i class="pi pi-arrow-left mr-2"></i> Back to Events
+            </router-link>
+            <h2 class="text-3xl font-semibold m-0">
+                {{ event ? `${event.name} Assistance` : 'Loading Event...' }}
+            </h2>
+            <!-- <Select 
                 v-model="selectedEventId"
                 :options="eventList" 
                 option-label="name"
@@ -63,7 +91,7 @@ onMounted(() => {
                 class="w-60" 
                 size="small"
                 @change="onEventChange"
-            /> 
+            />  -->
         </div>
         <div class="flex items-center justify-between">
             <Card class="mb-4 ">
@@ -88,7 +116,7 @@ onMounted(() => {
             table-style="min-width: 50rem"
             striped-rows
         >
-            <Column field="userId" header="employee name"></Column>
+            <Column field="userId" header="Employee Name"></Column>
             <Column field="attended" header="Attended">
                 <template #body="slotProps">
                     <Checkbox :model-value="slotProps.data.attended" disabled/>

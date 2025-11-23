@@ -257,7 +257,7 @@ onMounted(() => {
                             aria-label="View Details"
                         />
                     </router-link>
-                    <!-- <router-link :to="{name: 'event-assistance'}"> maybe not)?
+                    <router-link :to="{name: 'event-assistance', params: { id: slotProps.data.eventId }}"> 
                         <Button 
                             icon="pi pi-users"
                             severity="help"
@@ -265,7 +265,7 @@ onMounted(() => {
                             rounded
                             aria-label="View Assistance"
                         />
-                    </router-link> -->
+                    </router-link>
                     </div>
                 </template>
             </Column>

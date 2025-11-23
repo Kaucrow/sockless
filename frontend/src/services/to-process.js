@@ -32,6 +32,14 @@ export const toProcessService = {
     async getEventAttendances(args) { return this.toProcess(15, args); },
     async registerAttendee(args) { return this.toProcess(12, args); },
     async getUserAttendances(args) { return this.toProcess(13, args); },
-    async checkInAttendee(args) { return this.toProcess(14, args); }
+    async checkInAttendee(args) { return this.toProcess(14, args); },
+
+    // staff
+    async getRoles(args) { return this.toProcess(18, args); },
+    async createRoles(args) { return this.toProcess(19, args); },
+    async addStaff(args) { return this.toProcess(17, args); },
+    async addStaffToEvent(args) { return this.toProcess(20, args); },
+    async getAllStaffInEvent(args) { return this.toProcess(21, args); },
+
 
 }
