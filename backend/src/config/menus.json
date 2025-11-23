@@ -3,6 +3,10 @@
         {
             "name": "test",
             "profiles": ["event-admin"]
+        },
+        {
+            "name": "events",
+            "profiles": ["event-admin", "finance-admin"]
         }
     ]
 }

@@ -61,7 +61,12 @@ export const ALL_NAV_ITEMS = [
         label: "test",
         icon: "pi pi-calendar",
         to: "/events",
-        menuItemKey: "Events"        
+        menuItemKey: "test"        
+      }, {
+        label: "events",
+        icon: "pi pi-calendar",
+        to: "/events",
+        menuItemKey: "events"
       }
     ]
   },

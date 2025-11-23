@@ -66,6 +66,7 @@ export const useUserStore = defineStore("user", {
             this.appDataError = null;
             try {
                 this.menuPermissions = await maintenanceService.getUserMenu();
+                console.log('Fetched menu permissions:', this.menuPermissions);
             } catch (error) {
                 console.error('Error fetching app data:', error);
                 this.appDataError = error.message || 'Failed to fetch app data';

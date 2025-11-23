@@ -72,9 +72,10 @@ const router = createRouter({
       component: PermissionsConsole,
     },
     {
-      path: '/admin/event-assistance',
+      path: '/events/:id/assistance',
       name: 'event-assistance',
       component: Assistance,
+      props: true
     },
     {
       path: '/events',
