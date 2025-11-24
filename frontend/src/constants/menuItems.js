@@ -67,6 +67,11 @@ export const ALL_NAV_ITEMS = [
         icon: "pi pi-calendar",
         to: "/events",
         menuItemKey: "events"
+      }, {
+        label: "staff management",
+        icon: "pi pi-users",
+        to: "/events/staff",
+        menuItemKey: "staff management"
       }
     ]
   },

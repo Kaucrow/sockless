@@ -7,6 +7,16 @@
         {
             "name": "events",
             "profiles": ["event-admin", "finance-admin"]
+        },
+        {
+            "name": "staff management",
+            "profiles": ["event-admin"]
+        }
+    ],
+    "users": [
+        {
+            "name": "Permissions Console",
+            "profiles": ["event-admin", "admin"]
         }
     ]
 }
