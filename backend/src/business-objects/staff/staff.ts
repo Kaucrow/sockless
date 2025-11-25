@@ -1,5 +1,5 @@
 import { dispatcher, validator, db } from "@components/index.js";
-import { queries } from "@const/constants.js";
+import { queries } from "@global/constants.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
 import { ToProcessBadReqError } from "@errors/to-process.js";
 import type { GetUserResponse } from "@bo/users/responses.js";

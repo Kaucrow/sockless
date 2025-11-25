@@ -1,5 +1,5 @@
 import app from '@/app.js';
-import { server } from '@const/constants.js';
+import { server } from '@global/constants.js';
 import chalk from 'chalk';
 
 const serverUrl = `http://${server.host}:${server.port}`;

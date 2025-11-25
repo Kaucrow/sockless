@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { config } from '@const/constants.js';
+import { config } from '@global/constants.js';
 import { session } from '@components/session.js';
 import { security } from '@components/security.js';
 import { addMethodProfileSchema, removeMethodProfileSchema } from './requests.js';

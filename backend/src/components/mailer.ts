@@ -1,5 +1,5 @@
 import nodemailer, { type Transporter, type SentMessageInfo } from 'nodemailer';
-import { mailer as mailerConfig } from '@const/constants.js';
+import { mailer as mailerConfig } from '@global/constants.js';
 import { logger } from '@components/index.js';
 import type {
   EmailOptions,

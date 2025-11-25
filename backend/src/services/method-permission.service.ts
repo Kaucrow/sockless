@@ -1,5 +1,5 @@
 import { db } from '@components/index.js';
-import { queries } from '@const/constants.js';
+import { queries } from '@global/constants.js';
 import {
   subsystemIdSchema,
   classIdSchema,

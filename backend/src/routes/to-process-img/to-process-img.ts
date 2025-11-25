@@ -4,7 +4,7 @@ import { ValidationError } from '@errors/validator.js';
 import { ToProcessBadReqError } from '@errors/to-process.js';
 import { MethodExecutionError } from '@errors/dispatcher.js';
 import { toProcessImgSchema } from '@schemas/dispatcher.js';
-import { upload } from '@const/constants.js';
+import { upload } from '@global/constants.js';
 import { inspect } from 'util';
 
 const router = Router();

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { queries } from '@const/constants.js';
+import { queries } from '@global/constants.js';
 import { allowedMenusSchema } from '@schemas/db/index.js';
 import { session, db, logger } from '@components/index.js';
 
