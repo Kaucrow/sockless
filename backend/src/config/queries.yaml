@@ -308,21 +308,19 @@ flyer:
     SELECT * FROM events.flyer
     WHERE event_id = $1
 attendee:
-  add: |
-    INSERT INTO people.attendee_event (user_id, event_id)
-    VALUES ($1, $2)
-    ON CONFLICT (user_id, event_id)
-      DO UPDATE SET
-        event_id = EXCLUDED.event_id
   getAttendances: |
-    SELECT (event_id, attended) FROM people.attendee_event
+    SELECT t.event_id, ae.attended
+    FROM people.attendee_event AS ae
+    JOIN events.ticket AS t ON t.ticket_id = ae.ticket_id
     WHERE user_id = $1
   checkIn: |
-    UPDATE people.attendee_event
+    UPDATE people.attendee_event AS ae
     SET attended = TRUE
+    FROM events.ticket AS t
     WHERE
-      user_id = $1 AND
-      event_id = $2
+      t.ticket_id = ae.ticket_id AND
+      ae.user_id = $1 AND
+      t.event_id = $2
 staff:
   add: |
     INSERT INTO people.staff (user_id, phone, "address")
@@ -369,3 +367,45 @@ paymentMethod:
   add: |
     INSERT INTO finance.payment_method ("name")
     VALUES ($1)
+payment:
+  add: |
+    INSERT INTO finance.payment_method (
+      user_id,
+      ticket_id,
+      payment_method_id,
+      amt
+    )
+    VALUES ($1, $2, $3, $4)
+ticket:
+  claimAvailable: |
+    WITH claimed_ticket AS (
+      UPDATE events.ticket
+      SET user_id = $1
+      WHERE ticket_id = (
+        SELECT ticket_id
+        FROM events.ticket
+        WHERE
+          ticket_desc_id = $2 AND
+          user_id IS NULL
+        LIMIT 1
+        FOR UPDATE SKIP LOCKED
+      )
+      RETURNING ticket_id
+    )
+    INSERT INTO people.attendee_event (user_id, ticket_id)
+    SELECT $1, ticket_id
+    FROM claimed_ticket
+    ON CONFLICT (user_id, ticket_id) DO NOTHING
+    RETURNING ticket_id
+  verifyPaid: |
+    SELECT
+      CASE 
+        WHEN COALESCE(SUM(p.amt), 0) >= td.price THEN TRUE 
+        ELSE FALSE
+      END AS paid,
+      ABS(COALESCE(SUM(p.amt), 0) - td.price) AS difference
+    FROM events.ticket t
+    JOIN events.ticket_desc td ON t.ticket_desc_id = td.ticket_desc_id
+    LEFT JOIN finance.payment p ON t.ticket_id = p.ticket_id
+    WHERE t.ticket_id = $1
+    GROUP BY t.ticket_id, td.price

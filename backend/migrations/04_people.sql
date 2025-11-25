@@ -9,11 +9,11 @@ CREATE TABLE IF NOT EXISTS people.staff (
 --- Table: people.attendee_event
 CREATE TABLE IF NOT EXISTS people.attendee_event (
     user_id UUID NOT NULL,
-    event_id UUID NOT NULL,
+    ticket_id UUID NOT NULL,
     attended BOOLEAN NOT NULL DEFAULT FALSE,
-    UNIQUE (user_id, event_id),
-    FOREIGN KEY (user_id) REFERENCES security.user(user_id),
-    FOREIGN KEY (event_id) REFERENCES events.event(event_id)
+    UNIQUE (user_id, ticket_id),
+    FOREIGN KEY (ticket_id) REFERENCES events.ticket(ticket_id),
+    FOREIGN KEY (user_id) REFERENCES security.user(user_id)
 );
 
 --- Table: people.staff_role
