@@ -159,7 +159,7 @@ onMounted(async () => {
                 <TabPanel value="config">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
                         
-                        <div class="p-4">
+                        <div class="p-4 border rounded border-gray-200">
                             <h3 class="text-xl font-bold mb-4 ">Roles</h3>
                             <div class="flex flex-col gap-3 mb-4 p-3 ">
                                 <span class="text-sm font-semibold">Create New Role</span>
@@ -170,7 +170,7 @@ onMounted(async () => {
                             
                             <h4 class="font-semibold text-sm mb-2">Available Roles</h4>
                             <div class=" max-h-64 overflow-y-auto">
-                                <ul class="divide-y">
+                                <ul class="divide-y divide-gray-300">
                                     <li v-for="role in roles" :key="role.staffRoleId" class="p-3 ">
                                         <div class="font-medium">{{ role.name }}</div>
                                         <div class="text-xs">{{ role.desc_txt }}</div>
@@ -182,8 +182,8 @@ onMounted(async () => {
                             </div>
                         </div>
 
-                        <div class="p-4 h-fit">
-                            <h3 class="text-xl font-bold mb-4">Staff Database</h3>
+                        <div class="p-4 h-fit border rounded border-gray-200">
+                            <h3 class="text-xl font-bold mb-4">Staff</h3>
                             <p class="mb-6 text-sm">
                                 Register new staff members into the system. You can assign them roles and costs later per event.
                             </p>
@@ -209,8 +209,8 @@ onMounted(async () => {
                             />
                         </div>
 
-                        <div v-if="selectedEvent" class="border rounded-lg overflow-hidden">
-                            <div class=" p-4 border-b flex justify-between items-center">
+                        <div v-if="selectedEvent" class="border rounded border-gray-200 overflow-hidden">
+                            <div class=" p-4 border-b border-gray-200 flex justify-between items-center">
                                 <h3 class="font-bold text-lg">Staff In : {{ selectedEventObj?.name || 'Event' }}</h3>
                                 <Button label="Assign Staff" icon="pi pi-plus" size="small" @click="showAssignDialog = true" />
                             </div>
