@@ -12,8 +12,8 @@ import {
 } from "./requests.js";
 import type { Request } from "express";
 
-@register('finances')
-export class Payment {
+@register('events')
+export class Ticket {
   /**
    * @swagger
    * /to-process/createEventTickets:
