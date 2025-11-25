@@ -41,5 +41,11 @@ export const toProcessService = {
     async addStaffToEvent(args) { return this.toProcess(20, args); },
     async getAllStaffInEvent(args) { return this.toProcess(21, args); },
 
+    // finances
+    async getCostCategories(args) { return this.toProcess(22, args); },
+    async addCostCategory(args) { return this.toProcess(23, args); },
+    async updateCostCategory(args) { return this.toProcess(24, args); },
+    async getPaymentMethods(args) { return this.toProcess(25, args); },
+    async addPaymentMethod(args) { return this.toProcess(26, args); },
 
 }
