@@ -76,7 +76,6 @@ export const queriesSchema = z.object({
     getEventFlyer: z.string(),
   }),
   attendee: z.object({
-    add: z.string(),
     getAttendances: z.string(),
     checkIn: z.string(),
   }),
@@ -95,5 +94,17 @@ export const queriesSchema = z.object({
   paymentMethod: z.object({
     getAll: z.string(),
     add: z.string(),
+  }),
+  payment: z.object({
+    add: z.string(),
+  }),
+  ticketDesc: z.object({
+    add: z.string(),
+    getByEventId: z.string(),
+  }),
+  ticket: z.object({
+    addMany: z.string(),
+    claimAvailable: z.string(),
+    verifyPaid: z.string()
   }),
 });

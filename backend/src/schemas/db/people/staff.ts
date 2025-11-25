@@ -15,7 +15,7 @@ export const staffRoleSchema = z.object({
 export const staffInEventSchema = z.object({
   staff_id: z.uuid(),
   event_id: z.uuid(),
-  cost: z.number(),
+  cost: z.coerce.number(),
   staff_role_id: z.uuid(),
   role_name: z.string(),
   role_description: z.string()   

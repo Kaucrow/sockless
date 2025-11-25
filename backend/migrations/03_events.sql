@@ -34,14 +34,21 @@ CREATE TABLE IF NOT EXISTS events.flyer (
     FOREIGN KEY (event_id) REFERENCES events.event(event_id)
 );
 
+--- Table: events.ticket_desc
+CREATE TABLE IF NOT EXISTS events.ticket_desc (
+    ticket_desc_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    desc_txt TEXT,
+    cost DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (event_id) REFERENCES events.event(event_id)
+);
+
 --- Table: events.ticket
 CREATE TABLE IF NOT EXISTS events.ticket (
     ticket_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    event_id UUID NOT NULL,
-    "name" VARCHAR(100) NOT NULL,
-    desc_text TEXT,
-    price DECIMAL(10, 2) NOT NULL,
-    og_amt INTEGER NOT NULL,
-    avail_amt INTEGER NOT NULL,
-    FOREIGN KEY (event_id) REFERENCES events.event(event_id)
-);
+    ticket_desc_id UUID NOT NULL,
+    user_id UUID,
+    FOREIGN KEY (ticket_desc_id) REFERENCES events.ticket_desc(ticket_desc_id),
+    FOREIGN KEY (user_id) REFERENCES security.user(user_id)
+)
