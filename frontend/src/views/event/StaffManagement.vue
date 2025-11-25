@@ -146,7 +146,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="p-4 rounded-lg shadow-sm">
+    <div class="p-4 ">
         <h2 class="text-3xl font-semibold mb-6">Staff Management</h2>
 
         <Tabs value="config">
