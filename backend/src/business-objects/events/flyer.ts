@@ -1,5 +1,5 @@
 import { validator, db, logger } from "@components/index.js";
-import { queries, UPLOAD_DIR } from "@const/constants.js";
+import { queries, UPLOAD_DIR } from "@global/constants.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
 import { flyerSchema } from "@schemas/db/events/flyer.js";
 import { ToProcessBadReqError } from "@errors/to-process.js";

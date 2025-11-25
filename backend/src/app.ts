@@ -23,7 +23,7 @@ import {
   config,
   frontend,
   UPLOAD_DIR
-} from '@const/constants.js';
+} from '@global/constants.js';
 
 import {
   session,

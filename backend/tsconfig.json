@@ -47,7 +47,6 @@
     "baseUrl": "./src",
     "paths": {
         "@routes/*": ["./routes/*"],
-        "@const/*": ["./constants/*"],
         "@config/*": ["./config/*"],
         "@global/*": ["./global/*"],
         "@schemas/*": ["./schemas/*"],

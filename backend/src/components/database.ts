@@ -15,7 +15,7 @@ import {
 } from '@errors/index.js';
 import { z } from 'zod';
 import { objectToCamel, type ObjectToCamel } from 'ts-case-convert';
-import { database as dbConfig } from '@const/constants.js';
+import { database as dbConfig } from '@global/constants.js';
 import type { ZodType } from "zod";
 
 const PG_UNIQUE_VIOLATION = '23505';

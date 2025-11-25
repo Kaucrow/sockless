@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import type { MenuProfileData, MethodProfileData } from './responses.js';
-import { config } from '@const/constants.js';
+import { config } from '@global/constants.js';
 import { session, security, logger } from '@components/index.js';
 import { changeProfileNameSchema } from './requests.js';
 

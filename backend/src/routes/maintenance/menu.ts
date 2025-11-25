@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { config } from '@const/constants.js';
+import { config } from '@global/constants.js';
 import { session, security, logger } from '@components/index.js';
 import { addMenuProfileSchema } from './requests.js';
 

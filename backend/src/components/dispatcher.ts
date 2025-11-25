@@ -1,8 +1,9 @@
-import { queries } from "@const/constants.js";
+import { queries } from "@global/constants.js";
 import { methodDataSchema } from "@schemas/db/index.js";
 import { MethodExecutionError } from "@errors/dispatcher.js";
 import type { Request } from "express";
 import { security, db, logger } from "@components/index.js";
+import { pascalToKebab } from "@global/utils.js";
 import { toPascal } from "ts-case-convert";
 
 type BusinessObjectInstance = any;
@@ -72,7 +73,7 @@ class DispatcherComponent {
       // The module should have the same name as the target class, except the
       // module should be written in snake case and the target class should
       // be written in pascal case
-      const modulePath = `@/business-objects/${subsystem}/${className}.js`;
+      const modulePath = `@/business-objects/${subsystem}/${pascalToKebab(className)}.js`;
       const module = await import(modulePath);
 
       // Get the class
