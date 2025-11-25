@@ -39,8 +39,8 @@ CREATE TABLE IF NOT EXISTS events.ticket_desc (
     ticket_desc_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     event_id UUID NOT NULL,
     "name" VARCHAR(100) NOT NULL,
-    desc_text TEXT,
-    price DECIMAL(10, 2) NOT NULL,
+    desc_txt TEXT,
+    cost DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (event_id) REFERENCES events.event(event_id)
 );
 

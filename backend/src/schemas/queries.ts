@@ -98,7 +98,12 @@ export const queriesSchema = z.object({
   payment: z.object({
     add: z.string(),
   }),
+  ticketDesc: z.object({
+    add: z.string(),
+    getByEventId: z.string(),
+  }),
   ticket: z.object({
+    addMany: z.string(),
     claimAvailable: z.string(),
     verifyPaid: z.string()
   }),

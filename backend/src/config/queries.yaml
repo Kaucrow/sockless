@@ -309,18 +309,20 @@ flyer:
     WHERE event_id = $1
 attendee:
   getAttendances: |
-    SELECT t.event_id, ae.attended
+    SELECT td.event_id, ae.attended
     FROM people.attendee_event AS ae
-    JOIN events.ticket AS t ON t.ticket_id = ae.ticket_id
-    WHERE user_id = $1
+    JOIN events.ticket AS t ON ae.ticket_id = t.ticket_id
+    JOIN events.ticket_desc AS td ON t.ticket_desc_id = td.ticket_desc_id
+    WHERE ae.user_id = $1;
   checkIn: |
     UPDATE people.attendee_event AS ae
     SET attended = TRUE
     FROM events.ticket AS t
+    JOIN events.ticket_desc AS td ON t.ticket_desc_id = td.ticket_desc_id
     WHERE
-      t.ticket_id = ae.ticket_id AND
+      ae.ticket_id = t.ticket_id AND
       ae.user_id = $1 AND
-      t.event_id = $2
+      td.event_id = $2;
 staff:
   add: |
     INSERT INTO people.staff (user_id, phone, "address")
@@ -376,7 +378,30 @@ payment:
       amt
     )
     VALUES ($1, $2, $3, $4)
+ticketDesc:
+  add: |
+    INSERT INTO events.ticket_desc (
+      event_id,
+      "name",
+      desc_text,
+      price
+    )
+    VALUES ($1, $2, $3, $4)
+    RETURNING ticket_desc_id,
+  getByEventId: |
+    SELECT
+      ticket_desc_id,
+      event_id,
+      name,
+      desc_txt AS description,
+      cost
+    FROM events.ticket_desc
+    WHERE event_id = $1
 ticket:
+  addMany: |
+    INSERT INTO events.ticket (ticket_desc_id)
+    SELECT $1
+    FROM generate_series(1, $2);
   claimAvailable: |
     WITH claimed_ticket AS (
       UPDATE events.ticket

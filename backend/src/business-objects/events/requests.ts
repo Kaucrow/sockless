@@ -89,3 +89,26 @@ export const addEventFlyerSchema = z.object({
 export const getEventFlyerSchema = z.object({
   eventId: z.uuid(),
 });
+
+export const createEventTicketsSchema = z.object({
+  eventId: z.uuid(),
+
+  name: z.string()
+    .min(1, "Ticket name is required"),
+  
+  description: z.string()
+    .nullable(),
+  
+  cost: z.number()
+    .positive("Ticket cost must be a positive number")
+    .multipleOf(0.01),  // Max 2 decimal places
+  
+  number: z.number()
+    .positive("Ticket number must be a positive number")
+    .min(1, "At least 1 ticket must be created")
+    .int("Ticket number must be an integer"),
+});
+
+export const getEventTicketsSchema = z.object({
+  eventId: z.uuid(),
+});
