@@ -384,7 +384,7 @@ ticketDesc:
       event_id,
       "name",
       desc_txt,
-      price
+      cost
     )
     VALUES ($1, $2, $3, $4)
     RETURNING ticket_desc_id
