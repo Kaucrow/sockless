@@ -144,7 +144,7 @@ export class Ticket {
    *              tx:
    *                type: number
    *                description: Transaction number.
-   *                example: 28
+   *                example: 29
    *              args:
    *                type: object
    *                description: Method's arguments.
