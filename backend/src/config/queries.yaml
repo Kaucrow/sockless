@@ -383,7 +383,7 @@ ticketDesc:
     INSERT INTO events.ticket_desc (
       event_id,
       "name",
-      desc_text,
+      desc_txt,
       price
     )
     VALUES ($1, $2, $3, $4)
