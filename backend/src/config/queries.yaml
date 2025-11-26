@@ -387,7 +387,7 @@ ticketDesc:
       price
     )
     VALUES ($1, $2, $3, $4)
-    RETURNING ticket_desc_id,
+    RETURNING ticket_desc_id
   getByEventId: |
     SELECT
       ticket_desc_id,
