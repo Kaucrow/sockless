@@ -53,7 +53,7 @@ export class Ticket {
    *                  cost:
    *                    type: number
    *                    description: Ticket cost.
-   *                    example: 420.67,
+   *                    example: 420.67
    *                  number:
    *                    type: number
    *                    description: Number of tickets to create.
@@ -144,7 +144,7 @@ export class Ticket {
    *              tx:
    *                type: number
    *                description: Transaction number.
-   *                example: 28
+   *                example: 29
    *              args:
    *                type: object
    *                description: Method's arguments.
