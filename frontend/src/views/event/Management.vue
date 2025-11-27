@@ -48,9 +48,8 @@ const reservation = ref({
 const savingReservation = ref(false);
 const costFromEndpoint = ref(false);
 
-const attendeeSearch = ref('');
-const displayAddAttendeeModal = ref(false);
-const newAttendee = ref({ name: '', email: '' });
+const displayAddTicketModal = ref(false);
+const newTicket = ref({ name: '', description: '', cost: null, number: null });
 
 const confirm = useConfirm();   
 
@@ -242,7 +241,7 @@ const fetchEvent = async (id) => {
             ...eventData,
             eventId: eventData.eventId || id,
             name: eventData.name || '',
-            attendees: eventData.attendees || []
+            tickets: eventData.tickets || []
         };
     } catch (err) {
         console.error('Error fetching event details: ', err);
@@ -252,59 +251,49 @@ const fetchEvent = async (id) => {
     }
 };
 
-const fetchAttendees = async () => {
-    if (event.value && event.value.attendees) {
+const fetchTickets = async (id) => {
+    try {
+        const ticketsData = await toProcessService.getEventTickets({ eventId: id });
+        event.value.tickets = Array.isArray(ticketsData) ? ticketsData : [];
+    } catch (err) {
+        console.error('Error fetching event tickets: ', err);
+        event.value.tickets = [];
     }
 };
 
-const openAddAttendeeModal = () => {
-    newAttendee.value = { name: '', email: '' };
-    displayAddAttendeeModal.value = true;
+const openAddTicketModal = () => {
+    newTicket.value = { name: '', description: '', cost: null, number: null };
+    displayAddTicketModal.value = true;
 };
 
-const addAttendee = async () => {
-    if (!newAttendee.value.email || !event.value) {
-        console.log('Please enter an email for the new attendee.');
+const addTicket = async () => {
+    if (!newTicket.value.name || !event.value) {
+        console.log('Please enter a name for the new ticket.');
         return;
     }
 
     try {
-        await toProcessService.checkInAttendee({
-            email: newAttendee.value.email,
-            eventId: eventId.value
+        await toProcessService.createEventTickets({
+            eventId: eventId.value,
+            name: newTicket.value.name,
+            description: newTicket.value.description,
+            cost: newTicket.value.cost,
+            number: newTicket.value.number
         });
-        
-        console.log('Attendee checked in successfully');
-        displayAddAttendeeModal.value = false;
+        await fetchTickets(eventId.value);
+        console.log('Ticket added successfully');
+        displayAddTicketModal.value = false;
     
     } catch (err) {
-        console.error('Error checking in attendee: ', err);
+        console.error('Error adding ticket: ', err);
     }
 };
 
-const removeAttendee = async (attendeeId) => {
-    if (!event.value || !event.value.attendees) return;
-
-    confirm.require({
-        message: 'Are you sure you want to remove this attendee?',
-        header: 'Remove Attendee',
-        icon: 'pi pi-exclamation-triangle',
-        accept: async () => {
-            try {
-                event.value.attendees = event.value.attendees.filter(
-                    (att) => att.id !== attendeeId
-                );
-                console.log('Attendee removed from event.');
-            } catch (err) {
-                console.error('Error removing attendee: ', err);
-            }
-        }
-    });
-};
 
 onMounted(async () => {
+    fetchEvent(props.id),
     await Promise.all([
-        fetchEvent(props.id),
+        fetchTickets(props.id),
         fetchEventFlyer(),
         fetchAllLocations()
     ]);
@@ -317,8 +306,8 @@ watch(
     async (newId, oldId) => {
         if (newId && newId !== oldId) {
             eventId.value = newId;
+            fetchEvent(newId),
             await Promise.all([
-                fetchEvent(newId),
                 fetchEventFlyer(),
                 fetchAllLocations()
             ]);
@@ -352,37 +341,30 @@ watch(
         <div v-else-if="event" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
 
             <Card class="col-span-full p-shadow-2 mt-4">
-                <template #title>Attendees Management</template>
-                <template #subtitle>Add or remove attendees for this event.</template>
-                <template #content>
-                    <div class="flex items-center gap-2 mb-4">
-                        <span class="p-input-icon-left flex-grow">
-                            <InputText v-model="attendeeSearch" placeholder="Search or add attendee" class="w-full" />
-                        </span>
+                <template #title>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xl font-bold">Ticket Management</span>
+                            <div class="text-base font-normal text-surface-500 mt-1">
+                                Add and see the current tickets for this event.
+                            </div>
+                        </div>
                         <Button
-                            label="Add New Attendee"
+                            label="Add New Ticket"
                             icon="pi pi-plus"
                             class="p-button-secondary"
-                            @click="openAddAttendeeModal"
+                            @click="openAddTicketModal"
                         />
                     </div>
-                    <DataTable :value="event?.attendees || []" responsiveLayout="scroll" striped-rows>
-                        <Column field="name" header="Attendee Name"></Column>
-                        <Column field="email" header="Email"></Column>
-                        <Column header="Actions">
-                            <template #body="slotProps">
-                                <Button
-                                    icon="pi pi-trash"
-                                    severity="danger"
-                                    text
-                                    rounded
-                                    aria-label="Remove"
-                                    @click="removeAttendee(slotProps.data.id)"
-                                />
-                            </template>
-                        </Column>
+                </template>
+    
+                <template #content>
+                    <DataTable :value="event?.tickets || []" responsiveLayout="scroll" striped-rows>
+                        <Column field="name" header="Ticket Name"></Column>
+                        <Column field="description" header="Description"></Column>
+                        <Column field="cost" header="Cost"></Column>
                         <template #empty>
-                            No attendees added yet.
+                            No ticket added yet.
                         </template>
                     </DataTable>
                 </template>
@@ -556,19 +538,27 @@ watch(
         </Dialog>
 
         <Dialog
-            v-model:visible="displayAddAttendeeModal"
+            v-model:visible="displayAddTicketModal"
             modal
-            header="Add New Attendee"
+            header="Add New Ticket"
             :style="{ width: '30rem' }"
         >
             <div class="flex flex-col gap-4">
                 <div>
-                    <label for="newAttendeeName" class="block text-surface-700 dark:text-surface-300 font-bold mb-2">Name (Optional)</label>
-                    <InputText id="newAttendeeName" v-model="newAttendee.name" class="w-full" placeholder="Optional name for reference" />
+                    <label for="newTicketName" class="block text-surface-700 dark:text-surface-300 font-bold mb-2">Name (Optional)</label>
+                    <InputText id="newTicketName" v-model="newTicket.name" class="w-full" placeholder="Optional name for reference" />
                 </div>
                 <div>
-                    <label for="newAttendeeEmail" class="block text-surface-700 dark:text-surface-300 font-bold mb-2">Email <span class="text-red-500">*</span></label>
-                    <InputText id="newAttendeeEmail" v-model="newAttendee.email" type="email" class="w-full" placeholder="user@example.com" required />
+                    <label for="newTicketDescription" class="block text-surface-700 dark:text-surface-300 font-bold mb-2">Description</label>
+                    <InputText id="newTicketDescription" v-model="newTicket.description" class="w-full" placeholder="Description of the ticket" />
+                </div>
+                <div>
+                    <label for="newTicketCost" class="block text-surface-700 dark:text-surface-300 font-bold mb-2">Cost</label>
+                    <InputNumber id="newTicketCost" v-model="newTicket.cost" mode="decimal" :min="0" :maxFractionDigits="2" class="w-full" placeholder="Cost of the ticket" />
+                </div>
+                <div>
+                    <label for="newTicketNumber" class="block text-surface-700 dark:text-surface-300 font-bold mb-2">Number</label>
+                    <InputNumber id="newTicketNumber" v-model="newTicket.number" mode="decimal" :min="0" :maxFractionDigits="0" class="w-full" placeholder="Number of tickets available" />
                 </div>
             </div>
             <template #footer>
@@ -576,13 +566,13 @@ watch(
                     label="Cancel"
                     icon="pi pi-times"
                     text
-                    @click="displayAddAttendeeModal = false"
+                    @click="displayAddTicketModal = false"
                 />
                 <Button
-                    label="Add Attendee"
+                    label="Add Ticket"
                     icon="pi pi-check"
-                    @click="addAttendee"
-                    :disabled="!newAttendee.email"
+                    @click="addTicket"
+                    :disabled="!newTicket.description === '' || !newTicket.cost === null || !newTicket.number === null"
                 />
             </template>
         </Dialog>
