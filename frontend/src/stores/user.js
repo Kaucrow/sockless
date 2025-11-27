@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { toProcessService } from "@/services/to-process";
 import { authService } from "@/services/auth";
 import { maintenanceService } from "@/services/maintenance";
+import { toRaw } from "vue";
 import router from "@/router";
 
 export const useUserStore = defineStore("user", {
@@ -66,7 +67,7 @@ export const useUserStore = defineStore("user", {
             this.appDataError = null;
             try {
                 this.menuPermissions = await maintenanceService.getUserMenu();
-                console.log('Fetched menu permissions:', this.menuPermissions);
+                console.log('Fetched menu permissions:', toRaw(this.menuPermissions));
             } catch (error) {
                 console.error('Error fetching app data:', error);
                 this.appDataError = error.message || 'Failed to fetch app data';

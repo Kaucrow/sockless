@@ -51,6 +51,7 @@ const onFormSubmit = async (data) => {
             console.log('User logged in successfully');
 
             userStore.setUser(userData);
+            await userStore.fetchAppData();
             router.push('/home');
         } catch (error) {
             errorMessage.value = 'Login failed. Please try again.';
