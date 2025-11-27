@@ -116,7 +116,8 @@ export class Ticket {
 
       const ticketsCreated = await db.execute(
         queries.ticket.addMany,
-        [ticketDescId, number]
+        [ticketDescId, number],
+        txClient
       );
 
       if (!ticketsCreated) {
