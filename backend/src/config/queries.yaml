@@ -401,7 +401,7 @@ ticket:
   addMany: |
     INSERT INTO events.ticket (ticket_desc_id)
     SELECT $1
-    FROM generate_series(1, $2);
+    FROM generate_series(1, $2)
   claimAvailable: |
     WITH claimed_ticket AS (
       UPDATE events.ticket
