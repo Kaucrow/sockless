@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, watch, computed, toRaw } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Dialog from 'primevue/dialog';
@@ -216,6 +216,7 @@ onMounted(async () => {
                             </div>
                             
                             <DataTable :value="eventStaffList" :loading="loading" stripedRows tableStyle="min-width: 50rem">
+                                {{ console.log('Rendering eventStaffList:', toRaw(eventStaffList)) }}
                                 <Column field="email" header="Staff Email"></Column>
                                 <Column field="roleName" header="Role"></Column> 
                                 <Column field="cost" header="Cost">

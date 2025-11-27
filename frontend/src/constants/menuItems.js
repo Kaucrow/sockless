@@ -58,17 +58,12 @@ export const ALL_NAV_ITEMS = [
     subsystem: "events",
     items: [
       {
-        label: "test",
-        icon: "pi pi-calendar",
-        to: "/events",
-        menuItemKey: "test"        
-      }, {
-        label: "events",
+        label: "Events",
         icon: "pi pi-calendar",
         to: "/events",
         menuItemKey: "events"
       }, {
-        label: "staff management",
+        label: "Staff Management",
         icon: "pi pi-users",
         to: "/events/staff",
         menuItemKey: "staff management"
