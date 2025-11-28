@@ -39,6 +39,12 @@ export const ALL_NAV_ITEMS = [
         to: "/billing/invoices",
         menuItemKey: "View Invoices" 
       },
+      {
+        label: "Payments",
+        icon: "pi pi-credit-card", 
+        to: "/finance/payment",
+        menuItemKey: "Payments"
+      }
     ],
   },
   {
@@ -62,12 +68,31 @@ export const ALL_NAV_ITEMS = [
         icon: "pi pi-calendar",
         to: "/events",
         menuItemKey: "events"
-      }, {
-        label: "Staff Management",
-        icon: "pi pi-users",
-        to: "/events/staff",
-        menuItemKey: "staff management"
       }
     ]
   },
+  {
+    label: "STAFF MANAGEMENT",
+    subsystem: "staff",
+    items: [
+      {
+        label: "Staff Management",
+        icon: "pi pi-users",
+        to: "/events/staff",
+        menuItemKey: "Staff Management"
+      }
+    ]
+  }, 
+  {
+    label: "EVENTS",
+    subsystem: "events",
+    items: [
+      {
+        label: "Pay For Event",
+        icon: "pi pi-credit-card",
+        to: "/events/pay",
+        menuItemKey: "Pay For Event"
+      }
+    ]
+  }
 ];

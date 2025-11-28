@@ -66,7 +66,6 @@ const filteredNavItems = computed(() => {
 });
 	
 onMounted(async () => {
-  // Initialize user data if authenticated (restores from localStorage on refresh)
   if (!isAuthLayout.value) {
     await userStore.initializeUser();
   }
