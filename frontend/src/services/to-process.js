@@ -47,6 +47,7 @@ export const toProcessService = {
     async updateCostCategory(args) { return this.toProcess(24, args); },
     async getPaymentMethods(args) { return this.toProcess(25, args); },
     async addPaymentMethod(args) { return this.toProcess(26, args); },
+    async userPayForTicket(args) { return this.toProcess(27, args); },
 
     // tickets
     async createEventTickets(args) { return this.toProcess(28, args); },
