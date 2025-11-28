@@ -358,7 +358,7 @@ costCategory:
   update: |
     UPDATE finance.cost_category
     SET
-      "name" = $2
+      "name" = $2,
       desc_txt = $3
     WHERE
       cost_category_id = $1
@@ -371,7 +371,7 @@ paymentMethod:
     VALUES ($1)
 payment:
   add: |
-    INSERT INTO finance.payment_method (
+    INSERT INTO finance.payment (
       user_id,
       ticket_id,
       payment_method_id,
