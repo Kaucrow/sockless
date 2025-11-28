@@ -141,7 +141,7 @@ onMounted(async () => {
                     <DataTable :value="categories" class="w-full" striped-rows>
                         <Column field="name" header="Category Name"></Column>
                         <Column field="description" header="Description"></Column>
-                        <Column header="Actions" bodyClass="text-center">
+                        <Column header="Edit Cost Category" bodyClass="text-center">
                             <template #body="slotProps">
                                 <Button icon="pi pi-pencil" class="p-button-text p-button-sm mr-2" @click="editCategory(slotProps.data)"></Button>
                             </template>
