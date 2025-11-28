@@ -12,6 +12,7 @@ import Assistance from '../views/event/Assistance.vue'
 import Events from '../views/event/Events.vue'
 import Management from '../views/event/Management.vue'
 import StaffManagement from '../views/event/StaffManagement.vue'
+import Payments from '../views/finance/Payments.vue'
 import { authService } from '@/services/auth'
 
 
@@ -92,6 +93,10 @@ const router = createRouter({
       path: '/events/staff',
       name: 'staff-management',
       component: StaffManagement,
+    }, {
+      path: '/finance/payment',
+      name: 'payments-management',
+      component: Payments,
     }
   ],
 })

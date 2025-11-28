@@ -216,7 +216,7 @@ onMounted(async () => {
                             </div>
                             
                             <DataTable :value="eventStaffList" :loading="loading" stripedRows tableStyle="min-width: 50rem">
-                                {{ console.log('Rendering eventStaffList:', toRaw(eventStaffList)) }}
+                                {{ console.log('eventStaffList:', toRaw(eventStaffList)) }}
                                 <Column field="email" header="Staff Email"></Column>
                                 <Column field="roleName" header="Role"></Column> 
                                 <Column field="cost" header="Cost">
