@@ -14,10 +14,6 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
         if (config.data instanceof FormData) {
             delete config.headers['Content-Type'];
         }
@@ -37,7 +33,6 @@ api.interceptors.response.use(
 
         if (error.response && error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
-            localStorage.removeItem('token');
             router.push('/login');
             return Promise.reject(error);
         }
