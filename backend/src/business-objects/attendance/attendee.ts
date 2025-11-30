@@ -1,13 +1,13 @@
-import { dispatcher, validator, db } from "@components/index.js";
+import { dispatcher, validator, db, session } from "@components/index.js";
 import { queries } from "@global/constants.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
 import { ToProcessBadReqError } from "@errors/to-process.js";
 import type { GetUserResponse } from "@bo/users/responses.js";
 import {
-  userAttendanceSchema
+  attendanceSchema
 } from "@schemas/db/people/attendance.js";
 import {
-  registerAttendeeSchema,
+  adminGetUserAttendancesSchema,
   getUserAttendancesSchema,
   checkInAttendeeSchema,
 } from "./requests.js";
@@ -17,11 +17,11 @@ import type { Request } from "express";
 export class Attendee {
   /**
    * @swagger
-   * /to-process/getUserAttendances:
+   * /to-process/adminGetUserAttendances:
    *  post:
    *    tags:
    *      - attendance
-   *    summary: Get a user's attendances 
+   *    summary: Get a user's attendances (admin)
    *    description: Gets the data of every event attendance for a user.
    *    requestBody:
    *      required: true
@@ -59,6 +59,20 @@ export class Attendee {
    *                    type: string
    *                    format: uuid
    *                    example: "4de5dca6-fca4-45fa-9539-cfe652c40a0a"
+   *                  userId:
+   *                    type: string
+   *                    format: uuid
+   *                    example: "4de5dca6-fca4-45fa-9539-cfe652c40a0a"
+   *                  ticketId:
+   *                    type: string
+   *                    format: uuid
+   *                    example: "4de5dca6-fca4-45fa-9539-cfe652c40a0a"
+   *                  ticketName:
+   *                    type: string
+   *                    example: "VIP"
+   *                  ticketCost:
+   *                    type: number 
+   *                    example: 420.67
    *                  attended:
    *                    type: boolean
    *                    example: false
@@ -74,14 +88,99 @@ export class Attendee {
    *                  example: "User is not allowed to perform this action."
    */
   @allow(13, 'public', ["event-admin"])
-  async getUserAttendances(req: Request, args: object) {
-    const { email } = validator.validate(args, getUserAttendancesSchema);
+  async adminGetUserAttendances(req: Request, args: object) {
+    const { email } = validator.validate(args, adminGetUserAttendancesSchema);
 
     const { userId } = await dispatcher.executeMethod<GetUserResponse>(req, 11, { email });
 
+    const attendances = await dispatcher.executeMethod(req, 33, { userId });
+
+    return attendances;
+  }
+
+  /**
+   * @swagger
+   * /to-process/userGetUserAttendances:
+   *  post:
+   *    tags:
+   *      - attendance
+   *    summary: Get a user's attendances (user)
+   *    description: Gets the data of every event attendance for a user.
+   *    requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            type: object
+   *            properties:
+   *              tx:
+   *                type: number 
+   *                description: Transaction number.
+   *                example: 32
+   *              args:
+   *                type: object
+   *                description: Empty.
+   *            required:
+   *              - tx
+   *              - args
+   *    responses:
+   *      200:
+   *        description: Success.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: array
+   *              items:
+   *                type: object
+   *                properties:
+   *                  eventId:
+   *                    type: string
+   *                    format: uuid
+   *                    example: "4de5dca6-fca4-45fa-9539-cfe652c40a0a"
+   *                  userId:
+   *                    type: string
+   *                    format: uuid
+   *                    example: "4de5dca6-fca4-45fa-9539-cfe652c40a0a"
+   *                  ticketId:
+   *                    type: string
+   *                    format: uuid
+   *                    example: "4de5dca6-fca4-45fa-9539-cfe652c40a0a"
+   *                  ticketName:
+   *                    type: string
+   *                    example: "VIP"
+   *                  ticketCost:
+   *                    type: number
+   *                    example: 420.67
+   *                  attended:
+   *                    type: boolean
+   *                    example: false
+   *      403:
+   *        description: User is not logged in or doesn't have permission to execute this method.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *                message:
+   *                  type: string
+   *                  example: "User is not allowed to perform this action."
+   */
+  @allow(32, 'public', ["event-admin"])
+  async userGetUserAttendances(req: Request, args: object) {
+    const { userId } = (await session.get(req))!;
+
+    const attendances = await dispatcher.executeMethod(req, 33, { userId });
+
+    return attendances;
+  }
+
+  @allow(33, 'private', ["event-admin"])
+  async getUserAttendances(req: Request, args: object) {
+    const { userId } = validator.validate(args, getUserAttendancesSchema);
+
     const attendances = await db.fetch(
       queries.attendee.getAttendances,
-      userAttendanceSchema,
+      attendanceSchema,
       [userId]
     );
 

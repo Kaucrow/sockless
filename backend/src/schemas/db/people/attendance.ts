@@ -1,11 +1,10 @@
 import { z } from 'zod';
 
-export const userAttendanceSchema = z.object({
+export const attendanceSchema = z.object({
   event_id: z.uuid(),
-  attended: z.boolean(),
-});
-
-export const eventAttendanceSchema = z.object({
   user_id: z.uuid(),
+  ticket_id: z.uuid(),
+  ticket_name: z.string(),
+  ticket_cost: z.coerce.number(),
   attended: z.boolean(),
 });

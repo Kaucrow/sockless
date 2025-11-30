@@ -1,12 +1,11 @@
 import { z } from 'zod';
 
-export const registerAttendeeSchema = z.object({
+export const adminGetUserAttendancesSchema = z.object({
   email: z.string(),
-  eventId: z.uuid(), 
 });
 
 export const getUserAttendancesSchema = z.object({
-  email: z.string(),
+  userId: z.uuid(),
 });
 
 export const checkInAttendeeSchema = z.object({

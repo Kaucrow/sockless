@@ -2,7 +2,7 @@ import { validator, db } from "@components/index.js";
 import { queries } from "@global/constants.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
 import {
-  eventAttendanceSchema
+  attendanceSchema
 } from "@schemas/db/people/attendance.js";
 import {
   getEventAttendancesSchema
@@ -51,14 +51,24 @@ export class Attendance {
    *              items:
    *                type: object
    *                properties:
-   *                  userId:
-   *                    type: string
-   *                    format: uuid
-   *                    example: "4aace07a-15b6-46cd-8582-454e8b5acd11"
    *                  eventId:
    *                    type: string
    *                    format: uuid
    *                    example: "4de5dca6-fca4-45fa-9539-cfe652c40a0a"
+   *                  userId:
+   *                    type: string
+   *                    format: uuid
+   *                    example: "4aace07a-15b6-46cd-8582-454e8b5acd11"
+   *                  ticketId:
+   *                    type: string
+   *                    format: uuid
+   *                    example: "4aace07a-15b6-46cd-8582-454e8b5acd11"
+   *                  ticketName:
+   *                    type: string
+   *                    example: "VIP"
+   *                  ticketCost:
+   *                    type: number
+   *                    example: 420.67
    *                  attended:
    *                    type: boolean
    *                    example: false
@@ -79,7 +89,7 @@ export class Attendance {
 
     const attendances = await db.fetch(
       queries.attendee.getAttendances,
-      eventAttendanceSchema,
+      attendanceSchema,
       [eventId]
     );
 

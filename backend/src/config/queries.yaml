@@ -309,11 +309,18 @@ flyer:
     WHERE event_id = $1
 attendee:
   getAttendances: |
-    SELECT td.event_id, ae.attended
-    FROM people.attendee_event AS ae
-    JOIN events.ticket AS t ON ae.ticket_id = t.ticket_id
-    JOIN events.ticket_desc AS td ON t.ticket_desc_id = td.ticket_desc_id
-    WHERE ae.user_id = $1;
+    SELECT 
+      td.event_id,
+      ae.user_id,
+      ae.ticket_id,
+      td.name AS ticket_name,
+      td.cost AS ticket_cost,
+      ae.attended
+    FROM people.attendee_event ae
+    JOIN events.ticket t ON ae.ticket_id = t.ticket_id
+    JOIN events.ticket_desc td ON t.ticket_desc_id = td.ticket_desc_id
+    WHERE ae.user_id = $1
+    ORDER BY ae.attended ASC, td.name ASC
   checkIn: |
     UPDATE people.attendee_event AS ae
     SET attended = TRUE
@@ -322,7 +329,7 @@ attendee:
     WHERE
       ae.ticket_id = t.ticket_id AND
       ae.user_id = $1 AND
-      td.event_id = $2;
+      td.event_id = $2
 staff:
   add: |
     INSERT INTO people.staff (user_id, phone, "address")
@@ -341,7 +348,7 @@ staff:
       sr.desc_txt AS role_description
     FROM people.staff_event se
     JOIN people.staff_role sr ON se.staff_role_id = sr.staff_role_id
-    WHERE se.event_id = $1;
+    WHERE se.event_id = $1
   getRoles: |
     SELECT * FROM people.staff_role
   createRole: |
