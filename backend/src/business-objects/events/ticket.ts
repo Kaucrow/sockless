@@ -187,6 +187,10 @@ export class Ticket {
    *                    type: number
    *                    description: Ticket cost.
    *                    example: 420.67
+   *                  available:
+   *                    type: number
+   *                    description: Number of available tickets of this type.
+   *                    example: 10
    *      400:
    *        description: Invalid args.
    *        content:

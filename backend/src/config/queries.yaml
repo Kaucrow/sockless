@@ -390,13 +390,23 @@ ticketDesc:
     RETURNING ticket_desc_id
   getByEventId: |
     SELECT
-      ticket_desc_id,
-      event_id,
-      name,
-      desc_txt AS description,
-      cost
-    FROM events.ticket_desc
-    WHERE event_id = $1
+      td.ticket_desc_id,
+      td.event_id,
+      td.name,
+      td.desc_txt AS description,
+      td.cost,
+      COUNT(t.ticket_id) AS available
+    FROM events.ticket_desc td
+    LEFT JOIN events.ticket t
+      ON td.ticket_desc_id = t.ticket_desc_id
+      AND t.user_id IS NULL
+    WHERE td.event_id = $1
+    GROUP BY 
+      td.ticket_desc_id,
+      td.event_id,
+      td.name,
+      td.desc_txt,
+      td.cost
 ticket:
   addMany: |
     INSERT INTO events.ticket (ticket_desc_id)
