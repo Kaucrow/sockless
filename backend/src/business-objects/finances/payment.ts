@@ -1,4 +1,4 @@
-import { dispatcher, session, validator, db } from "@components/index.js";
+import { dispatcher, session, validator, db, logger } from "@components/index.js";
 import { queries } from "@global/constants.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
 import { ToProcessBadReqError } from "@errors/to-process.js";

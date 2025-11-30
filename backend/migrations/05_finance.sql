@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS finance.payment (
     ticket_id UUID NOT NULL,
     payment_method_id UUID NOT NULL,
     amt DECIMAL(10, 2) NOT NULL,
-    dt TIMESTAMP WITH TIME ZONE NOT NULL,
+    dt TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES security.user(user_id),
     FOREIGN KEY (ticket_id) REFERENCES events.ticket(ticket_id),
     FOREIGN KEY (payment_method_id) REFERENCES finance.payment_method(payment_method_id)
