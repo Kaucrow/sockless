@@ -35,6 +35,23 @@ export const userPayForTicketSchema = z.object({
   )
 });
 
+export const adminPayForTicketSchema = z.object({
+  email: z.string()
+    .min(1, "User email is required"),
+
+  ticketDescId: z.uuid(),
+
+  payments: z.array(
+    z.object({
+      paymentMethod: z.uuid(),
+
+      amount: z.number()
+        .positive("Amount must be a positive number")
+        .multipleOf(0.01)   // Max 2 decimal places
+    })
+  ),
+});
+
 export const payForTicketSchema = z.object({
   ticketDescId: z.uuid(),
 

@@ -1,13 +1,15 @@
-import { dispatcher, session, validator, db, logger } from "@components/index.js";
+import { dispatcher, session, validator, db } from "@components/index.js";
 import { queries } from "@global/constants.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
 import { ToProcessBadReqError } from "@errors/to-process.js";
+import type { GetUserResponse } from "@bo/users/responses.js";
 import {
   ticketSchema,
   ticketPaidVerificationSchema,
 } from "@schemas/db/events/ticket.js";
 import {
   userPayForTicketSchema,
+  adminPayForTicketSchema,
   payForTicketSchema,
 } from "./requests.js";
 import type { Request } from "express";
@@ -97,6 +99,104 @@ export class Payment {
     const { ticketDescId, payments } = validator.validate(args, userPayForTicketSchema);
 
     const { userId } = (await session.get(req))!;
+
+    const result = await dispatcher.executeMethod(req, 31, {
+      ticketDescId,
+      payments,
+      userId
+    });
+
+    return result;
+  }
+
+  /**
+   * @swagger
+   * /to-process/adminPayForTicket:
+   *  post:
+   *    tags:
+   *      - finances
+   *    summary: Pay for a ticket (admin)
+   *    description: Allows an admin to process a user's payment.
+   *    requestBody:
+   *      description: Payment amount.
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            type: object
+   *            properties:
+   *              tx:
+   *                type: number
+   *                description: Transaction number.
+   *                example: 30
+   *              args:
+   *                type: object
+   *                description: Method's arguments.
+   *                properties:
+   *                  email:
+   *                    type: string
+   *                    format: uuid
+   *                    description: User email.
+   *                    example: "user1@example.com"
+   *                  ticketDescId:
+   *                    type: string
+   *                    format: uuid
+   *                    description: Ticket description ID.
+   *                  payments:
+   *                    type: array 
+   *                    description: Payments.
+   *                    items:
+   *                      type: object
+   *                      properties:
+   *                        paymentMethod:
+   *                          type: string
+   *                          format: uuid
+   *                          description: Payment method ID.
+   *                        amount:
+   *                          type: number
+   *                          description: Payment amount.
+   *                          example: 420.67
+   *          required:
+   *            - tx
+   *            - args
+   *    responses:
+   *      200:
+   *        description: Payment difference (ticket price - total paid).
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *                difference:
+   *                  type: number
+   *                  description: Payment difference (ticket price - total paid).
+   *                  example: 0.67 
+   *      400:
+   *        description: Invalid args.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *                message:
+   *                  type: string
+   *                  example: "Property 'name': Invalid input: expected string, received undefined"
+   *      403:
+   *        description: User is not logged in or doesn't have permission to execute this method.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *                message:
+   *                  type: string
+   *                  example: "User is not allowed to perform this action."
+   */
+  @allow(30, 'public', ["event-admin"])
+  async adminPayForTicket(req: Request, args: object) {
+    const { email, ticketDescId, payments } = validator.validate(args, adminPayForTicketSchema);
+
+    const { userId } = await dispatcher.executeMethod<GetUserResponse>(req, 11, { email });
 
     const result = await dispatcher.executeMethod(req, 31, {
       ticketDescId,
