@@ -34,3 +34,19 @@ export const userPayForTicketSchema = z.object({
     })
   )
 });
+
+export const payForTicketSchema = z.object({
+  ticketDescId: z.uuid(),
+
+  payments: z.array(
+    z.object({
+      paymentMethod: z.uuid(),
+
+      amount: z.number()
+        .positive("Amount must be a positive number")
+        .multipleOf(0.01)   // Max 2 decimal places
+    })
+  ),
+
+  userId: z.uuid(),
+});

@@ -13,10 +13,11 @@ class MethodPermissionService {
   static #instance: MethodPermissionService;
 
   public registeredPermissions = new Map<number, {
-    subsystem: string;
-    className: string;
-    methodName: string;
-    profiles: string[];
+    subsystem: string,
+    className: string,
+    methodName: string,
+    profiles: string[],
+    isPrivate: boolean,
   }>();
 
   private constructor() { }
@@ -116,13 +117,14 @@ class MethodPermissionService {
             // Link method to profile
             await db.execute(queries.sync.linkMethodProfile, [methodId, profileId], txClient);
           }
-          
+ 
           // Add the method TX
           await db.execute(queries.sync.addTx, [
             tx,
             methodInfo.subsystem,
             methodInfo.className,
-            methodInfo.methodName
+            methodInfo.methodName,
+            methodInfo.isPrivate,
           ], txClient);
         }
       });

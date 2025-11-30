@@ -8,6 +8,7 @@ import {
 } from "@schemas/db/events/ticket.js";
 import {
   userPayForTicketSchema,
+  payForTicketSchema,
 } from "./requests.js";
 import type { Request } from "express";
 
@@ -91,11 +92,24 @@ export class Payment {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(27, ["event-admin"])
-  private async userPayForTicket(req: Request, args: object) {
+  @allow(27, 'public', ["event-admin"])
+  async userPayForTicket(req: Request, args: object) {
     const { ticketDescId, payments } = validator.validate(args, userPayForTicketSchema);
 
     const { userId } = (await session.get(req))!;
+
+    const result = await dispatcher.executeMethod(req, 31, {
+      ticketDescId,
+      payments,
+      userId
+    });
+
+    return result;
+  }
+
+  @allow(31, 'private', ["event-admin"])
+  async payForTicket(req: Request, args: object) {
+    const { ticketDescId, payments, userId } = validator.validate(args, payForTicketSchema);
 
     let difference: number | null = null;
 

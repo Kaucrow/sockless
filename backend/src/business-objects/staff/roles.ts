@@ -64,8 +64,8 @@ export class Roles {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(18, ["event-admin"])
-  private async getRoles(req: Request, args: object) {
+  @allow(18, 'public', ["event-admin"])
+  async getRoles(req: Request, args: object) {
     const roles = await db.fetch(
       queries.staff.getRoles,
       staffRoleSchema,
@@ -132,8 +132,8 @@ export class Roles {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(19, ["event-admin"])
-  private async createRole(req: Request, args: object) {
+  @allow(19, 'public', ["event-admin"])
+  async createRole(req: Request, args: object) {
     const { name, description } = validator.validate(args, createRoleSchema);
 
     const rowsAffected = await db.execute(queries.staff.createRole, [name, description]);

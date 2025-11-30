@@ -49,8 +49,8 @@ sync:
     )
     SELECT menu_id FROM ins
   addTx: |
-    INSERT INTO security.tx (tx_id, subsystem, class, method)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO security.tx (tx_id, subsystem, class, method, "private")
+    VALUES ($1, $2, $3, $4, $5)
     ON CONFLICT (subsystem, class, method) DO NOTHING
   getSubsystemId: |
     SELECT subsystem_id FROM security.subsystem WHERE name = $1

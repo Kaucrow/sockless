@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { config } from '@global/constants.js';
-import { session } from '@components/session.js';
-import { security } from '@components/security.js';
+import { session, security, logger } from '@components/index.js';
 import { addMethodProfileSchema, removeMethodProfileSchema } from './requests.js';
 
 const router = Router();

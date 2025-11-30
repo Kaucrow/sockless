@@ -80,7 +80,7 @@ export class Reservation {
    *                  example: "User is not allowed to perform this action."
    */
   @allow(7, ["finance-admin"])
-  private async setEventReservation(req: Request, args: object) {
+  async setEventReservation(req: Request, args: object) {
     const { eventId, locationId, cost } = validator.validate(args, setEventReservationSchema);
 
     const rowsAffected = await db.execute(queries.reservation.create, [eventId, locationId, cost]);
@@ -153,7 +153,7 @@ export class Reservation {
    *                  example: "User is not allowed to perform this action."
    */
   @allow(8, ["event-admin"])
-  private async getEventReservation(req: Request, args: object) {
+  async getEventReservation(req: Request, args: object) {
     const { eventId } = validator.validate(args, getEventReservationSchema);
 
     const reservation = await db.fetchOne(

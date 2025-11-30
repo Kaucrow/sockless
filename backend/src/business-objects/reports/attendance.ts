@@ -73,8 +73,8 @@ export class Attendance {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(15, ["event-admin"])
-  private async getEventAttendances(req: Request, args: object) {
+  @allow(15, 'public', ["event-admin"])
+  async getEventAttendances(req: Request, args: object) {
     const { eventId } = validator.validate(args, getEventAttendancesSchema);
 
     const attendances = await db.fetch(

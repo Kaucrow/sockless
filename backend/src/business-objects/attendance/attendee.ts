@@ -73,8 +73,8 @@ export class Attendee {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(13, ["event-admin"])
-  private async getUserAttendances(req: Request, args: object) {
+  @allow(13, 'public', ["event-admin"])
+  async getUserAttendances(req: Request, args: object) {
     const { email } = validator.validate(args, getUserAttendancesSchema);
 
     const { userId } = await dispatcher.executeMethod<GetUserResponse>(req, 11, { email });
@@ -147,8 +147,8 @@ export class Attendee {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(14, ["event-admin"])
-  private async checkInAttendee(req: Request, args: object) {
+  @allow(14, 'public', ["event-admin"])
+  async checkInAttendee(req: Request, args: object) {
     const { email, eventId } = validator.validate(args, checkInAttendeeSchema);
 
     const { userId } = await dispatcher.executeMethod<GetUserResponse>(req, 11, { email });
