@@ -65,7 +65,7 @@ export class Location {
    *                   example: "User is not allowed to perform this action."
    */
   @allow(5, ["finance-admin"])
-  private async createLocation(req: Request, args: object) {
+  async createLocation(req: Request, args: object) {
     const { country, city, name } = validator.validate(
       args, createLocationSchema
     );
@@ -140,7 +140,7 @@ export class Location {
    *                   example: "User is not allowed to perform this action."
    */
   @allow(6, ["finance-admin"])
-  private async getAllLocations(req: Request, args: object) {
+  async getAllLocations(req: Request, args: object) {
     const locations = await db.fetch(queries.location.getAll, locationSchema);
 
     return locations;

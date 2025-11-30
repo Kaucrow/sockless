@@ -50,12 +50,13 @@ ON CONFLICT (class_id, "name") DO NOTHING;
 
 -- Insert all unique Subsystem, Class, and Method combinations 
 -- from the existing security tables into the tx table with next available tx values
-INSERT INTO security.tx (tx_id, subsystem, class, method)
+INSERT INTO security.tx (tx_id, subsystem, class, method, "private")
 SELECT 
     COALESCE((SELECT MAX(tx_id) FROM security.tx), 0) + ROW_NUMBER() OVER (ORDER BY s.name, c.name, m.name) AS tx,
     s.name AS subsystem,
     c.name AS class,
-    m.name AS method
+    m.name AS method,
+    FALSE
 FROM
     security.subsystem AS s
 JOIN

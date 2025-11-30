@@ -1,7 +1,6 @@
 import { validator, db } from "@components/index.js";
 import { queries } from "@global/constants.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
-import { ToProcessBadReqError } from "@errors/to-process.js";
 import {
   ticketDescSchema,
   ticketDescCreatedSchema,
@@ -94,8 +93,8 @@ export class Ticket {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(28, ["event-admin"])
-  private async createEventTickets(req: Request, args: object) {
+  @allow(28, 'public', ["event-admin"])
+  async createEventTickets(req: Request, args: object) {
     const { eventId, name, description, cost, number } = validator.validate(
       args, createEventTicketsSchema
     );
@@ -187,6 +186,10 @@ export class Ticket {
    *                    type: number
    *                    description: Ticket cost.
    *                    example: 420.67
+   *                  available:
+   *                    type: number
+   *                    description: Number of available tickets of this type.
+   *                    example: 10
    *      400:
    *        description: Invalid args.
    *        content:
@@ -208,8 +211,8 @@ export class Ticket {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(29, ["event-admin"])
-  private async getEventTickets(req: Request, args: object) {
+  @allow(29, 'public', ["event-admin"])
+  async getEventTickets(req: Request, args: object) {
     const { eventId } = validator.validate(args, getEventTicketsSchema);
 
     const tickets = db.fetch(

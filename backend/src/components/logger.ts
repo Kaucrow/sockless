@@ -82,7 +82,7 @@ class LoggerComponent {
 
     /* Setup Morgan */
     const stream: StreamOptions = {
-      write: (msg: string) => this.logger!.http(msg)
+      write: (msg: string) => this.logger!.http(msg.trim())
     };
 
     // This fn determines if we should skip Morgan HTTP log

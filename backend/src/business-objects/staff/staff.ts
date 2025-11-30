@@ -76,8 +76,8 @@ export class Staff {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(17, ["event-admin"])
-  private async addStaff(req: Request, args: object) {
+  @allow(17, 'public', ["event-admin"])
+  async addStaff(req: Request, args: object) {
     const { email, phoneNumber, address } = validator.validate(args, addStaffSchema);
 
     const { userId } = await dispatcher.executeMethod<GetUserResponse>(req, 11, { email });
@@ -151,8 +151,8 @@ export class Staff {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(20, ["event-admin"])
-  private async addStaffToEvent(req: Request, args: object) {
+  @allow(20, 'public', ["event-admin"])
+  async addStaffToEvent(req: Request, args: object) {
     const { email, eventId, staffRoleId, cost} = validator.validate(args, addStaffToEventSchema);
 
     const { userId } = await dispatcher.executeMethod<GetUserResponse>(req, 11, { email });
@@ -236,8 +236,8 @@ export class Staff {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(21, ["event-admin"])
-  private async getAllStaffInEvent(req: Request, args: object) {
+  @allow(21, 'public', ["event-admin"])
+  async getAllStaffInEvent(req: Request, args: object) {
     const { eventId } = validator.validate(args, getAllStaffInEventSchema);
 
     const staff = await db.fetch(

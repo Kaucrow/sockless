@@ -81,8 +81,8 @@ export class CostCategory {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(22, ["event-admin"])
-  private async getCostCategories(req: Request, args: object) {
+  @allow(22, 'public', ["event-admin"])
+  async getCostCategories(req: Request, args: object) {
     const costCategories = await db.fetch(queries.costCategory.getAll, costCategorySchema);
 
     return costCategories;
@@ -149,8 +149,8 @@ export class CostCategory {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(23, ["event-admin"])
-  private async addCostCategory(req: Request, args: object) {
+  @allow(23, 'public', ["event-admin"])
+  async addCostCategory(req: Request, args: object) {
     const { name, description } = validator.validate(args, addCostCategorySchema);
 
     await db.execute(queries.costCategory.add, [name, description]);
@@ -206,8 +206,8 @@ export class CostCategory {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(24, ["event-admin"])
-  private async updateCostCategory(req: Request, args: object) {
+  @allow(24, 'public', ["event-admin"])
+  async updateCostCategory(req: Request, args: object) {
     const { costCategoryId, name, description } = validator.validate(args, updateCostCategorySchema);
 
     const rowsAffected = await db.execute(

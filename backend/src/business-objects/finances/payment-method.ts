@@ -76,8 +76,8 @@ export class PaymentMethod {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(25, ["event-admin"])
-  private async getPaymentMethods(req: Request, args: object) {
+  @allow(25, 'public', ["event-admin"])
+  async getPaymentMethods(req: Request, args: object) {
     const paymentMethods = await db.fetch(queries.paymentMethod.getAll, paymentMethodSchema);
 
     return paymentMethods;
@@ -138,8 +138,8 @@ export class PaymentMethod {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(26, ["event-admin"])
-  private async addPaymentMethod(req: Request, args: object) {
+  @allow(26, 'public', ["event-admin"])
+  async addPaymentMethod(req: Request, args: object) {
     const { name } = validator.validate(args, addPaymentMethodSchema);
 
     const rowsAffected = await db.execute(queries.paymentMethod.add, [name]);

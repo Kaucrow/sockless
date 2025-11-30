@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS security.tx (
     subsystem VARCHAR(50) NOT NULL,
     class VARCHAR(50) NOT NULL,
     method VARCHAR(50) NOT NULL,
+    "private" BOOLEAN NOT NULL,
     UNIQUE (subsystem, class, method)
 );
 

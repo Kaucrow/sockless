@@ -73,8 +73,8 @@ export class Flyer {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(9, ["event-admin"])
-  private async setEventFlyer(req: Request, args: object) {
+  @allow(9, 'public', ["event-admin"])
+  async setEventFlyer(req: Request, args: object) {
     const { imageFile, eventId } = validator.validate(args, addEventFlyerSchema);
 
     const ext = path.extname(imageFile.originalname);
@@ -152,8 +152,8 @@ export class Flyer {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(10, ["event-admin"])
-  private async getEventFlyer(req: Request, args: object) {
+  @allow(10, 'public', ["event-admin"])
+  async getEventFlyer(req: Request, args: object) {
     const { eventId } = validator.validate(args, getEventFlyerSchema);
 
     const flyer = await db.fetchOne(queries.flyer.getEventFlyer, flyerSchema, [eventId]);

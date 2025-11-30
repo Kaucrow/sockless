@@ -84,8 +84,8 @@ export class User {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(11, ["event-admin"])
-  private async getOneUser(req: Request, args: object) {
+  @allow(11, 'public', ["event-admin"])
+  async getOneUser(req: Request, args: object) {
     const { email } = validator.validate(args, getOneUserSchema);
 
     const user = await db.fetchOne(queries.user.getUserByEmail, userSchema, [email]);
@@ -173,8 +173,8 @@ export class User {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(16, ["event-admin"])
-  private async getManyUsers(req: Request, args: object) {
+  @allow(16, 'public', ["event-admin"])
+  async getManyUsers(req: Request, args: object) {
     const { emails } = validator.validate(args, getManyUsersSchema);
 
     const users = await db.fetch(queries.user.getManyUsersByEmail, userShortSchema, [emails]);

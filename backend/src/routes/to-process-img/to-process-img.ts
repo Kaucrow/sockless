@@ -23,10 +23,9 @@ router.post(
         return res.status(400).json({ message: "No 'imageFile' provided." });
       }
 
-
       args.imageFile = file;
 
-      const result = await dispatcher.executeMethod(req, tx, args);
+      const result = await dispatcher.executeMethod(req, tx, args, true);
 
       return res.status(200).json(result);
     } catch(err) {
@@ -35,6 +34,7 @@ router.post(
         switch (err.name) {
           case 'TxNotFound': return res.status(400).json({ message: 'Invalid TX.'});
           case 'PermissionDenied': return res.status(403).json({ message: 'User is not allowed to perform this action.'});
+          case 'PrivateOnly': return res.status(403).json({ message: 'The TX requested is for internal use only.'});
         }
       }
 

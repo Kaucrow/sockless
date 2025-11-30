@@ -81,8 +81,8 @@ export class Event {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(1, ["event-admin"])
-  private async createEvent(req: Request, args: object) {
+  @allow(1, 'public', ["event-admin"])
+  async createEvent(req: Request, args: object) {
     const { name, startDt, endDt, description } = validator.validate(args, createEventSchema);
 
     await db.execute(queries.event.create, [name, startDt, endDt, description]);
@@ -152,8 +152,8 @@ export class Event {
    *                   type: string
    *                   example: "User is not allowed to perform this action."
    */
-  @allow(2, ["event-admin"])
-  private async getAllEvents(req: Request, args: object) {
+  @allow(2, 'public', ["event-admin"])
+  async getAllEvents(req: Request, args: object) {
     const events = await db.fetch(queries.event.getAll, eventSchema);
 
     return events;
@@ -226,8 +226,8 @@ export class Event {
    *                   type: string
    *                   example: "User is not allowed to perform this action."
    */
-  @allow(3, ["event-admin"])
-  private async getEvent(req: Request, args: object) {
+  @allow(3, 'public', ["event-admin"])
+  async getEvent(req: Request, args: object) {
     const { eventId } = validator.validate(args, getEventSchema);
 
     const event = await db.fetchOne(queries.event.getEventById, eventSchema, [eventId]);
@@ -291,8 +291,8 @@ export class Event {
    *                   type: string
    *                   example: "User is not allowed to perform this action."
    */
-  @allow(4, ["event-admin"])
-  private async updateEvent(req: Request, args: object) {
+  @allow(4, 'public', ["event-admin"])
+  async updateEvent(req: Request, args: object) {
     const { eventId, name, description, startDt, endDt } = validator.validate(
       args, updateEventSchema
     );

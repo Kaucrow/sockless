@@ -6,6 +6,7 @@ export const ticketDescSchema = z.object({
   name: z.string(),
   description: z.string(),
   cost: z.coerce.number(),
+  available: z.coerce.number(),
 });
 
 export const ticketSchema = z.object({

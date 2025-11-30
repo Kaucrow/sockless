@@ -24,7 +24,8 @@ class DispatcherComponent {
   public async executeMethod<T>(
     req: Request,
     tx: number,
-    args: object
+    args: object,
+    publicOnly: boolean = false,
   ): Promise<T> {
     // Get the method call object from the TX number
     const methodCall = await db.fetchOne(
@@ -35,6 +36,12 @@ class DispatcherComponent {
 
     // If there's no matching TX number in DB, throw an error
     if (!methodCall) throw new MethodExecutionError('TxNotFound');
+
+    // If the method call should be public only and a private
+    // method is called, throw an error
+    if (publicOnly && methodCall.private) {
+      throw new MethodExecutionError('PrivateOnly');
+    }
 
     // Check if the user has permission to execute the method
     const hasMethodPermission = await security.hasMethodPermission(req, methodCall!);
