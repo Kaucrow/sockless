@@ -425,12 +425,12 @@ ticket:
   verifyPaid: |
     SELECT
       CASE 
-        WHEN COALESCE(SUM(p.amt), 0) >= td.price THEN TRUE 
+        WHEN COALESCE(SUM(p.amt), 0) >= td.cost THEN TRUE 
         ELSE FALSE
       END AS paid,
-      ABS(COALESCE(SUM(p.amt), 0) - td.price) AS difference
+      ABS(COALESCE(SUM(p.amt), 0) - td.cost) AS difference
     FROM events.ticket t
     JOIN events.ticket_desc td ON t.ticket_desc_id = td.ticket_desc_id
     LEFT JOIN finance.payment p ON t.ticket_id = p.ticket_id
     WHERE t.ticket_id = $1
-    GROUP BY t.ticket_id, td.price
+    GROUP BY t.ticket_id, td.cost
