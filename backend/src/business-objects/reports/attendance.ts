@@ -88,7 +88,7 @@ export class Attendance {
     const { eventId } = validator.validate(args, getEventAttendancesSchema);
 
     const attendances = await db.fetch(
-      queries.attendee.getAttendances,
+      queries.event.getAttendances,
       attendanceSchema,
       [eventId]
     );

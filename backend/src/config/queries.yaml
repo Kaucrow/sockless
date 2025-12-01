@@ -273,8 +273,20 @@ event:
     WHERE
       event_id = $1
   getAttendances: |
-    SELECT (user_id, attended) FROM people.attendee_event
-    WHERE event_id = $1
+    SELECT 
+      td.event_id,
+      ae.user_id,
+      ae.ticket_id,
+      td.name AS ticket_name,
+      td.cost AS ticket_cost,
+      ae.attended
+    FROM people.attendee_event ae
+    JOIN events.ticket t ON ae.ticket_id = t.ticket_id
+    JOIN events.ticket_desc td ON t.ticket_desc_id = td.ticket_desc_id
+    WHERE td.event_id = $1
+    ORDER BY
+      ae.attended ASC,
+      td.name ASC
 location:
   create: |
     INSERT INTO events.location (country, city, "name")
@@ -320,7 +332,9 @@ attendee:
     JOIN events.ticket t ON ae.ticket_id = t.ticket_id
     JOIN events.ticket_desc td ON t.ticket_desc_id = td.ticket_desc_id
     WHERE ae.user_id = $1
-    ORDER BY ae.attended ASC, td.name ASC
+    ORDER BY
+      ae.attended ASC,
+      td.name ASC
   checkIn: |
     UPDATE people.attendee_event AS ae
     SET attended = TRUE
