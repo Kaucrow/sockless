@@ -13,7 +13,11 @@ import Events from '../views/event/Events.vue'
 import Management from '../views/event/Management.vue'
 import StaffManagement from '../views/event/StaffManagement.vue'
 import Payments from '../views/finance/Payments.vue'
-import PayEvent from '../views/user/PayEvent.vue'
+import PayEvent from '../views/user/PayForEvent.vue'
+import UsersConsole from '../views/maintenance/UsersConsole.vue'
+import UserManagement from '../views/maintenance/usersManagement.vue'
+import ProfileManagement from '../views/maintenance/ProfileManagement.vue'
+import EventPayment from '../views/event/AdminPayTicket.vue'
 import { authService } from '@/services/auth'
 
 
@@ -105,6 +109,25 @@ const router = createRouter({
       path: '/events/pay',
       name: 'pay-event',
       component: PayEvent,
+    },
+    {
+      path: '/users/console',
+      name: 'user-console',
+      component: UsersConsole,
+    },
+    {
+      path: '/users/Profile-Management',
+      name: 'ProfileManagement',
+      component: ProfileManagement,
+    },
+    {
+      path: '/users/Management',
+      name: 'UserManagement',
+      component: UserManagement
+    }, {
+      path: '/events/admin/event-payment',
+      name: 'event-payment',
+      component: EventPayment,
     }
   ],
 })

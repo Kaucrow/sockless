@@ -271,7 +271,6 @@ const addTicket = async () => {
         console.log('Please enter a name for the new ticket.');
         return;
     }
-
     try {
         await toProcessService.createEventTickets({
             eventId: eventId.value,
@@ -308,6 +307,7 @@ watch(
             eventId.value = newId;
             fetchEvent(newId),
             await Promise.all([
+                fetchTickets(newId),
                 fetchEventFlyer(),
                 fetchAllLocations()
             ]);

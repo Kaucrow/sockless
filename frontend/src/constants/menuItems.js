@@ -4,10 +4,10 @@ export const ALL_NAV_ITEMS = [
     subsystem: "users", 
     items: [
       {
-        label: "User Management",
+        label: "User Console",
         icon: "pi pi-users",
-        to: "/users/management", 
-        menuItemKey: "User Management" 
+        to: "/users/console", 
+        menuItemKey: "User Console" 
       },
       {
         label: "Permissions Console",

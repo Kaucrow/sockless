@@ -30,9 +30,9 @@ export const toProcessService = {
     
     // attendance
     async getEventAttendances(args) { return this.toProcess(15, args); },
-    async registerAttendee(args) { return this.toProcess(12, args); },
-    async getUserAttendances(args) { return this.toProcess(13, args); },
     async checkInAttendee(args) { return this.toProcess(14, args); },
+    async adminGetUserAttendances(args) { return this.toProcess(13, args); },
+    async userGetUserAttendances(args) { return this.toProcess(32, args); },
 
     // staff
     async getRoles(args) { return this.toProcess(18, args); },
@@ -48,6 +48,7 @@ export const toProcessService = {
     async getPaymentMethods(args) { return this.toProcess(25, args); },
     async addPaymentMethod(args) { return this.toProcess(26, args); },
     async userPayForTicket(args) { return this.toProcess(27, args); },
+    async adminPayForTicket(args) { return this.toProcess(30, args); },
 
     // tickets
     async createEventTickets(args) { return this.toProcess(28, args); },
