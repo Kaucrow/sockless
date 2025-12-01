@@ -9,7 +9,6 @@ import {
   reservationSchema
 } from "@schemas/db/events/reservation.js";
 import { ToProcessBadReqError } from "@errors/to-process.js";
-import { inspect } from "util";
 import type { Request } from "express";
 
 @register('events')
@@ -79,7 +78,7 @@ export class Reservation {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(7, ["finance-admin"])
+  @allow(7, 'public', ["finance-admin"])
   async setEventReservation(req: Request, args: object) {
     const { eventId, locationId, cost } = validator.validate(args, setEventReservationSchema);
 
@@ -152,7 +151,7 @@ export class Reservation {
    *                  type: string
    *                  example: "User is not allowed to perform this action."
    */
-  @allow(8, ["event-admin"])
+  @allow(8, 'public', ["event-admin"])
   async getEventReservation(req: Request, args: object) {
     const { eventId } = validator.validate(args, getEventReservationSchema);
 
