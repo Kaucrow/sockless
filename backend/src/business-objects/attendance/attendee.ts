@@ -4,7 +4,7 @@ import { register, allow } from "@decorators/allow-method.decorator.js";
 import { ToProcessBadReqError } from "@errors/to-process.js";
 import type { GetUserResponse } from "@bo/users/responses.js";
 import {
-  attendanceSchema
+  userAttendanceSchema
 } from "@schemas/db/people/attendance.js";
 import {
   adminGetUserAttendancesSchema,
@@ -180,7 +180,7 @@ export class Attendee {
 
     const attendances = await db.fetch(
       queries.attendee.getAttendances,
-      attendanceSchema,
+      userAttendanceSchema,
       [userId]
     );
 

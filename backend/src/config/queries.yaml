@@ -279,10 +279,14 @@ event:
       ae.ticket_id,
       td.name AS ticket_name,
       td.cost AS ticket_cost,
-      ae.attended
+      ae.attended,
+      u.name AS user_name,
+      u.surname AS user_surname,
+      u.email AS user_email
     FROM people.attendee_event ae
     JOIN events.ticket t ON ae.ticket_id = t.ticket_id
     JOIN events.ticket_desc td ON t.ticket_desc_id = td.ticket_desc_id
+    JOIN security.user u ON ae.user_id = u.user_id
     WHERE td.event_id = $1
     ORDER BY
       ae.attended ASC,
