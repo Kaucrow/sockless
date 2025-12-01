@@ -2,7 +2,7 @@ import { validator, db } from "@components/index.js";
 import { queries } from "@global/constants.js";
 import { register, allow } from "@decorators/allow-method.decorator.js";
 import {
-  attendanceSchema
+  eventAttendanceSchema
 } from "@schemas/db/people/attendance.js";
 import {
   getEventAttendancesSchema
@@ -72,6 +72,15 @@ export class Attendance {
    *                  attended:
    *                    type: boolean
    *                    example: false
+   *                  userName:
+   *                    type: string
+   *                    example: "Maya"
+   *                  userSurname:
+   *                    type: string
+   *                    example: "Fey"
+   *                  userEmail:
+   *                    type: string
+   *                    example: "user2@example.com"
    *      403:
    *        description: User is not logged in or doesn't have permission to execute this method.
    *        content:
@@ -89,7 +98,7 @@ export class Attendance {
 
     const attendances = await db.fetch(
       queries.event.getAttendances,
-      attendanceSchema,
+      eventAttendanceSchema,
       [eventId]
     );
 
