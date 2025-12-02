@@ -3,12 +3,12 @@ export const ALL_NAV_ITEMS = [
     label: "USERS & ADMINISTRATION",
     subsystem: "users", 
     items: [
-      {
-        label: "User Console",
-        icon: "pi pi-users",
-        to: "/users/console", 
-        menuItemKey: "User Console" 
-      },
+      // {
+      //   label: "User Console",
+      //   icon: "pi pi-users",
+      //   to: "/users/console", 
+      //   menuItemKey: "User Console" 
+      // },
       {
         label: "Permissions Console",
         icon: "pi pi-shield",
@@ -68,6 +68,12 @@ export const ALL_NAV_ITEMS = [
         icon: "pi pi-calendar",
         to: "/events",
         menuItemKey: "events"
+      },
+      {
+        label: "Event Payment",
+        icon: "pi pi-credit-card",
+        to: "/events/admin/event-payment",
+        menuItemKey: "Event Payment"
       }
     ]
   },

@@ -33,6 +33,14 @@ const currentPageName = computed(() => {
     'method-management' : 'Admin Panel',
     'permission-console' : 'Admin Panel',
     'event-assistance' : 'Event Assistance',
+    'event-payment' : 'Event Payment',
+    'events': 'Events',
+    'event-assistance': 'Event Assistance',
+    'event-management': 'Event Management',
+    'pay-event': 'Event Payment',
+    'payments-management': 'Finances',
+    'staff-management': 'Staff & Roles Management',
+
   };
   
   return nameMap[routeName] || routeName.charAt(0).toUpperCase() + routeName.slice(1);
@@ -76,14 +84,6 @@ const menuItems = computed(() => [
     command: toggleDarkMode,
   },
   {
-    separator: true
-  },
-  {
-    label: 'Settings',
-    icon: 'pi pi-cog',
-    command: () => router.push('/settings')
-  },
-  { 
     separator: true
   },
   {

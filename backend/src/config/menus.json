@@ -9,14 +9,32 @@
             "profiles": ["event-admin", "finance-admin"]
         },
         {
-            "name": "staff management",
-            "profiles": ["event-admin"]
+            "name": "Event Payment",
+            "profiles": ["finance-admin", "event-admin"]
         }
     ],
     "users": [
         {
             "name": "Permissions Console",
             "profiles": ["event-admin", "admin"]
+        },
+        {
+            "name": "Pay For Event",
+            "profiles": ["user"]
+        },
+        {
+            "name": "User Console",
+            "profiles": ["admin"]
+        }
+    ],
+    "staff": [
+        {
+            "name": "Staff Management",
+            "profiles": ["event-admin"]
+        },
+        {
+            "name": "Payments",
+            "profiles": ["finance-admin"]
         }
     ]
 }
