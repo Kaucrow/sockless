@@ -52,6 +52,28 @@ const onEventChange = () => {
     fetchAttendance();
 }
 
+
+const checkAttendance = async (item) => {
+    if (!item) return;
+    const email = item.userEmail || item.userEmail || item.user_email || item.email;
+    const eventId = item.eventId || item.event_id || selectedEventId.value;
+    if (!email || !eventId) {
+        console.error('Check-in failed: Missing email or eventId');
+        return;
+    }
+
+    try {
+        await toProcessService.checkInAttendee({ email, eventId });
+        const idx = assistanceList.value.findIndex(a => (a.ticketId && a.ticketId === item.ticketId) || (a.userId && a.userId === item.userId) || (a.userEmail && a.userEmail === item.userEmail));
+        if (idx !== -1) {
+            assistanceList.value[idx] = { ...assistanceList.value[idx], attended: true };
+        }
+        console.log(`Checked in: ${email} marked as attended`);
+    } catch (err) {
+        console.error('Error checking attendance: ', err);
+    }
+}
+
 onMounted(async () => {
     await fetchAttendance();
     await fetchEvent(selectedEventId.value);
@@ -93,7 +115,7 @@ watch(
                 @change="onEventChange"
             />  -->
         </div>
-        <div class="flex items-center justify-between">
+        <!-- <div class="flex items-center justify-between">
             <Card class="mb-4 ">
                 <template #content>
                     <h3 class="m-0">Checked-In: </h3>
@@ -109,17 +131,31 @@ watch(
                     <h3 class="m-0">Pending Check-In: </h3>
                 </template>
             </Card>
-        </div>
+        </div> -->
         <DataTable
             :value="assistanceList"
             :sort-order="1"
             table-style="min-width: 50rem"
             striped-rows
         >
-            <Column field="userId" header="Employee Name"></Column>
-            <Column field="attended" header="Attended">
+            <Column field="userName" header="User Name"></Column>
+            <!-- <Column field="attended" header="Attended">
                 <template #body="slotProps">
                     <Checkbox :model-value="slotProps.data.attended" disabled/>
+                </template>
+            </Column> -->
+            <Column field="userSurname" header="User Surname"></Column>
+            <Column field="userEmail" header="User Email"></Column>
+
+            <Column header="Attendance Status">
+                <template #body="slotProps">
+                    <Button
+                        :label="slotProps.data.attended ? 'Checked' : 'Check In'"
+                        class="p-button-sm"
+                        :class="slotProps.data.attended ? 'p-button-success' : 'p-button-secondary'"
+                        :disabled="slotProps.data.attended"
+                        @click="() => checkAttendance(slotProps.data)"
+                    />
                 </template>
             </Column>
 
