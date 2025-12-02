@@ -172,7 +172,7 @@ const submitPayment = async () => {
 
                 <div v-else class="p-fluid">
                     <div v-if="paymentResult" class="mb-4 text-green-700">
-                        Payment successful.
+                        <h3 class="text-xl font-semibold mb-2">Payment Successful!</h3>
                         <span v-if="paymentResult.difference !== undefined"> Difference: {{ paymentResult.difference }}</span>
                     </div>
 
@@ -199,7 +199,7 @@ const submitPayment = async () => {
                         <label for="paymentMethod" class="font-bold block mb-2">Payment Method</label>
                         <Select id="paymentMethod" v-model="selectedPaymentMethod" :options="paymentMethods"
                             optionLabel="name" placeholder="Select Payment Method" class="w-full" :disabled="isLoading || !selectedTicketForPayment"
-                            :filter="true" />
+                        />
                     </div>
 
                     <div class="field mb-4">
