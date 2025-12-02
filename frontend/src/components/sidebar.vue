@@ -6,7 +6,7 @@ import SideBarNavItem from "./SideBarNavItem.vue";
 const props = defineProps({
   visible: {
     type: Boolean,
-    default: false
+    default: true
   },
   navItems: {
     type: Array,
