@@ -141,7 +141,7 @@ const submitPayment = async () => {
 
         console.log('Submitting payment args:', args);
 
-        const response = await toProcessService.userPayForTicket(args);
+        const response = await toProcessService.adminPayForTicket(args);
         paymentResult.value = response;
 
         selectedEvent.value = null;
