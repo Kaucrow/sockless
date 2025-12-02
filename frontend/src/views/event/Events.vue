@@ -165,7 +165,6 @@ onMounted(() => {
                     showClear 
                     variant="filled" 
                     showIcon 
-                    show-seconds 
                     fluid
                 />
                 <DatePicker 
@@ -177,7 +176,6 @@ onMounted(() => {
                     showClear 
                     variant="filled" 
                     showIcon 
-                    show-seconds 
                     fluid
                 />
                 <InputText placeholder="Description" class="w-full" v-model="newEvent.description" />
@@ -199,7 +197,6 @@ onMounted(() => {
                         showClear 
                         variant="filled" 
                         showIcon 
-                        show-seconds 
                         fluid
                     />
                     <DatePicker 
@@ -211,7 +208,6 @@ onMounted(() => {
                         showClear 
                         variant="filled" 
                         showIcon 
-                        show-seconds 
                         fluid
                     />
                     <InputText placeholder="Description" class="w-full" v-model="editingEvent.description" />
