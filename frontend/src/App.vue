@@ -4,15 +4,14 @@ import { useRoute } from 'vue-router';
 import Navbar from './components/Navbar.vue';
 import Sidebar from './components/sidebar.vue';
 import AuthThemeSwitch from './components/ThemeSwitcher.vue';
-import { appStore } from './stores/appStore';
-
+import { useUserStore } from '@/stores/user';
 import { ALL_NAV_ITEMS } from './constants/menuItems';
 
+const userStore = useUserStore();
 const route = useRoute();
 const sidebarVisible = ref(false);
-const userProfiles = computed(() => appStore.state.userProfiles);
-const menuPermissions = computed(() => appStore.state.menuPermissions);
-const isLoadingMenuData = computed(() => appStore.state.isLoadingAppData);
+const menuPermissions = computed(() => userStore.menuPermissions);
+const isLoadingMenuData = computed(() => userStore.isLoadingAppData);
 
 const toggleSidebar = () => {
   sidebarVisible.value = !sidebarVisible.value;
@@ -67,9 +66,13 @@ const filteredNavItems = computed(() => {
 });
 	
 onMounted(async () => {
-  if (!isAuthLayout.value &&  appStore.state.menuPermissions === null) {
+  if (!isAuthLayout.value) {
+    await userStore.initializeUser();
+  }
+  
+  if (!isAuthLayout.value && userStore.menuPermissions === null) {
 	console.log('App.vue mounted: Fetching app data...');
-	await appStore.fetchAppData();
+	await userStore.fetchAppData();
   } else if (isAuthLayout.value) {
 	console.log('App.vue mounted: Auth layout, no app data fetch needed.');
   } else {

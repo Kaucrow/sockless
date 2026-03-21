@@ -1,11 +1,11 @@
-import { queries } from "@const/constants.js";
+import { queries } from "@global/constants.js";
 import { methodDataSchema } from "@schemas/db/index.js";
-import { toProcessSchema } from "@schemas/dispatcher.js";
+import { MethodExecutionError } from "@errors/dispatcher.js";
 import type { Request } from "express";
 import { security, db, logger } from "@components/index.js";
+import { pascalToKebab } from "@global/utils.js";
 import { toPascal } from "ts-case-convert";
 
-type ExecutionError = 'TxNotFound' | 'PermissionDenied';
 type BusinessObjectInstance = any;
 
 class DispatcherComponent {
@@ -21,9 +21,12 @@ class DispatcherComponent {
     return DispatcherComponent.#instance;
   }
 
-  public async executeMethod(req: Request): Promise<any | ExecutionError> {
-    const { tx, args } = toProcessSchema.parse(req.body);
-
+  public async executeMethod<T>(
+    req: Request,
+    tx: number,
+    args: object,
+    publicOnly: boolean = false,
+  ): Promise<T> {
     // Get the method call object from the TX number
     const methodCall = await db.fetchOne(
       queries.tx.getMethodCall,
@@ -32,13 +35,19 @@ class DispatcherComponent {
     );
 
     // If there's no matching TX number in DB, throw an error
-    if (!methodCall) return 'TxNotFound';
+    if (!methodCall) throw new MethodExecutionError('TxNotFound');
+
+    // If the method call should be public only and a private
+    // method is called, throw an error
+    if (publicOnly && methodCall.private) {
+      throw new MethodExecutionError('PrivateOnly');
+    }
 
     // Check if the user has permission to execute the method
     const hasMethodPermission = await security.hasMethodPermission(req, methodCall!);
 
     // If they don't, throw an error
-    if (!hasMethodPermission) return 'PermissionDenied';
+    if (!hasMethodPermission) throw new MethodExecutionError('PermissionDenied');
 
     const { subsystem, class: className, method } = methodCall;
 
@@ -50,7 +59,7 @@ class DispatcherComponent {
     // If the method ref is of type function, execute it.
     // Otherwise, throw an error
     if (typeof methodRef === 'function') {
-      const result = await methodRef.call(instance, args);
+      const result = await methodRef.call(instance, req, args);
       return result;
     } else {
       const targetClassName = toPascal(className);
@@ -71,7 +80,7 @@ class DispatcherComponent {
       // The module should have the same name as the target class, except the
       // module should be written in snake case and the target class should
       // be written in pascal case
-      const modulePath = `@/business-objects/${subsystem}/${className}.js`;
+      const modulePath = `@/business-objects/${subsystem}/${pascalToKebab(className)}.js`;
       const module = await import(modulePath);
 
       // Get the class

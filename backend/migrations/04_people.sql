@@ -6,23 +6,14 @@ CREATE TABLE IF NOT EXISTS people.staff (
     FOREIGN KEY (user_id) REFERENCES security.user(user_id)
 );
 
---- Table: people.attendee
-CREATE TABLE IF NOT EXISTS people.attendee (
-    attendee_ci INT PRIMARY KEY,
-    user_id UUID UNIQUE NOT NULL,
-    "name" VARCHAR(100) NOT NULL,
-    surname VARCHAR(100),
-    FOREIGN KEY (user_id) REFERENCES people.attendee(user_id)
-);
-
 --- Table: people.attendee_event
 CREATE TABLE IF NOT EXISTS people.attendee_event (
-    attendee_ci INTEGER NOT NULL,
-    event_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    ticket_id UUID NOT NULL,
     attended BOOLEAN NOT NULL DEFAULT FALSE,
-    PRIMARY KEY (attendee_ci, event_id),
-    FOREIGN KEY (attendee_ci) REFERENCES people.attendee(attendee_ci),
-    FOREIGN KEY (event_id) REFERENCES events.event(event_id)
+    UNIQUE (user_id, ticket_id),
+    FOREIGN KEY (ticket_id) REFERENCES events.ticket(ticket_id),
+    FOREIGN KEY (user_id) REFERENCES security.user(user_id)
 );
 
 --- Table: people.staff_role
@@ -38,7 +29,7 @@ CREATE TABLE IF NOT EXISTS people.staff_event (
     event_id UUID NOT NULL,
     staff_role_id UUID NOT NULL,
     cost_amt DECIMAL(10, 2) NOT NULL,
-    PRIMARY KEY (staff_id, event_id),
+    UNIQUE (staff_id, event_id, staff_role_id),
     FOREIGN KEY (staff_id) REFERENCES people.staff(user_id),
     FOREIGN KEY (event_id) REFERENCES events.event(event_id),
     FOREIGN KEY (staff_role_id) REFERENCES people.staff_role(staff_role_id)

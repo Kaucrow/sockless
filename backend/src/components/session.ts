@@ -10,7 +10,7 @@ import cookieParser from 'cookie-parser';
 import type { UUID } from '@/types/global.js';
 import type { Session } from '@/types/session.js';
 import { logger } from './logger.js';
-import { session as sessionFileConfig } from '@const/constants.js';
+import { session as sessionFileConfig } from '@global/constants.js';
 
 class SessionComponent {
   static #instance: SessionComponent;

@@ -47,12 +47,14 @@
     "baseUrl": "./src",
     "paths": {
         "@routes/*": ["./routes/*"],
-        "@const/*": ["./constants/*"],
         "@config/*": ["./config/*"],
         "@global/*": ["./global/*"],
         "@schemas/*": ["./schemas/*"],
         "@errors/*": ["./errors/*"],
         "@components/*": ["./components/*"],
+        "@decorators/*": ["./decorators/*"],
+        "@services/*": ["./services/*"],
+        "@bo/*": ["./business-objects/*"],
         "@/*": ["./*"]
     },
   }

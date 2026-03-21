@@ -3,12 +3,12 @@ export const ALL_NAV_ITEMS = [
     label: "USERS & ADMINISTRATION",
     subsystem: "users", 
     items: [
-      {
-        label: "User Management",
-        icon: "pi pi-users",
-        to: "/users/management", 
-        menuItemKey: "User Management" 
-      },
+      // {
+      //   label: "User Console",
+      //   icon: "pi pi-users",
+      //   to: "/users/console", 
+      //   menuItemKey: "User Console" 
+      // },
       {
         label: "Permissions Console",
         icon: "pi pi-shield",
@@ -39,6 +39,12 @@ export const ALL_NAV_ITEMS = [
         to: "/billing/invoices",
         menuItemKey: "View Invoices" 
       },
+      {
+        label: "Payments",
+        icon: "pi pi-credit-card", 
+        to: "/finance/payment",
+        menuItemKey: "Payments"
+      }
     ],
   },
   {
@@ -53,4 +59,46 @@ export const ALL_NAV_ITEMS = [
       },
     ],
   },
+  {
+    label: "EVENT MANAGEMENT",
+    subsystem: "events",
+    items: [
+      {
+        label: "Events",
+        icon: "pi pi-calendar",
+        to: "/events",
+        menuItemKey: "events"
+      },
+      {
+        label: "Event Payment",
+        icon: "pi pi-credit-card",
+        to: "/events/admin/event-payment",
+        menuItemKey: "Event Payment"
+      }
+    ]
+  },
+  {
+    label: "STAFF MANAGEMENT",
+    subsystem: "staff",
+    items: [
+      {
+        label: "Staff Management",
+        icon: "pi pi-users",
+        to: "/events/staff",
+        menuItemKey: "Staff Management"
+      }
+    ]
+  }, 
+  {
+    label: "EVENTS",
+    subsystem: "events",
+    items: [
+      {
+        label: "Pay For Event",
+        icon: "pi pi-credit-card",
+        to: "/events/pay",
+        menuItemKey: "Pay For Event"
+      }
+    ]
+  }
 ];

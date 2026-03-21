@@ -115,5 +115,54 @@ export const maintenanceService = {
             console.error('Error fetching user profiles:', error.response ? error.response.data : error.message);
             throw error;
         }
+    },
+
+    async changeProfileName(oldName, newName) {
+        try {
+            const response = await api.put(`/maintenance/profiles/${oldName}`, {
+                newName: newName
+            });
+            console.log(`Profile name changed from ${oldName} to ${newName}`);
+            return response.data;   
+        } catch (error) {
+            console.error('Error changing profile name:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }, 
+    
+    async deleteProfile(profileName) {
+        try {
+            await api.delete(`/maintenance/profiles/${profileName}`);
+            console.log(`Profile ${profileName} deleted successfully.`);
+        } catch (error) {
+            console.error('Error deleting profile:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    },
+
+    async addProfileToUser(profileName, email) {
+        try {
+            await api.post(`/maintenance/user/profiles/${profileName}`, {
+                email: email
+            });
+            console.log(`Profile ${profileName} added to user ${email}`);
+        } catch (error) {
+            console.error('Error adding profile to user:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    },
+
+    async removeProfileFromUser(profileName, email) {
+        try {
+            await api.delete(`/maintenance/user/profiles/${profileName}`, {
+                data: {
+                    email: email
+                }
+            });
+            console.log(`Profile ${profileName} removed from user ${email}`);
+        } catch (error) {
+            console.error('Error removing profile from user:', error.response ? error.response.data : error.message);
+            throw error;
+        }
     }
 }

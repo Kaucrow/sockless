@@ -1,21 +1,17 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import Avatar from 'primevue/avatar';
 import Menu from 'primevue/menu';
 import { useLayout } from '../composables/useLayout';
 import { authService } from '@/services/auth';
+import { useUserStore } from '@/stores/user';
 
 const {isDarkMode, toggleDarkMode} = useLayout();
 
 const route = useRoute();
 const router = useRouter();
-
-// User state we will get this from the backend - maybe not?
-const user = ref({
-  name: 'John Doe',
-  email: 'john.doe@example.com'
-});
+const userStore = useUserStore();
 
 
 const menu = ref();
@@ -35,7 +31,16 @@ const currentPageName = computed(() => {
     'settings': 'Settings',
     'menu-management' : 'Admin Panel',
     'method-management' : 'Admin Panel',
-    'permission-console' : 'Admin Panel'
+    'permission-console' : 'Admin Panel',
+    'event-assistance' : 'Event Assistance',
+    'event-payment' : 'Event Payment',
+    'events': 'Events',
+    'event-assistance': 'Event Assistance',
+    'event-management': 'Event Management',
+    'pay-event': 'Event Payment',
+    'payments-management': 'Finances',
+    'staff-management': 'Staff & Roles Management',
+
   };
   
   return nameMap[routeName] || routeName.charAt(0).toUpperCase() + routeName.slice(1);
@@ -54,13 +59,9 @@ const handleLogout = async () => {
 };
 
 // Get user initials for avatar
-const userInitials = computed(() => {
-  return user.value.name
-    .split(' ')
-    .map(name => name.charAt(0))
-    .join('')
-    .toUpperCase();
-});
+const userInitials = computed(() => userStore.userInitials);
+
+const userDisplayName = computed(() => userStore.fullName || userStore.email || "Account");
 
 // Toggle menu
 const toggleMenu = (event) => {
@@ -69,7 +70,7 @@ const toggleMenu = (event) => {
 
 const menuItems = computed(() => [
   {
-    label: user.value.name,
+    label: userDisplayName.value,
     icon: 'pi pi-user',
     disabled: true,
     class: 'user-name-item'
@@ -86,20 +87,18 @@ const menuItems = computed(() => [
     separator: true
   },
   {
-    label: 'Settings',
-    icon: 'pi pi-cog',
-    command: () => router.push('/settings')
-  },
-  { 
-    separator: true
-  },
-  {
     label: 'Logout',
     icon: 'pi pi-sign-out',
-    command: handleLogout,
+    command: userStore.logout,
     class: 'logout-item'
   }
 ]);
+
+onMounted(async () => {
+  if (authService.isAuthenticated() && !userStore.name) {
+    await userStore.fetchUserProfile();
+  }
+})
 </script>
 
 <template>

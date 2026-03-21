@@ -48,27 +48,31 @@ CREATE TABLE IF NOT EXISTS security.menu (
 
 --- Table: security.tx
 CREATE TABLE IF NOT EXISTS security.tx (
-    tx_id SERIAL PRIMARY KEY,
+    tx_id INT PRIMARY KEY,
     subsystem VARCHAR(50) NOT NULL,
     class VARCHAR(50) NOT NULL,
     method VARCHAR(50) NOT NULL,
+    "private" BOOLEAN NOT NULL,
     UNIQUE (subsystem, class, method)
 );
 
 --- Table: security.user_profile
 CREATE TABLE IF NOT EXISTS security.user_profile (
     user_id UUID NOT NULL REFERENCES security.user(user_id),
-    profile_id UUID NOT NULL REFERENCES security.profile(profile_id)
+    profile_id UUID NOT NULL REFERENCES security.profile(profile_id),
+    UNIQUE (user_id, profile_id)
 );
 
 --- Table: security.method_profile
 CREATE TABLE IF NOT EXISTS security.method_profile (
     method_id UUID NOT NULL REFERENCES security.method(method_id),
-    profile_id UUID NOT NULL REFERENCES security.profile(profile_id)
+    profile_id UUID NOT NULL REFERENCES security.profile(profile_id),
+    UNIQUE (method_id, profile_id)
 );
 
 --- Table: security.menu_profile
 CREATE TABLE IF NOT EXISTS security.menu_profile (
     menu_id UUID NOT NULL REFERENCES security.menu(menu_id),
-    profile_id UUID NOT NULL REFERENCES security.profile(profile_id)
+    profile_id UUID NOT NULL REFERENCES security.profile(profile_id),
+    UNIQUE (menu_id, profile_id)
 );

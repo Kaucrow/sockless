@@ -7,7 +7,8 @@ ON CONFLICT (email) DO NOTHING;
 
 -- Profiles
 INSERT INTO security.profile ("name") VALUES
-    ('event-admin')
+    ('event-admin'),
+    ('finance-admin')
 ON CONFLICT ("name") DO NOTHING;
 
 -- Assign profiles to users
@@ -15,7 +16,8 @@ INSERT INTO security.user_profile (user_id, profile_id)
     SELECT u.user_id, p.profile_id 
     FROM security.user u, security.profile p 
     WHERE (u.email, p.name) IN (
-        ('user1@example.com', 'event-admin')
+        ('user1@example.com', 'event-admin'),
+        ('user1@example.com', 'finance-admin')
     )
 ON CONFLICT DO NOTHING;
 
@@ -47,19 +49,24 @@ INSERT INTO security.method (class_id, "name")
 ON CONFLICT (class_id, "name") DO NOTHING;
 
 -- Insert all unique Subsystem, Class, and Method combinations 
--- from the existing security tables into the tx table
-INSERT INTO security.tx (subsystem, class, method)
-SELECT DISTINCT
+-- from the existing security tables into the tx table with next available tx values
+INSERT INTO security.tx (tx_id, subsystem, class, method, "private")
+SELECT 
+    COALESCE((SELECT MAX(tx_id) FROM security.tx), 0) + ROW_NUMBER() OVER (ORDER BY s.name, c.name, m.name) AS tx,
     s.name AS subsystem,
     c.name AS class,
-    m.name AS method
+    m.name AS method,
+    FALSE
 FROM
     security.subsystem AS s
 JOIN
     security.class AS c ON s.subsystem_id = c.subsystem_id
 JOIN
     security.method AS m ON c.class_id = m.class_id
-ON CONFLICT (subsystem, class, method) DO NOTHING;
+WHERE NOT EXISTS (
+    SELECT 1 FROM security.tx t 
+    WHERE t.subsystem = s.name AND t.class = c.name AND t.method = m.name
+);
 
 -- Menu Items
 INSERT INTO security.menu (subsystem_id, "name")

@@ -4,8 +4,8 @@ export const authService = {
     async login(email, password) {
         try {
             const response = await api.post('/auth/login', { email, password });
-            if (response.data.token) {
-                localStorage.setItem('token', response.data.token);
+            if (response && response.data) {
+                localStorage.setItem('isLoggedIn', '1');
             }
             return response.data;
 
@@ -20,18 +20,17 @@ export const authService = {
         } catch (error) {
             console.error('Logout error:', error);
         } finally {
-            localStorage.removeItem('token');
+            localStorage.removeItem('isLoggedIn');
             //localStorage.removeItem('user');
         }
     },
 
     isAuthenticated() {
-        const token = localStorage.getItem('token');
-        return !!token && token !== 'null' && token !== 'undefined';
+        return localStorage.getItem('isLoggedIn') === '1';
     },
 
     getToken() {
-        return localStorage.getItem('token');
+        return null; 
     },
 
     async forgotPassword(email) {

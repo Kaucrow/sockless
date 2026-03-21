@@ -8,6 +8,8 @@
 | getAllEvents() | all admins
 | getEvent() | all admins
 | updateEvent() | event-admin
+| createLocation() | finance-admin |
+| getAllLocations() | finance-admin |
 | setEventReservation() | finance-admin
 | getEventReservation() | all admins
 | setEventFlyer() | event-admin
